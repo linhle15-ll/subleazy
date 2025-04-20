@@ -1,7 +1,7 @@
-const express = require("express");
-const cors = require("cors");
-const { readdirSync } = require("fs");
-const path = require("path");
+const express = require('express');
+const cors = require('cors');
+const { readdirSync } = require('fs');
+const path = require('path');
 
 const app = express();
 
@@ -13,18 +13,18 @@ app.use(express.json());
 app.use(cors());
 
 // Connect to MongoDB
-const db = require("../src/db/db.js");
+const db = require('../src/db/db.js');
 db();
 
 // Routes - Read all the routes in directory routes
-readdirSync(path.join(__dirname, "../src/routes")).map((route) => {
-  app.use("/api", require(path.join(__dirname, "../src/routes", route)));
+readdirSync(path.join(__dirname, '../src/routes')).map((route) => {
+  app.use('/api', require(path.join(__dirname, '../src/routes', route)));
 });
 
 // Basic Error Handling Middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send("Something broke!");
+  res.status(500).send('Something broke!');
 });
 
 module.exports = app;
