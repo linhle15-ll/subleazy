@@ -29,19 +29,15 @@ const houseSchema = new Schema({
     type: Number,
     required: true,
   },
-  // Additional generic/static information of the house (beds, baths, amenities, etc.)
-  beds: {
-    type: Number,
-    required: true,
-  },
-  baths: {
-    type: Number,
-    required: true,
-  },
-  amenities: {
-    type: [String],
-    // required: true,
-  },
+  // Thís will be fetched by us from external API or something
+  // amenities: {
+  //   type: [String],
+  //   // required: true,
+  // },
 });
+
+// Map display is auto => pin by house location => search by house first
+houseSchema.index({ city: 1, state: 1 });
+houseSchema.index({ zip: 1 });
 
 export default model('House', houseSchema);

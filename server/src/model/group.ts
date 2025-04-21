@@ -1,14 +1,17 @@
 import { Schema, model } from 'mongoose';
 
-const groupSchema = new Schema({
-  name: {
-    type: String,
-    trim: true,
+const groupSchema = new Schema(
+  {
+    name: {
+      type: String,
+      trim: true,
+    },
+    isDM: {
+      type: Boolean,
+      default: false,
+    },
   },
-  isDM: {
-    type: Boolean,
-    default: false,
-  },
-}, {timestamps: true,});
+  { timestamps: true },
+);
 
 export default model('Group', groupSchema);
