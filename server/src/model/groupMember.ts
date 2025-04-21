@@ -11,6 +11,9 @@ const groupMemberSchema = new Schema({
     ref: 'Group',
     required: true,
   },
-});
+}, { timestamps: true });
+
+// Prevent same user joining the same group twice
+groupMemberSchema.index({ user: 1, group: 1 }, { unique: true });
 
 export default model('GroupMember', groupMemberSchema);

@@ -9,6 +9,6 @@ const groupSchema = new Schema({
     type: Boolean,
     default: false,
   },
-});
+}, {timestamps: true,});
 
 export default model('Group', groupSchema);

@@ -24,6 +24,32 @@ const postSchema = new Schema(
       ref: 'House',
       required: true,
     },
+    status: {
+      type: String,
+      enum: ['active', 'pending', 'closed'],
+      default: 'active',
+    },
+    startDate: {
+      type: Date,
+      required: true,
+    },
+    endDate: {
+      type: Date,
+      required: true,
+    },
+    rentFee: {
+      type: Number,
+      required: true,
+    },
+    // Optional field for additional fees
+    utilitiesFee: {
+      type: Number,
+      required: true,
+    },
+    securityDeposit: {
+      type: Number,
+      required: true,
+    },
     // Additional unique/dynamic information of the room(s)
   },
   { timestamps: true },
