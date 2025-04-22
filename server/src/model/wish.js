@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+const { Schema, model } = require('mongoose');
 
 const wishSchema = new Schema(
   {
@@ -19,4 +19,4 @@ const wishSchema = new Schema(
 // Prevent same user wishing the same post twice
 wishSchema.index({ user: 1, post: 1 }, { unique: true });
 
-export default model('Wish', wishSchema);
+module.exports = model('Wish', wishSchema);

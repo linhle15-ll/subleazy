@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+const { Schema, model } = require('mongoose');
 
 const groupMemberSchema = new Schema(
   {
@@ -19,4 +19,4 @@ const groupMemberSchema = new Schema(
 // Prevent same user joining the same group twice
 groupMemberSchema.index({ user: 1, group: 1 }, { unique: true });
 
-export default model('GroupMember', groupMemberSchema);
+module.exports = model('GroupMember', groupMemberSchema);

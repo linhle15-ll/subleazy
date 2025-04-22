@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+const { Schema, model } = require('mongoose');
 
 const houseSchema = new Schema({
   address: {
@@ -40,4 +40,4 @@ const houseSchema = new Schema({
 houseSchema.index({ city: 1, state: 1 });
 houseSchema.index({ zip: 1 });
 
-export default model('House', houseSchema);
+module.exports = model('House', houseSchema);

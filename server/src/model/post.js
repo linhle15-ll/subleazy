@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+const { Schema, model } = require('mongoose');
 
 const postSchema = new Schema(
   {
@@ -97,38 +97,86 @@ const postSchema = new Schema(
     whoElse: [
       {
         type: String,
-        enum: ['me', 'family', 'guests', 'roommates'],
+        enum: ['me', 'family', 'guests', 'roommates']
       },
     ],
     amenities: {
-      wifi: Boolean,
-      kitchen: Boolean,
-      laundry: Boolean,
-      parking: Boolean,
-      airConditioner: Boolean,
+      wifi: {
+        type: Boolean,
+        default: false,
+      },
+      kitchen: {
+        type: Boolean,
+        default: false,
+      },
+      laundry: {
+        type: Boolean,
+        default: false,
+      },
+      parking: {
+        type: Boolean,
+        default: false,
+      },
+      airConditioning: {
+        type: Boolean,
+        default: false,
+      },
     },
     convenience: {
-      publicTransport: Boolean,
-      supermarket: Boolean,
-      disabilityFriendly: Boolean,
+      publicTransport: {
+        type: Boolean,
+        default: false,
+      },
+      supermarket: {
+        type: Boolean,
+        default: false,
+      },
+      disabilityFriendly: {
+        type: Boolean,
+        default: false,
+      },
     },
     price: {
       type: Number,
       required: true,
     },
     rules: {
-      guest: Boolean,
-      party: Boolean,
-      loudMusic: Boolean,
+      guest: {
+        type: Boolean,
+        default: false,
+      },
+      party: {
+        type: Boolean,
+        default: false,
+      },
+      loudMusic: {
+        type: Boolean,
+        default: false,
+      },
       quietHours: {
         from: String,
         to: String,
       },
-      smoking: Boolean,
-      alcohol: Boolean,
-      drug: Boolean,
-      pet: Boolean,
-      children: Boolean,
+      smoking: {
+        type: Boolean,
+        default: false,
+      },
+      alcohol: {
+        type: Boolean,
+        default: false,
+      },
+      drug: {
+        type: Boolean,
+        default: false,
+      },
+      pet: {
+        type: Boolean,
+        default: false,
+      },
+      children: {
+        type: Boolean,
+        default: false,
+      },
     },
     availability: {
       startDate: {
@@ -139,14 +187,8 @@ const postSchema = new Schema(
         type: Date,
         required: true,
       },
-      checkinTime: {
-        type: String,
-        required: true,
-      },
-      checkoutTime: {
-        type: String,
-        required: true,
-      },
+      checkinTime: String,
+      checkoutTime: String,
     },
     status: {
       type: String,
@@ -158,7 +200,8 @@ const postSchema = new Schema(
 );
 
 // Map display is optional => search by post first
+postSchema.index({ createdAt: -1 });
 postSchema.index({ city: 1, state: 1 });
 postSchema.index({ zip: 1 });
 
-export default model('Post', postSchema);
+module.exports = model('Post', postSchema);

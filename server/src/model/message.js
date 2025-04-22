@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+const { Schema, model } = require('mongoose');
 
 const messageSchema = new Schema(
   {
@@ -21,4 +21,6 @@ const messageSchema = new Schema(
   { timestamps: true },
 );
 
-export default model('Message', messageSchema);
+messageSchema.index({ group: 1, createdAt: -1 });
+
+module.exports = model('Message', messageSchema);
