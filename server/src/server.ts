@@ -1,7 +1,7 @@
 // Import required modules
 import http from 'http';
 import dotenv from 'dotenv';
-// Load environment variables (Jote: dotenv.config() must be top of the file to be activated correctly)
+// Load environment variables (Note: dotenv.config() must be top of the file to be activated correctly)
 dotenv.config();
 
 import app from './app';
