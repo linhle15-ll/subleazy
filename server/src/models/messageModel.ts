@@ -1,5 +1,5 @@
-import { Schema, model } from "mongoose";
-import {Message} from "../types/messageType"
+import { Schema, model } from 'mongoose';
+import { Message } from '../types/messageType';
 
 const messageSchema = new Schema<Message>(
   {
@@ -19,7 +19,7 @@ const messageSchema = new Schema<Message>(
       required: true,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 messageSchema.index({ group: 1, createdAt: -1 });

@@ -1,6 +1,6 @@
-import { Schema, model } from "mongoose";
-import { HouseType, PlaceType, PostStatus, WhoElse } from "../types/enums";
-import { Post } from "../types/postType";
+import { Schema, model } from 'mongoose';
+import { HouseType, PlaceType, PostStatus, WhoElse } from '../types/enums';
+import { Post } from '../types/postType';
 
 const postSchema = new Schema<Post>(
   {
@@ -99,7 +99,7 @@ const postSchema = new Schema<Post>(
     whoElse: [
       {
         type: String,
-        enum: Object.values(WhoElse)
+        enum: Object.values(WhoElse),
       },
     ],
     amenities: {
@@ -198,7 +198,7 @@ const postSchema = new Schema<Post>(
       default: PostStatus.ACTIVE,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 // Map display is optional => search by post first

@@ -1,20 +1,18 @@
-import { Schema, model } from "mongoose";
-import { GroupMember } from "../types/groupMemberType";
+import { Schema, model } from 'mongoose';
+import { GroupMember } from '../types/groupMemberType';
 
-const groupMemberSchema = new Schema<GroupMember>(
-  {
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    },
-    group: {
-      type: Schema.Types.ObjectId,
-      ref: 'Group',
-      required: true,
-    },
-  }
-);
+const groupMemberSchema = new Schema<GroupMember>({
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
+  group: {
+    type: Schema.Types.ObjectId,
+    ref: 'Group',
+    required: true,
+  },
+});
 
 // Prevent same user joining the same group twice
 groupMemberSchema.index({ user: 1, group: 1 }, { unique: true });

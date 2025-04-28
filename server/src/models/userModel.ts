@@ -1,5 +1,5 @@
-import { Schema, model } from "mongoose";
-import { User } from "../types/userType";
+import { Schema, model } from 'mongoose';
+import { User } from '../types/userType';
 
 const userSchema = new Schema<User>(
   {
@@ -36,7 +36,7 @@ const userSchema = new Schema<User>(
     sublesseeHistory: [{ type: Schema.Types.ObjectId, ref: 'Post' }], // Where user has been a sublessee
     // Additional stats to add later if necessary
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export default model<User>('User', userSchema);

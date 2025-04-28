@@ -12,7 +12,7 @@ const groupSchema = new Schema<Group>(
       default: false,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export default model<Group>('Group', groupSchema);

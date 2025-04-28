@@ -1,10 +1,10 @@
-import { ObjectId } from "mongoose";
+import { ObjectId } from 'mongoose';
 
 export interface Base {
-    _id?: ObjectId;
+  _id?: ObjectId;
 }
 
 export interface Timestamps {
-    createdAt?: Date;
-    updatedAt?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

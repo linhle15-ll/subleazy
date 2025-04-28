@@ -1,6 +1,6 @@
-import { Base, Timestamps } from "./commonType";
+import { Base, Timestamps } from './commonType';
 
 export interface Group extends Base, Timestamps {
-    name?: string;
-    isDM: boolean;
+  name?: string;
+  isDM: boolean;
 }
