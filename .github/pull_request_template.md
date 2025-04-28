@@ -1,9 +1,9 @@
-
 # PR Template
 
-Follow this PR template to create your PR. The PR should be as clear as possible, each PR should *not* be over 500 lines of code :>
+Follow this PR template to create your PR. The PR should be as clear as possible, each PR should _not_ be over 500 lines of code :>
 
 ## Title
+
 Put a clear and brief title
 
 # Description
@@ -27,4 +27,5 @@ Select option(s) that are relevant.
 Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce. Please also list any relevant details for your test configuration
 
 ## Additional context
+
 Add any other context or Media (screenshot/ video)
