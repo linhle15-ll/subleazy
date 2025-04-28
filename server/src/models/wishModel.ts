@@ -1,6 +1,7 @@
-const { Schema, model } = require('mongoose');
+import { Schema, model } from "mongoose";
+import { Wish } from "../types/wishType";
 
-const wishSchema = new Schema(
+const wishSchema = new Schema<Wish>(
   {
     user: {
       type: Schema.Types.ObjectId,
@@ -12,11 +13,10 @@ const wishSchema = new Schema(
       ref: 'Post',
       required: true,
     },
-  },
-  { timestamps: true },
+  }
 );
 
 // Prevent same user wishing the same post twice
 wishSchema.index({ user: 1, post: 1 }, { unique: true });
 
-module.exports = model('Wish', wishSchema);
+export default model<Wish>('Wish', wishSchema);

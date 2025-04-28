@@ -1,6 +1,7 @@
-const { Schema, model } = require('mongoose');
+import { Schema, model } from "mongoose";
+import { House } from "../types/houseType";
 
-const houseSchema = new Schema({
+const houseSchema = new Schema<House>({
   address: {
     type: String,
     required: true,
@@ -40,4 +41,4 @@ const houseSchema = new Schema({
 houseSchema.index({ city: 1, state: 1 });
 houseSchema.index({ zip: 1 });
 
-module.exports = model('House', houseSchema);
+export default model<House>('House', houseSchema);

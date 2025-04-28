@@ -1,6 +1,7 @@
-const { Schema, model } = require('mongoose');
+import { Schema, model } from "mongoose";
+import {Message} from "../types/messageType"
 
-const messageSchema = new Schema(
+const messageSchema = new Schema<Message>(
   {
     content: {
       type: String,
@@ -23,4 +24,4 @@ const messageSchema = new Schema(
 
 messageSchema.index({ group: 1, createdAt: -1 });
 
-module.exports = model('Message', messageSchema);
+export default model<Message>('Message', messageSchema);

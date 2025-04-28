@@ -1,6 +1,8 @@
-const { Schema, model } = require('mongoose');
+import { Schema, model } from "mongoose";
+import { HouseType, PlaceType, PostStatus, WhoElse } from "../types/enums";
+import { Post } from "../types/postType";
 
-const postSchema = new Schema(
+const postSchema = new Schema<Post>(
   {
     title: {
       type: String,
@@ -30,12 +32,12 @@ const postSchema = new Schema(
     houseInfo: {
       houseType: {
         type: String,
-        enum: ['house', 'apartment'],
+        enum: Object.values(HouseType),
         required: true,
       },
       placeType: {
         type: String,
-        enum: ['entire', 'private', 'shared'],
+        enum: Object.values(PlaceType),
         required: true,
       },
     },
@@ -97,7 +99,7 @@ const postSchema = new Schema(
     whoElse: [
       {
         type: String,
-        enum: ['me', 'family', 'guests', 'roommates']
+        enum: Object.values(WhoElse)
       },
     ],
     amenities: {
@@ -192,8 +194,8 @@ const postSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ['active', 'pending', 'closed'], // Should this be active, closed, (and expired)?
-      default: 'active',
+      enum: Object.values(PostStatus),
+      default: PostStatus.ACTIVE,
     },
   },
   { timestamps: true },
@@ -204,4 +206,4 @@ postSchema.index({ createdAt: -1 });
 postSchema.index({ city: 1, state: 1 });
 postSchema.index({ zip: 1 });
 
-module.exports = model('Post', postSchema);
+export default model<Post>('Post', postSchema);

@@ -1,6 +1,7 @@
-const { Schema, model } = require('mongoose');
+import { Schema, model } from "mongoose";
+import { GroupMember } from "../types/groupMemberType";
 
-const groupMemberSchema = new Schema(
+const groupMemberSchema = new Schema<GroupMember>(
   {
     user: {
       type: Schema.Types.ObjectId,
@@ -12,11 +13,10 @@ const groupMemberSchema = new Schema(
       ref: 'Group',
       required: true,
     },
-  },
-  { timestamps: true },
+  }
 );
 
 // Prevent same user joining the same group twice
 groupMemberSchema.index({ user: 1, group: 1 }, { unique: true });
 
-module.exports = model('GroupMember', groupMemberSchema);
+export default model<GroupMember>('GroupMember', groupMemberSchema);
