@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ACCESS_TOKEN } from '@/lib/utils/constants';
+import { ACCESS_TOKEN } from '@/lib/constants';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
