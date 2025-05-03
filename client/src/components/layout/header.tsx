@@ -1,8 +1,11 @@
 import Image from 'next/image';
 import logo from '@/public/subleazy_logo.png';
-import { DropdownMenuUser } from '@/components/ui/dropdown-user';
+import {
+  DropdownUser,
+  DropdownHeader,
+} from '@/components/ui/dropdown/dropdownMenu';
 
-const Header = () => {
+export default function Header() {
   return (
     <div className="bg-white py-3">
       <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
@@ -39,17 +42,25 @@ const Header = () => {
                     Community
                   </a>
                 </li>
-                <a href="/sublease-form" className="btn-primary">Sublease your space!</a>
-                
+
+                <li>
+                  <a className="btn-primary" href="/sublease">
+                    Sublease your space
+                  </a>
+                </li>
               </ul>
             </nav>
-            <DropdownMenuUser />
+            <div className="flex flex-row items-center gap-4">
+              {/* Dropdown Menu for Small Screens */}
+              <div className="block md:hidden">
+                <DropdownHeader />
+              </div>
 
+              <DropdownUser />
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
-};
-
-export default Header;
+}
