@@ -1,4 +1,4 @@
-import express, { Application, Request, Response, NextFunction } from 'express';
+import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import db from './db/db';
 import postRoutes from './routes/postRoutes';
@@ -19,7 +19,7 @@ db();
 app.use('/api/posts', postRoutes);
 
 // Basic Error Handling Middleware
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+app.use((err: Error, req: Request, res: Response) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Something went wrong' });
 });
