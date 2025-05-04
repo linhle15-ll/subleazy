@@ -13,5 +13,5 @@ const PORT = process.env.PORT || 5001; // if there is no port, return port 5001
 const server = http.createServer(app);
 
 server.listen(PORT, () => {
-    console.log(`Server started on port ${PORT}.`)
+  console.log(`Server started on port ${PORT}.`);
 });

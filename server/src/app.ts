@@ -1,7 +1,5 @@
-import express, { Application, Request, Response, NextFunction } from 'express';
+import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
-import { readdirSync } from 'fs';
-import path from 'path';
 import db from './db/db';
 
 const app: Application = express();
@@ -17,10 +15,8 @@ app.use(cors());
 db();
 
 // Set up routes
-
-
 // Basic Error Handling Middleware
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+app.use((err: Error, req: Request, res: Response) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');
 });
