@@ -61,9 +61,9 @@ interface Availability {
 export interface Post extends Base, Timestamps {
   title: string;
   description: string;
-  media: [string];
+  media: string[];
   author: Types.ObjectId | ObjectId | User;
-  sublessees: [Types.ObjectId | ObjectId | User];
+  sublessees: (Types.ObjectId | ObjectId | User)[];
   house?: Types.ObjectId | ObjectId | House;
   houseInfo: HouseInfo;
   suites?: string;
