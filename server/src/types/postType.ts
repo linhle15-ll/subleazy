@@ -1,4 +1,4 @@
-import { ObjectId } from 'mongoose';
+import { Types, ObjectId } from 'mongoose';
 import { Base, Timestamps } from './commonType';
 import { User } from './userType';
 import { House } from './houseType';
@@ -62,9 +62,9 @@ export interface Post extends Base, Timestamps {
   title: string;
   description: string;
   media: [string];
-  author: ObjectId | User;
-  sublessees: [ObjectId | User];
-  house: ObjectId | House;
+  author: Types.ObjectId | ObjectId | User;
+  sublessees: [Types.ObjectId | ObjectId | User];
+  house?: Types.ObjectId | ObjectId | House;
   houseInfo: HouseInfo;
   suites?: string;
   city: string;
@@ -79,4 +79,10 @@ export interface Post extends Base, Timestamps {
   rules: Rules;
   availability: Availability;
   status: PostStatus;
+}
+
+export interface PostRequestBody extends Post {
+  address: string;
+  lat: number;
+  long: number;
 }
