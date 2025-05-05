@@ -16,7 +16,7 @@ export const checkPasswordStrength = (password: string) => {
   }
 
   if (!/[0-9]/.test(password)) {
-    error.push('Password must contain at least');
+    error.push('Password must contain at least one number.');
   }
 
   if (!/[@$!%*?&]/.test(password)) {
