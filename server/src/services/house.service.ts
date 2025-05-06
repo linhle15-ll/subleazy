@@ -1,5 +1,5 @@
-import houseModel from '../models/houseModel';
-import { House } from '../types/houseType';
+import houseModel from '../models/house.model';
+import { House } from '../types/house.types';
 
 const houseService = {
   getOrCreateHouse: async (data: House) => {
