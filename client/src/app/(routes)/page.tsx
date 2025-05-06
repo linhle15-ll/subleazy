@@ -1,8 +1,54 @@
+'use client';
+
 import Image from 'next/image';
+import { useState } from 'react';
 import bannerImage from '@/public/bannerImg.jpg';
 import { SearchBar } from '@/components/ui/search-bar/search-bar';
+// import SearchFilterBar from '@/components/ui/searchFilterbar/searchFilterBarLg';
+import LeasePostingGrid from '@/components/ui/cards/LeasePostingGrid';
+
+// Sample data - replace with actual data from your API
+const samplePosts = [
+  {
+    id: '1',
+    title: 'Entire Studio Apartment',
+    location: 'Downtown San Francisco',
+    price: '$50',
+    rating: 4.8,
+    imageUrl: '/sample-apartment.jpg',
+    isFavorite: false,
+  },
+  {
+    id: '2',
+    title: 'Cozy Studio Near Campus',
+    location: 'Berkeley',
+    price: '$45',
+    rating: 4.6,
+    imageUrl: '/sample-apartment.jpg',
+    isFavorite: true,
+  },
+  {
+    id: '3',
+    title: 'Modern Studio with View',
+    location: 'San Jose',
+    price: '$55',
+    rating: 4.9,
+    imageUrl: '/sample-apartment.jpg',
+    isFavorite: false,
+  },
+  {
+    id: '4',
+    title: 'Furnished Studio',
+    location: 'Palo Alto',
+    price: '$60',
+    rating: 4.7,
+    imageUrl: '/sample-apartment.jpg',
+    isFavorite: false,
+  },
+];
 
 export default function LandingPage() {
+  const [posts, setPosts] = useState(samplePosts);
   return (
     <div className="flex flex-col gap-12 justify-center pb-5">
       {/* Hero Section */}
@@ -61,6 +107,29 @@ export default function LandingPage() {
             Join community
           </a>
         </div>
+      </section>
+
+      {/* Featured Listings Section */}
+      <section className="px-6 lg:px-12">
+        <h2 className="text-2xl lg:text-3xl font-semibold mb-6">
+          Featured Listings
+        </h2>
+        <LeasePostingGrid
+          posts={posts}
+          onViewDetails={(id) => {
+            // TODO: Implement view details navigation
+            console.log('View details:', id);
+          }}
+          onToggleFavorite={(id) => {
+            setPosts(
+              posts.map((post) =>
+                post.id === id
+                  ? { ...post, isFavorite: !post.isFavorite }
+                  : post
+              )
+            );
+          }}
+        />
       </section>
     </div>
   );
