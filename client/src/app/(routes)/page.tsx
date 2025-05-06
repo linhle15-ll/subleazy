@@ -116,10 +116,6 @@ export default function LandingPage() {
         </h2>
         <LeasePostingGrid
           posts={posts}
-          onViewDetails={(id) => {
-            // TODO: Implement view details navigation
-            console.log('View details:', id);
-          }}
           onToggleFavorite={(id) => {
             setPosts(
               posts.map((post) =>

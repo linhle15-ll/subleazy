@@ -14,13 +14,11 @@ interface LeasePost {
 
 interface LeasePostingGridProps {
   posts: LeasePost[];
-  onViewDetails: (id: string) => void;
   onToggleFavorite: (id: string) => void;
 }
 
 export default function LeasePostingGrid({
   posts,
-  onViewDetails,
   onToggleFavorite,
 }: LeasePostingGridProps) {
   return (
@@ -29,7 +27,6 @@ export default function LeasePostingGrid({
         <LeasePostingCard
           key={post.id}
           {...post}
-          onViewDetails={() => onViewDetails(post.id)}
           onToggleFavorite={() => onToggleFavorite(post.id)}
         />
       ))}

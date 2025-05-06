@@ -2,28 +2,30 @@
 
 import Image from 'next/image';
 import { Heart } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface LeasePostingCardProps {
+  id: string;
   title: string;
   location: string;
   price: string;
   rating: number;
   imageUrl: string;
-  onViewDetails: () => void;
   onToggleFavorite: () => void;
   isFavorite?: boolean;
 }
 
 export default function LeasePostingCard({
+  id,
   title,
   location,
   price,
   rating,
   imageUrl,
-  onViewDetails,
   onToggleFavorite,
   isFavorite = false,
 }: LeasePostingCardProps) {
+  const router = useRouter();
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="relative">
@@ -70,7 +72,7 @@ export default function LeasePostingCard({
         </span>
         <button
           className="text-orange-500 text-sm font-medium hover:underline focus:outline-none"
-          onClick={onViewDetails}
+          onClick={() => router.push(`/posting?id=${id}`)}
         >
           View details
         </button>
