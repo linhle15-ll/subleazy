@@ -5,6 +5,7 @@ import { useState } from 'react';
 import bannerImage from '@/public/bannerImg.jpg';
 import SearchFilterBar from '@/components/ui/searchFilterbar/searchFilterBarLg';
 import LeasePostingGrid from '@/components/ui/cards/LeasePostingGrid';
+import postingDemo from '@/public/postingDemo.jpg';
 
 // Sample data - replace with actual data from your API
 const samplePosts = [
@@ -14,7 +15,7 @@ const samplePosts = [
     location: 'Downtown San Francisco',
     price: '$50',
     rating: 4.8,
-    imageUrl: '/sample-apartment.jpg',
+    imageUrl: postingDemo,
     isFavorite: false,
   },
   {
@@ -23,7 +24,7 @@ const samplePosts = [
     location: 'Berkeley',
     price: '$45',
     rating: 4.6,
-    imageUrl: '/sample-apartment.jpg',
+    imageUrl: postingDemo,
     isFavorite: true,
   },
   {
@@ -32,7 +33,7 @@ const samplePosts = [
     location: 'San Jose',
     price: '$55',
     rating: 4.9,
-    imageUrl: '/sample-apartment.jpg',
+    imageUrl: postingDemo,
     isFavorite: false,
   },
   {
@@ -41,7 +42,7 @@ const samplePosts = [
     location: 'Palo Alto',
     price: '$60',
     rating: 4.7,
-    imageUrl: '/sample-apartment.jpg',
+    imageUrl: postingDemo,
     isFavorite: false,
   },
 ];
