@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { Group } from '../types/groupType';
+import { Group } from '../types/group.types';
 
 const groupSchema = new Schema<Group>(
   {
