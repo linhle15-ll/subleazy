@@ -1,7 +1,7 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import db from './db/db';
-import postRoutes from './routes/postRoutes';
+import postRoutes from './routes/post.routes';
 
 const app: Application = express();
 

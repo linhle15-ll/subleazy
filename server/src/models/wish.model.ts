@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { Wish } from '../types/wishType';
+import { Wish } from '../types/wish.types';
 
 const wishSchema = new Schema<Wish>({
   user: {

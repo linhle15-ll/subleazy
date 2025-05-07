@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { House } from '../types/houseType';
+import { House } from '../types/house.types';
 
 const houseSchema = new Schema<House>({
   address: {

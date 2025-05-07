@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import houseService from '../services/houseService';
-import postService from '../services/postService';
-import { House } from '../types/houseType';
-import { PostRequestBody } from '../types/postType';
+import houseService from '../services/house.service';
+import postService from '../services/post.service';
+import { House } from '../types/house.types';
+import { PostRequestBody } from '../types/post.types';
 import { Types } from 'mongoose';
-import { validateMedia, validateTime } from '../utils/validationUtils';
+import { validateMedia, validateTime } from '../utils/validators';
 // import { getAuthRequest } from "../utils/commonUtils";
 
 const postController = {
