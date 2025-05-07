@@ -18,6 +18,11 @@ import type { StaticImageData } from 'next/image';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import demoAmenities from '@/public/demoAmenities.jpg';
+import dynamic from 'next/dynamic';
+
+const GoogleMap = dynamic(() => import('@/components/ui/maps/GoogleMap'), {
+  ssr: false,
+});
 
 interface PostType {
   id: string;
@@ -109,11 +114,13 @@ export default function PostingPage() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1">
               <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-              <span className="text-sm text-gray-600">post.rating</span>
+              <span className="text-sm text-gray-600">{post.rating}</span>
             </div>
             <div className="flex items-center gap-1">
               <MapPin className="w-4 h-4 text-gray-400" />
-              <span className="text-sm text-gray-600">post.location</span>
+              <span className="text-sm text-gray-600">
+                {post.location.address}
+              </span>
             </div>
           </div>
         </div>
@@ -132,57 +139,85 @@ export default function PostingPage() {
       </div>
 
       {/* Image Gallery */}
-      <div className="mb-8 grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-2 mb-8 rounded-xl overflow-hidden">
         {post.images.map((image, index) => (
           <div
             key={index}
-            className={`relative rounded-lg overflow-hidden ${index === 0 ? 'col-span-2 row-span-2' : ''}`}
+            className={`relative ${index === 0 ? 'col-span-2 row-span-2' : ''} group cursor-pointer overflow-hidden`}
           >
-            <div
-              className={`${index === 0 ? 'aspect-square' : 'aspect-video'} relative`}
-            >
-              <Image
-                src={image.url}
-                alt={image.alt}
-                fill
-                className="object-cover hover:opacity-90 transition-opacity"
-              />
-            </div>
+            <Image
+              src={image.url}
+              alt={image.alt}
+              className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
+              width={800}
+              height={600}
+            />
           </div>
         ))}
       </div>
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column */}
+        {/* Left Column - Main Content */}
         <div className="lg:col-span-2">
-          {/* Description */}
-          <section className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">About this place</h2>
-            <p className="text-gray-600">{post.description}</p>
-          </section>
+          {/* Subleasor */}
+          <div className="mb-8">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-14 h-14 rounded-full bg-gray-200 overflow-hidden">
+                <Image
+                  src={demoAmenities}
+                  alt={post.host.name}
+                  width={56}
+                  height={56}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div>
+                <h3 className="font-medium text-lg">
+                  Subleased by {post.host.name}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Joined {post.host.memberSince}
+                </p>
+              </div>
+            </div>
 
-          {/* Amenities */}
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold mb-4">
+                Message from subleasor
+              </h3>
+              <p className="text-gray-600">{post.description}</p>
+            </div>
+
+            <button className="text-primaryOrange hover:text-orange-600 font-medium">
+              Show more
+              <span className="inline-block ml-1">›</span>
+            </button>
+          </div>
+
+          {/* What this place offers */}
           <section className="mb-8">
             <h2 className="text-xl font-semibold mb-4">
               What this place offers
             </h2>
             <div className="grid grid-cols-2 gap-4">
-              {post.amenities
-                .slice(0, showAllAmenities ? undefined : 8)
-                .map((amenity, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
-                      {<amenity.icon className="w-5 h-5 text-gray-600" />}
-                    </div>
-                    <span className="text-gray-600">{amenity.label}</span>
+              {(showAllAmenities
+                ? post.amenities
+                : post.amenities.slice(0, 8)
+              ).map((amenity, index) => {
+                const Icon = amenity.icon;
+                return (
+                  <div key={index} className="flex items-center gap-4">
+                    <Icon className="w-6 h-6 text-gray-600" />
+                    <span>{amenity.label}</span>
                   </div>
-                ))}
+                );
+              })}
             </div>
             {post.amenities.length > 8 && (
               <button
                 onClick={() => setShowAllAmenities(!showAllAmenities)}
-                className="mt-4 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                className="mt-4 text-primaryOrange hover:text-orange-600 font-medium"
               >
                 Show{' '}
                 {showAllAmenities ? 'fewer' : `all ${post.amenities.length}`}{' '}
@@ -195,11 +230,11 @@ export default function PostingPage() {
           <section className="mb-8">
             <h2 className="text-xl font-semibold mb-4">Where you'll be</h2>
             <div className="mb-4">
-              <div className="aspect-[16/9] bg-gray-100 rounded-lg mb-4">
-                {/* Google Maps will be integrated here */}
-                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  Google Maps placeholder
-                </div>
+              <div className="aspect-[16/9] bg-gray-100 rounded-lg mb-4 overflow-hidden">
+                <GoogleMap
+                  address={post.location.address}
+                  className="w-full h-full"
+                />
               </div>
               <div>
                 <h3 className="font-medium text-lg mb-2">
