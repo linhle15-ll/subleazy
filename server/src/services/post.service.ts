@@ -1,5 +1,5 @@
-import postModel from '../models/postModel';
-import { Post } from '../types/postType';
+import postModel from '../models/post.model';
+import { Post } from '../types/post.types';
 
 const postService = {
   createPost: async (data: Post) => {
