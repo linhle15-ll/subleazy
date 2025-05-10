@@ -40,7 +40,7 @@ interface Rules {
   guest: boolean;
   party: boolean;
   loudMusic: boolean;
-  quietHours: {
+  quietHours?: {
     from?: string;
     to?: string;
   };
@@ -54,8 +54,8 @@ interface Rules {
 interface Availability {
   startDate: Date;
   endDate: Date;
-  checkinTime: string;
-  checkoutTime: string;
+  checkinTime?: string;
+  checkoutTime?: string;
 }
 
 export interface Post extends Base, Timestamps {
