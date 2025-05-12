@@ -8,5 +8,6 @@ const router = Router();
 // router.use(authenticate);
 
 router.post('/create', postController.createPost);
+router.post('/search', postController.searchPosts);
 
 export default router;
