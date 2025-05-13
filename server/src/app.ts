@@ -2,6 +2,7 @@ import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import db from './db/db';
 import postRoutes from './routes/post.routes';
+import cookieParser from 'cookie-parser';
 
 const app: Application = express();
 
@@ -23,5 +24,8 @@ app.use((err: Error, req: Request, res: Response) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Something went wrong' });
 });
+
+// Parse cookies
+app.use(cookieParser());
 
 export default app;
