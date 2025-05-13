@@ -25,6 +25,16 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const accessToken = generateAccessToken(existingUser._id.toString());
     const refreshToken = generateRefreshToken(existingUser._id.toString());
 
+    //TODO: save refreshToken with user to the database
+    //TODO: handle refreshToken
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      //secure: true, // Probably uncomment this in production
+      //sameSite: [Options] // Consider based on app's needs
+      //path: //probably need to set this
+    });
+
     res.status(200).json({ accessToken, refreshToken });
   } catch (err) {
     console.error(err);
