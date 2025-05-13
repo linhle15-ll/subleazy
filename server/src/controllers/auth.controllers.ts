@@ -25,8 +25,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const accessToken = generateAccessToken(existingUser._id.toString());
     const refreshToken = generateRefreshToken(existingUser._id.toString());
 
-    //TODO: save refreshToken with user to the database
-    //TODO: handle refreshToken
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
