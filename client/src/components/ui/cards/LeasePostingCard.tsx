@@ -1,12 +1,13 @@
 'use client';
 
 import Image from 'next/image';
-import { Heart, Star, House } from 'lucide-react';
+import { Heart, Star } from 'lucide-react';
+import { PlaceType, getPlaceTypeIcon } from '@/lib/utils/icons';
 
 interface LeasePostingCardProps {
   title: string;
   location: string;
-  roomType: string;
+  roomType: PlaceType;
   price: string;
   rating: number;
   imageUrl: string;
@@ -26,19 +27,21 @@ export default function LeasePostingCard({
   onToggleFavorite,
   isFavorite = false,
 }: LeasePostingCardProps) {
+  const PlaceTypeIcon = getPlaceTypeIcon(roomType);
+
   return (
-    <div className="bg-white rounded-2xl shadow-md overflow-hidden">
+    <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-700">
       <div className="relative">
         <Image
           src={imageUrl}
           alt={title}
-          width={400}
-          height={300}
+          width={278}
+          height={227}
           className="w-full h-48 object-cover"
         />
         <button
           onClick={onToggleFavorite}
-          className="absolute top-3 right-3 p-2 rounded-full bg-white/80 hover:bg-white transition-colors"
+          className="absolute top-3 right-3 bg-white hover:opacity-100 rounded-full p-2 hover:bg-white transition-colors"
           title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
           aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
         >
@@ -51,9 +54,11 @@ export default function LeasePostingCard({
       </div>
 
       <div className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-base font-medium">{title}</h3>
-          <div className="flex items-center gap-1">
+        <div className="flex items-start justify-between mb-2">
+          <h3 className="text-base font-medium line-clamp-2 min-h-[3rem]">
+            {title}
+          </h3>
+          <div className="flex  items-center gap-1">
             <span>
               <Star className="w-4 h-4 fill-orange-300 stroke-orange-300" />
             </span>
@@ -64,8 +69,8 @@ export default function LeasePostingCard({
           <span className="text-base">{location}</span>
         </div>
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-6 h-6 rounded-full bg-blue-200 flex items-center justify-center">
-            <House className="w-4 h-4 stroke-gray-600" />
+          <div className="w-7 h-7 rounded-full bg-blue-200 flex items-center justify-center">
+            <PlaceTypeIcon className="w-4 h-4 stroke-gray-600" />
           </div>
           <span className="text-base">{roomType}</span>
         </div>
