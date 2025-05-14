@@ -25,7 +25,7 @@ export default function LeasePostingCard({
   isFavorite = false,
 }: LeasePostingCardProps) {
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-md overflow-hidden">
       <div className="relative">
         <Image
           src={imageUrl}
