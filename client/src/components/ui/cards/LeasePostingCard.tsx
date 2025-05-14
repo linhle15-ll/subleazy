@@ -1,11 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import { Heart, Star, MapPinHouse } from 'lucide-react';
+import { Heart, Star, House } from 'lucide-react';
 
 interface LeasePostingCardProps {
   title: string;
   location: string;
+  roomType: string;
   price: string;
   rating: number;
   imageUrl: string;
@@ -17,6 +18,7 @@ interface LeasePostingCardProps {
 export default function LeasePostingCard({
   title,
   location,
+  roomType,
   price,
   rating,
   imageUrl,
@@ -50,26 +52,28 @@ export default function LeasePostingCard({
 
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-base font-semibold text-gray-900">{title}</h3>
+          <h3 className="text-base font-medium">{title}</h3>
           <div className="flex items-center gap-1">
             <span>
               <Star className="w-4 h-4 fill-orange-300 stroke-orange-300" />
             </span>
-            <span className="text-sm text-gray-600">{rating}</span>
+            <span className="text-base">{rating}</span>
           </div>
         </div>
         <div className="flex items-center gap-2 mb-4">
-          <MapPinHouse className="w-4 h-4 fill-gray-600 stroke-gray-600" />
-          <span className="text-sm text-gray-600">{location}</span>
+          <span className="text-base">{location}</span>
+        </div>
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-6 h-6 rounded-full bg-blue-200 flex items-center justify-center">
+            <House className="w-4 h-4 stroke-gray-600" />
+          </div>
+          <span className="text-base">{roomType}</span>
         </div>
       </div>
       <div className="px-4 pb-4 flex items-center justify-between">
-        <span className="font-bold text-lg text-gray-900">
-          {price}
-          <span className="text-sm font-normal text-gray-500"> / month</span>
-        </span>
+        <span className="text-base font-medium">{price} / month</span>
         <button
-          className="text-orange-500 text-sm font-medium hover:underline focus:outline-none"
+          className="text-orange-500 text-base hover:underline focus:outline-none"
           onClick={onViewDetails}
         >
           View details
