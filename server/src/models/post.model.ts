@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { HouseType, PlaceType, PostStatus, WhoElse } from '../types/enums';
-import { Post } from '../types/postType';
+import { Post } from '../types/post.types';
 
 const postSchema = new Schema<Post>(
   {

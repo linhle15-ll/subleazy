@@ -1,7 +1,7 @@
 import { Types, ObjectId } from 'mongoose';
-import { Base, Timestamps } from './commonType';
-import { User } from './userType';
-import { House } from './houseType';
+import { Base, Timestamps } from './common.types';
+import { User } from './user.types';
+import { House } from './house.types';
 import { HouseType, PlaceType, PostStatus, WhoElse } from './enums';
 
 interface HouseInfo {

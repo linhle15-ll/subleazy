@@ -1,4 +1,4 @@
-import { Base } from './commonType';
+import { Base } from './common.types';
 
 export interface House extends Base {
   address: string;
