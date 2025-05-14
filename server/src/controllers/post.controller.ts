@@ -9,6 +9,7 @@ import { validateMedia, validateTime } from '../utils/validators';
 
 const postController = {
   createPost: async (req: Request, res: Response) => {
+    // eslint-disable-next-line no-useless-catch
     try {
       // TODO: Use authReq after jwt token is implemented
       // const authReq = getAuthRequest(req);
