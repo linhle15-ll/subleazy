@@ -8,3 +8,7 @@ export interface Timestamps {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export interface CustomQuery {
+  [key: string]: any;
+}
