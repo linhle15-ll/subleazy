@@ -15,6 +15,8 @@ export function SignUpForm({
 }: React.ComponentPropsWithoutRef<'form'>) {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [institution, setInstitution] = useState('');
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -64,6 +66,17 @@ export function SignUpForm({
     setLastName(newLastName);
     if (!newLastName) {
       setError('Last name is required');
+    } else {
+      setError('');
+    }
+    setSubmitted(false);
+  };
+
+  const handleInstitutionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newInstitution = e.target.value;
+    setInstitution(newInstitution);
+    if (!newInstitution) {
+      setError('Institution is required');
     } else {
       setError('');
     }
@@ -129,6 +142,18 @@ export function SignUpForm({
             placeholder="Doe"
             value={lastName}
             onChange={(e) => handleLastNameChange(e)}
+            required
+          />
+        </div>
+
+        <div className="grid gap-2">
+          <Label htmlFor="institution">Institution Full Name</Label>
+          <Input
+            id="firstName"
+            type="text"
+            placeholder="University of California, Berkeley"
+            value={institution}
+            onChange={(e) => handleInstitutionChange(e)}
             required
           />
         </div>
