@@ -1,6 +1,6 @@
 'use client';
 import { Search, Filter, MapPin, Calendar } from 'lucide-react';
-import { DatePickerWithPresets } from '@/components/ui/date/datePicker';
+import { DatePickerWithPresets } from '@/components/ui/date/date-picker';
 
 const InputField = ({
   icon: Icon,
@@ -20,7 +20,7 @@ const InputField = ({
   </div>
 );
 
-export default function SearchFilterBar() {
+export function SearchBar() {
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between bg-white shadow-lg rounded-3xl px-4 py-4 sm:px-4 sm:py-4 gap-4 sm:gap-6 w-full sm:w-fit">
       {/* Where */}

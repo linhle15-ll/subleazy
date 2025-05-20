@@ -11,6 +11,7 @@ app.use(express.json());
 
 // CORS config
 app.use(cors());
+app.options(/(.*)/, cors());
 
 // Connect to MongoDB
 db();
