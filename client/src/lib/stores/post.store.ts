@@ -19,8 +19,8 @@ const initialPostValues = {
 export const useTransactionStore = create<typeof initialPostValues>()(
   devtools(
     subscribeWithSelector(
-      persist(() => initialPostValues, { name: 'Post store' }),
+      persist(() => initialPostValues, { name: 'Post store' })
     ),
-    { name: 'Post store' },
-  ),
+    { name: 'Post store' }
+  )
 );
