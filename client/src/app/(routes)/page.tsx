@@ -19,10 +19,6 @@ export default function LandingPage() {
             the perfect place to stay.
           </p>
 
-          <a className="btn-primary md:hidden" href="/sublease">
-            Sublease your space
-          </a>
-
           <p className="block md:hidden text-base lg:text-lg text-center">
             or <span className="font-medium"> find a sublease. </span>
           </p>
