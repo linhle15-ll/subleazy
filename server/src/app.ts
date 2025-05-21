@@ -4,6 +4,7 @@ import cors from 'cors';
 import db from './db/db';
 import postRoutes from './routes/post.routes';
 import wishRoutes from './routes/wish.routes';
+import authRoutes from './routes/auth.routes';
 
 const app: Application = express();
 
@@ -21,6 +22,7 @@ db();
 // Set up routes
 // post routes
 app.use('/api/posts', postRoutes);
+app.use('/api/auth', authRoutes);
 
 // wish routes
 app.use('/api/wishes', wishRoutes);
