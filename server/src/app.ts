@@ -2,6 +2,7 @@ import express, { Application, NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import db from './db/db';
 import postRoutes from './routes/post.routes';
+import authRoutes from './routes/auth.routes';
 
 const app: Application = express();
 
@@ -18,6 +19,7 @@ db();
 
 // Set up routes
 app.use('/api/posts', postRoutes);
+app.use('/api/auth', authRoutes);
 
 // Basic Error Handling Middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
