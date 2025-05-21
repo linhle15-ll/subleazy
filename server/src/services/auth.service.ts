@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 
 const authService = {
   generateAccessToken: (userId: string, userEmail: string): string => {
@@ -18,6 +19,10 @@ const authService = {
       { expiresIn: '7d' }
     );
     return refreshToken;
+  },
+
+  hashPassword: async (password: string): Promise<string> => {
+    return await bcrypt.hash(password, 10);
   },
 };
 
