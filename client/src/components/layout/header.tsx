@@ -3,7 +3,7 @@ import logo from '@/public/subleazy_logo.png';
 import {
   DropdownUser,
   DropdownHeader,
-} from '@/components/ui/dropdown/dropdown-menu';
+} from '@/components/ui/dropdown/dropdownMenu';
 
 export default function Header() {
   return (
