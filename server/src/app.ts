@@ -1,6 +1,7 @@
 import express, { Application, NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import db from './db/db';
+import cookieParser from 'cookie-parser';
 import postRoutes from './routes/post.routes';
 import authRoutes from './routes/auth.routes';
 
@@ -9,6 +10,9 @@ const app: Application = express();
 // ------ Middlewares -------
 // Middleware to parse incoming JSON request body in Express
 app.use(express.json());
+
+// Middleware to parse cookies from the request headers
+app.use(cookieParser());
 
 // CORS config
 app.use(cors());
