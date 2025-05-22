@@ -128,6 +128,25 @@ const authController = {
       next(error);
     }
   },
+
+  handleLogOut: async (req: Request, res: Response, next: NextFunction) => {
+    const cookies = req.cookies;
+
+    if (!cookies?.refreshToken) {
+      res.sendStatus(204);
+      return;
+    }
+
+    try {
+      res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: false, // Set to true in production
+      });
+      res.status(200).json({ message: 'Logged out successfully' });
+    } catch (error) {
+      next(error);
+    }
+  },
 };
 
 export default authController;
