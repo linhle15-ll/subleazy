@@ -1,6 +1,6 @@
-//TODO: validate academic email
+//validate academic email
 
-export const checkPasswordStrength = (password: string) => {
+export function checkPasswordStrength (password: string) {
   const error: string[] = [];
 
   if (password.length < 8) {
@@ -26,12 +26,11 @@ export const checkPasswordStrength = (password: string) => {
   return error;
 };
 
-export const validateConfirmPassword = (
+export function validateConfirmPassword (
   password: string,
   confirmPassword: string
-) => {
+) {
   if (password != confirmPassword) {
     return 'Passwords must match.';
   }
-  return '';
 };
