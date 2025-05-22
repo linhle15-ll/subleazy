@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
 import User from '../models/user.model';
 import authService from '../services/auth.service';
 
@@ -86,6 +87,43 @@ const authController = {
       });
 
       res.status(200).json({ accessToken });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  handleRefreshToken: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const cookies = req.cookies;
+
+    if (!cookies?.refreshToken) {
+      res.status(401).json({ error: 'Unauthorized - No refresh token' });
+      return;
+    }
+
+    const refreshToken = cookies.refreshToken;
+
+    try {
+      const decoded = jwt.verify(
+        refreshToken,
+        process.env.REFRESH_TOKEN_SECRET as string
+      ) as { id: string; email: string };
+
+      const existingUser = await User.findById(decoded.id);
+      if (!existingUser) {
+        res.status(401).json({ error: 'User not found' });
+        return;
+      }
+
+      const newAccessToken = authService.generateAccessToken(
+        existingUser._id.toString(),
+        existingUser.email
+      );
+
+      res.status(200).json({ newAccessToken });
     } catch (error) {
       next(error);
     }
