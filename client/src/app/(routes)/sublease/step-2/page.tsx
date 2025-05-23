@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import designerWorking from '@/public/designer-working.png';
-import { ProgressBar } from '@/components/ui/progress-bar/ProgressBar';
+import { ProgressBar } from '@/components/ui/progress-bar/progress-bar';
 import LogoAndExitButton from '@/components/ui/commons/LogoAndExitButton';
 
 function MainContent() {
