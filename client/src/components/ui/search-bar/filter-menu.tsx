@@ -221,7 +221,7 @@ export function FilterMenu({ isLandingPage }: { isLandingPage: boolean }) {
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="flex w-full sm:w-[28vw] flex-col bg-white space-y-2 p-2 focus:outline-none"
+        className="flex w-[90vw] sm:w-[28vw] flex-col bg-white space-y-2 p-2 focus:outline-none"
       >
         <div className="flex flex-col items-center border-b border-gray-300 pb-2">
           <span className="text-xl font-semibold">Filters</span>
