@@ -3,7 +3,7 @@ import logo from '@/public/subleazy_logo.png';
 import {
   DropdownUser,
   DropdownHeader,
-} from '@/components/ui/dropdown/dropdown-menu';
+} from '@/components/ui/dropdown/dropdownMenu';
 
 export default function Header() {
   return (
@@ -44,7 +44,7 @@ export default function Header() {
                 </li>
 
                 <li>
-                  <a className="btn-primary" href="/sublease">
+                  <a className="btn-primary" href="/sublease/step-1">
                     Sublease your space
                   </a>
                 </li>
