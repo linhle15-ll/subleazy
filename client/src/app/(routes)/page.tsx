@@ -68,12 +68,11 @@ export default function LandingPage() {
 
       {/* Featured Listings Section */}
       <section className="px-6 lg:px-12">
-
         <LeasePostingGrid
           posts={posts}
           isVertical={true}
           onViewDetails={(id) => {
-          // TODO: Implement view details navigation
+            // TODO: Implement view details navigation
           }}
           onToggleFavorite={(id) => {
             setPosts(
