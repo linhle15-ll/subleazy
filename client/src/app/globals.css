@@ -36,6 +36,6 @@ body {
   }
 
   .input-field {
-    @apply flex flex-col gap-2 w-full sm:w-1/2 sm:pr-4 sm:border-r border-gray-300 sm:items-start
+    @apply border rounded-md border-lightGray py-1 px-2 focus:border-primaryOrange focus:outline-none focus:ring-0 focus:ring-primaryOrange;
   }
 }

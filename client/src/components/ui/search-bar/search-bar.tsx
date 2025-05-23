@@ -43,7 +43,7 @@ export function SearchBar() {
       </InputField>
 
       {/* Filter icon + text */}
-      <div className="flex items-center gap-2 w-full sm:w-auto sm:pr-4">
+      <div className="flex items-center gap-2 w-2w-full sm:w-auto sm:pr-4">
         <Filter className="h-6 w-6 text-grey" />
         <span className="font-medium">Filters</span>
       </div>

@@ -16,7 +16,7 @@ const initialPostValues = {
   },
 };
 
-export const useTransactionStore = create<typeof initialPostValues>()(
+export const usePostStore = create<typeof initialPostValues>()(
   devtools(
     subscribeWithSelector(
       persist(() => initialPostValues, { name: 'Post store' })
