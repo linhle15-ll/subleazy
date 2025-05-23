@@ -3,25 +3,25 @@ import { User } from './user.types';
 import { House } from './house.types';
 import { HouseType, PlaceType, PostStatus, WhoElse } from './enums';
 
-interface HouseInfo {
+export interface HouseInfo {
   houseType: HouseType;
   placeType: PlaceType;
 }
 
-interface BedroomInfo {
+export interface BedroomInfo {
   maxGuests: number;
   bedrooms: number;
   beds: number;
   lock: boolean;
 }
 
-interface BathroomInfo {
+export interface BathroomInfo {
   privateAttached: number;
   privateAccessible: number;
   shared: number;
 }
 
-interface Amenities {
+export interface Amenities {
   wifi: boolean;
   kitchen: boolean;
   laundry: boolean;
@@ -29,13 +29,13 @@ interface Amenities {
   airConditioning: boolean;
 }
 
-interface Convenience {
+export interface Convenience {
   publicTransport: boolean;
   supermarket: boolean;
   disabilityFriendly: boolean;
 }
 
-interface Rules {
+export interface Rules {
   noGuest: boolean;
   noParty: boolean;
   quietHours?: {
@@ -47,7 +47,7 @@ interface Rules {
   noPet: boolean;
 }
 
-interface Availability {
+export interface Availability {
   startDate: Date;
   endDate: Date;
   checkinTime?: string;
