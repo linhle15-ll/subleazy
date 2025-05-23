@@ -4,7 +4,7 @@ import authService from '../services/auth.service';
 
 const authController = {
   handleSignUp: async (req: Request, res: Response, next: NextFunction) => {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, institution, email, password } = req.body;
 
     try {
       const existingUser = await User.findOne({ email });
@@ -16,6 +16,7 @@ const authController = {
       const newUser = await User.create({
         firstName,
         lastName,
+        institution,
         email,
         passwordHash: await authService.hashPassword(password),
       });
@@ -41,6 +42,7 @@ const authController = {
           id: newUser._id,
           firstName: newUser.firstName,
           lastName: newUser.lastName,
+          institution: newUser.institution,
           email: newUser.email,
         },
         accessToken,
