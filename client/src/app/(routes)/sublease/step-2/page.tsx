@@ -2,8 +2,8 @@
 
 import Image from 'next/image';
 import designerWorking from '@/public/designer-working.png';
-import { ProgressBar } from '@/components/ui/progress-bar/progress-bar';
-import LogoAndExitButton from '@/components/ui/commons/LogoAndExitButton';
+import ProgressBar from '@/components/ui/progress-bar/progress-bar';
+import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
 
 function MainContent() {
   return (
@@ -77,13 +77,17 @@ function MainContent() {
 function SubleaseStep2() {
   return (
     <div className="form-border flex flex-col gap-6 relative">
-      <LogoAndExitButton />
+      <LogoAndExitButton buttonName="Exit" />
       <MainContent />
       <ProgressBar
         currentStep={1}
         totalSteps={11}
-        buttonText="Get started"
-        nextStepUrl="/sublease/step-3"
+        buttons={[
+          {
+            text: 'Get started',
+            url: '/sublease/step-3',
+          },
+        ]}
       />
     </div>
   );

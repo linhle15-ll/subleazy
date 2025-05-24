@@ -3,15 +3,17 @@ import Link from 'next/link';
 interface ProgressBarProps {
   currentStep: number;
   totalSteps: number;
-  buttonText: string;
-  nextStepUrl: string;
+  buttons?: {
+    text: string;
+    url: string;
+    variant?: 'primary' | 'secondary';
+  }[];
 }
 
-export function ProgressBar({
+export default function ProgressBar({
   currentStep,
   totalSteps,
-  buttonText,
-  nextStepUrl,
+  buttons = [],
 }: ProgressBarProps) {
   const progressPercentage = (currentStep / totalSteps) * 100;
 
@@ -21,16 +23,26 @@ export function ProgressBar({
         <span className="text-gray-500 text-sm">
           Step {currentStep} of {totalSteps}
         </span>
-        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div className="w-full h-2 bg-gray-200 rounded-full ">
           <div
             className="h-full bg-primaryOrange transition-all duration-300"
             style={{ width: `${progressPercentage}%` }}
           />
         </div>
       </div>
-      <Link href={nextStepUrl} className="btn-primary w-40 text-center">
-        {buttonText}
-      </Link>
+      <div className="flex flex-row gap-4 ml-16">
+        {buttons.map((button, index) => (
+          <Link
+            key={index}
+            href={button.url}
+            className={`w-40 text-center ${
+              button.variant === 'secondary' ? 'btn-secondary' : 'btn-primary'
+            }`}
+          >
+            {button.text}
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }
