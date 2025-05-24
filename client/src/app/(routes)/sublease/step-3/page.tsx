@@ -45,10 +45,7 @@ export default function SubleaseStep3() {
               <SelectionBox
                 key={opt.value}
                 active={active}
-                onClick={() => {
-                  console.log('Selected place:', opt.value);
-                  setPlace(opt.value);
-                }}
+                onClick={() => setPlace(opt.value)}
               >
                 <Icon
                   className={`w-9 h-9 ${active ? 'text-primaryOrange' : 'text-gray-500'}`}
@@ -72,10 +69,7 @@ export default function SubleaseStep3() {
               <SelectionBox
                 key={opt.value}
                 active={active}
-                onClick={() => {
-                  console.log('Selected type:', opt.value);
-                  setType(opt.value);
-                }}
+                onClick={() => setType(opt.value)}
               >
                 {opt.label}
               </SelectionBox>
