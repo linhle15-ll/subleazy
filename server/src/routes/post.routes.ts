@@ -9,5 +9,7 @@ const router = Router();
 
 router.post('/create', postController.createPost);
 router.post('/search', postController.searchPosts);
+router.get('/:postId', postController.getPostById);
+router.patch('/edit/:postId', postController.editPost);
 
 export default router;
