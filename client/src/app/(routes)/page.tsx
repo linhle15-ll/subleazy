@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import bannerImage from '@/public/bannerImg.jpg';
-import { SearchBar } from '@/components/ui/search-bar/search-bar';
+import { SearchBarLg } from '@/components/ui/search/search-bar';
 
 export default function LandingPage() {
   return (
@@ -28,7 +28,7 @@ export default function LandingPage() {
           </p>
 
           <div className="relative z-10 mt-6 lg:mt-12">
-            <SearchBar />
+            <SearchBarLg />
           </div>
         </div>
 
