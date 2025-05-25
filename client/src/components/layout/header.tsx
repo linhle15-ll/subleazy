@@ -44,7 +44,7 @@ export default function Header() {
                 </li>
 
                 <li>
-                  <a className="btn-primary" href="/sublease">
+                  <a className="btn-primary" href="/sublease/step-1">
                     Sublease your space
                   </a>
                 </li>
