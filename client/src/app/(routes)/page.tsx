@@ -1,140 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
 import bannerImage from '@/public/bannerImg.jpg';
 import { SearchBar } from '@/components/ui/search-bar/search-bar';
 // import SearchFilterBar from '@/components/ui/searchFilterbar/searchFilterBarLg';
 import LeasePostingGrid from '@/components/ui/cards/LeasePostingGrid';
-import postingDemo from '@/public/postingDemo.jpg';
-import { PlaceType } from '@/lib/utils/icons';
-
-// Sample data - replace with actual data from your API
-const samplePosts = [
-  {
-    id: '1',
-    title: 'Entire Studio Apartment',
-    location: 'Downtown San Francisco',
-    roomType: PlaceType.ENTIRE,
-    price: '$50',
-    rating: 4.8,
-    imageUrl: postingDemo,
-    isFavorite: false,
-  },
-  {
-    id: '2',
-    title: 'Cozy Studio Near Campus',
-    location: 'Berkeley',
-    roomType: PlaceType.SHARED,
-    price: '$45',
-    rating: 4.6,
-    imageUrl: postingDemo,
-    isFavorite: true,
-  },
-  {
-    id: '3',
-    title: 'Modern Studio with View',
-    location: 'San Jose',
-    roomType: PlaceType.SHARED,
-    price: '$55',
-    rating: 4.9,
-    imageUrl: postingDemo,
-    isFavorite: false,
-  },
-  {
-    id: '4',
-    title: 'Furnished Studio',
-    location: 'Palo Alto',
-    roomType: PlaceType.SHARED,
-    price: '$60',
-    rating: 4.7,
-    imageUrl: postingDemo,
-    isFavorite: false,
-  },
-  {
-    id: '5',
-    title: 'Luxury 1 Bedroom Apartment',
-    location: 'Mountain View',
-    roomType: PlaceType.SHARED,
-    price: '$75',
-    rating: 4.9,
-    imageUrl: postingDemo,
-    isFavorite: true,
-  },
-  {
-    id: '6',
-    title: 'Spacious 2 Bedroom Suite',
-    location: 'Sunnyvale',
-    roomType: PlaceType.SHARED,
-    price: '$85',
-    rating: 4.5,
-    imageUrl: postingDemo,
-    isFavorite: false,
-  },
-  {
-    id: '7',
-    title: 'Cozy Private Room',
-    location: 'Santa Clara',
-    roomType: PlaceType.PRIVATE,
-    price: '$40',
-    rating: 4.4,
-    imageUrl: postingDemo,
-    isFavorite: false,
-  },
-  {
-    id: '8',
-    title: 'Modern Loft Downtown',
-    location: 'San Francisco',
-    roomType: PlaceType.SHARED,
-    price: '$65',
-    rating: 4.8,
-    imageUrl: postingDemo,
-    isFavorite: true,
-  },
-  {
-    id: '9',
-    title: 'Shared Room in House',
-    location: 'Oakland',
-    roomType: PlaceType.SHARED,
-    price: '$35',
-    rating: 4.3,
-    imageUrl: postingDemo,
-    isFavorite: false,
-  },
-  {
-    id: '10',
-    title: 'Penthouse Studio',
-    location: 'San Mateo',
-    roomType: PlaceType.SHARED,
-    price: '$70',
-    rating: 4.9,
-    imageUrl: postingDemo,
-    isFavorite: false,
-  },
-  {
-    id: '11',
-    title: 'Garden View Apartment',
-    location: 'Fremont',
-    roomType: PlaceType.SHARED,
-    price: '$55',
-    rating: 4.6,
-    imageUrl: postingDemo,
-    isFavorite: true,
-  },
-  {
-    id: '12',
-    title: 'Student Housing Special',
-    location: 'Berkeley',
-    roomType: PlaceType.PRIVATE,
-    price: '$45',
-    rating: 4.5,
-    imageUrl: postingDemo,
-    isFavorite: false,
-  },
-];
 
 export default function LandingPage() {
-  const [posts, setPosts] = useState(samplePosts);
   return (
     <div className="flex flex-col gap-12 justify-center pb-5">
       {/* Hero Section */}
@@ -197,14 +69,12 @@ export default function LandingPage() {
 
       {/* Featured Listings Section */}
       <section className="px-6 lg:px-12">
-        <h2 className="text-2xl lg:text-3xl font-semibold mb-6">
-          Featured Listings
-        </h2>
+
         <LeasePostingGrid
           posts={posts}
+          isVertical={true}
           onViewDetails={(id) => {
-            // TODO: Implement view details navigation
-            console.log('View details:', id);
+          // TODO: Implement view details navigation
           }}
           onToggleFavorite={(id) => {
             setPosts(
