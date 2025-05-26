@@ -4,14 +4,14 @@ import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
 import ProgressBar from '@/components/ui/progress-bar/progress-bar';
 import LocationMap from '@/components/ui/map/location-map';
 
-export default function SubleaseStep5() {
+export default function SubleaseStep5({ stepNumber = 5 }) {
   return (
     <div className="form-border flex flex-col gap-6 relative">
       <LogoAndExitButton buttonName="Save & Exit" />
 
       {/* Step indicator and title */}
       <div className="flex items-center gap-4">
-        <div className="form-heading-number-orange">1</div>
+        <div className="form-heading-number-orange">{stepNumber}</div>
         <div className="form-h1">Basic information - Location</div>
       </div>
 
