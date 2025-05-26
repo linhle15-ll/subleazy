@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import houseService from '../services/house.service';
 import postService from '../services/post.service';
 import { House } from '../types/house.types';
@@ -8,8 +8,7 @@ import { validateMedia, validateTime } from '../utils/validators';
 // import { getAuthRequest } from "../utils/commonUtils";
 
 const postController = {
-  createPost: async (req: Request, res: Response) => {
-    // eslint-disable-next-line no-useless-catch
+  createPost: async (req: Request, res: Response, next: NextFunction) => {
     try {
       // TODO: Use authReq after jwt token is implemented
       // const authReq = getAuthRequest(req);
@@ -21,10 +20,10 @@ const postController = {
 
       if (
         !validateMedia(data.media) ||
-        (data.availability.checkinTime &&
-          !validateTime(data.availability.checkinTime)) ||
-        (data.availability.checkoutTime &&
-          !validateTime(data.availability.checkoutTime))
+        !validateTime(data.availability.checkinTime as string) ||
+        !validateTime(data.availability.checkoutTime as string) ||
+        !validateTime(data.rules?.quietHours?.from as string) ||
+        !validateTime(data.rules?.quietHours?.to as string)
       ) {
         res.status(400).json({ error: 'Invalid data' });
         return;
@@ -45,7 +44,23 @@ const postController = {
 
       res.status(201).json(post);
     } catch (error) {
-      throw error;
+      next(error);
+    }
+  },
+
+  searchPosts: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data: Partial<PostRequestBody> = req.body;
+      if (!data.zip && !data.state && (!data.lat || !data.long)) {
+        res.status(400).json({ error: 'Missing location' });
+        return;
+      }
+
+      const posts = await postService.searchPosts(data);
+
+      res.status(200).json(posts);
+    } catch (error) {
+      next(error);
     }
   },
 };

@@ -19,7 +19,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../dropdown/index';
+} from './index';
 
 export function DropdownUser() {
   return (

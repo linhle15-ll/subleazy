@@ -63,6 +63,14 @@ const postSchema = new Schema<Post>(
       required: true,
       trim: true,
     },
+    lat: {
+      type: Number,
+      required: true,
+    },
+    long: {
+      type: Number,
+      required: true,
+    },
 
     bedroomInfo: {
       maxGuests: {
@@ -143,15 +151,11 @@ const postSchema = new Schema<Post>(
       required: true,
     },
     rules: {
-      guest: {
+      noGuest: {
         type: Boolean,
         default: false,
       },
-      party: {
-        type: Boolean,
-        default: false,
-      },
-      loudMusic: {
+      noParty: {
         type: Boolean,
         default: false,
       },
@@ -159,23 +163,15 @@ const postSchema = new Schema<Post>(
         from: String,
         to: String,
       },
-      smoking: {
+      noSmoking: {
         type: Boolean,
         default: false,
       },
-      alcohol: {
+      noDrug: {
         type: Boolean,
         default: false,
       },
-      drug: {
-        type: Boolean,
-        default: false,
-      },
-      pet: {
-        type: Boolean,
-        default: false,
-      },
-      children: {
+      noPet: {
         type: Boolean,
         default: false,
       },
@@ -201,9 +197,9 @@ const postSchema = new Schema<Post>(
   { timestamps: true }
 );
 
-// Map display is optional => search by post first
+// Client always searches by posts
 postSchema.index({ createdAt: -1 });
-postSchema.index({ city: 1, state: 1 });
+postSchema.index({ state: 1, city: 1 });
 postSchema.index({ zip: 1 });
 
 export default model<Post>('Post', postSchema);
