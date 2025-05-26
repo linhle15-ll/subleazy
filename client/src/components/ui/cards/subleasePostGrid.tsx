@@ -1,7 +1,7 @@
 'use client';
 
 import { HouseType, PlaceType } from '@/lib/types/enums';
-import LeasePostingCard from './LeasePostingCard';
+import LeasePostingCard from './subleasePostCard';
 import { StaticImageData } from 'next/image';
 
 interface LeasePost {

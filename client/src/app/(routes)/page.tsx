@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import bannerImage from '@/public/bannerImg.jpg';
 import SearchFilterBar from '@/components/ui/searchFilterbar/searchFilterBarLg';
-import LeasePostingGrid from '@/components/ui/cards/LeasePostingGrid';
+import LeasePostingGrid from '@/components/ui/cards/subleasePostGrid';
 
 export default function LandingPage() {
   return (
