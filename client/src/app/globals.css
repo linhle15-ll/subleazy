@@ -57,4 +57,8 @@ body {
   .form-h2 {
     @apply font-medium text-lg mb-2;
   }
+
+  .form-des-inc-button {
+    @apply flex items-center justify-between py-4 px-10 mb-4 transition-all duration-500 ease-in-out hover:bg-orange-50 active:scale-[0.98] cursor-pointer;
+  }
 }
