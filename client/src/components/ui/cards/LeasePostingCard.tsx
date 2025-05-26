@@ -1,88 +1,97 @@
 'use client';
 
-import Image from 'next/image';
+import Image, { StaticImageData } from 'next/image';
 import { Heart, Star } from 'lucide-react';
-import { PlaceType, getPlaceTypeIcon } from '@/lib/utils/icons';
+import { getPlaceTypeIcon, getHouseTypeIcon } from '@/lib/utils/icons';
+import { HouseType, PlaceType } from '@/lib/types/enums';  
 
 interface LeasePostingCardProps {
   title: string;
   location: string;
-  roomType: PlaceType;
+  houseType: HouseType;
+  placeType: PlaceType;
   price: string;
-  rating: number;
-  imageUrl: string;
+  imageUrl: StaticImageData | string;
   onViewDetails: () => void;
   onToggleFavorite: () => void;
   isFavorite?: boolean;
+  isVertical?: boolean;
 }
 
 export default function LeasePostingCard({
   title,
   location,
-  roomType,
+  houseType,
+  placeType,
   price,
-  rating,
   imageUrl,
   onViewDetails,
   onToggleFavorite,
+  isVertical,
   isFavorite = false,
 }: LeasePostingCardProps) {
-  const PlaceTypeIcon = getPlaceTypeIcon(roomType);
+  const PlaceTypeIcon = getPlaceTypeIcon(placeType);
+  const HouseTypeIcon = getHouseTypeIcon(houseType);
 
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-700">
-      <div className="relative">
+    <div className={`bg-white rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-700 flex h-full ${isVertical ? 'flex-col' : 'flex-row'}`}>
+      <div className={`relative ${isVertical ? '' : 'h-full min-h-[220px] w-2/5'}`}>
         <Image
           src={imageUrl}
           alt={title}
-          width={278}
-          height={227}
-          className="w-full h-48 object-cover"
+          fill={!isVertical} // Use fill prop for non-vertical
+          width={isVertical ? 278 : undefined}
+          height={isVertical ? 227 : undefined}
+          className={`object-cover  rounded-lg w-full ${isVertical ? 'h-48' : 'h-full'}`}
+          style={!isVertical ? { objectFit: 'cover' } : {}}
         />
         <button
           onClick={onToggleFavorite}
-          className="absolute top-3 right-3 bg-white hover:opacity-100 rounded-full p-2 hover:bg-white transition-colors"
-          title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          className="absolute top-3 right-3 transition-colors"
+          title={isFavorite ? 'Remove from wish list' : 'Add to wish list'}
+          aria-label={isFavorite ? 'Remove from wish list' : 'Add to wish list'}
         >
           <Heart
-            className={`w-5 h-5 ${
-              isFavorite ? 'fill-orange-500 text-orange-500' : 'text-gray-600'
-            }`}
+            className={`w-7 h-7 ${isFavorite ? 'fill-red-600 stroke-none' : 'text-white'}`}
           />
         </button>
       </div>
 
-      <div className="p-4">
+      {/* Card Content */}
+      <div className="flex flex-col flex-grow px-4 pt-3 pb-0">
         <div className="flex items-start justify-between mb-2">
-          <h3 className="text-base font-medium line-clamp-2 min-h-[3rem]">
-            {title}
-          </h3>
-          <div className="flex  items-center gap-1">
-            <span>
-              <Star className="w-4 h-4 fill-orange-300 stroke-orange-300" />
-            </span>
-            <span className="text-base">{rating}</span>
+          <h3 className="font-medium text-lg line-clamp-2">{title}</h3>
+          <div className="flex items-center gap-1">
+            <Star className="w-4 h-4 fill-orange-300 stroke-orange-300" />
+            <span>5</span>
           </div>
         </div>
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-base">{location}</span>
+        <div className="flex items-center gap-2 mb-2">
+          <span>{location}</span>
         </div>
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-7 h-7 rounded-full bg-blue-200 flex items-center justify-center">
-            <PlaceTypeIcon className="w-4 h-4 stroke-gray-600" />
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-7 h-7 rounded-full bg-pink-500 flex items-center justify-center">
+            <HouseTypeIcon className="w-4 h-4 stroke-white" />
           </div>
-          <span className="text-base">{roomType}</span>
+          <span>{houseType}</span>
         </div>
-      </div>
-      <div className="px-4 pb-4 flex items-center justify-between">
-        <span className="text-base font-medium">{price} / month</span>
-        <button
-          className="text-orange-500 text-base hover:underline focus:outline-none"
-          onClick={onViewDetails}
-        >
-          View details
-        </button>
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-7 h-7 rounded-full bg-blue-500 flex items-center justify-center">
+            <PlaceTypeIcon className="w-4 h-4 stroke-white" />
+          </div>
+          <span>{placeType} living space</span>
+        </div>
+        {/* Spacer to push price/details to bottom */}
+        <div className="flex-grow" />
+        <div className="flex items-center justify-between pt-2 pb-3">
+          <span className="font-medium">${price}/ month</span>
+          <button
+            className="text-orange-500 hover:font-medium focus:outline-none"
+            onClick={onViewDetails}
+          >
+            View details
+          </button>
+        </div>
       </div>
     </div>
   );
