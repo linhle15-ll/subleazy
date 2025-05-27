@@ -30,15 +30,7 @@ const authController = {
         isVerified: true,
       });
 
-      res.status(201).json({
-        user: {
-          id: newUser._id,
-          firstName: newUser.firstName,
-          lastName: newUser.lastName,
-          institution: newUser.institution,
-          email: newUser.email,
-        },
-      });
+      res.status(201).json(newUser);
     } catch (error) {
       next(error);
     }
@@ -50,7 +42,7 @@ const authController = {
     try {
       const existingUser = await User.findOne({ email });
       if (!existingUser) {
-        res.status(400).json({ error: 'User not found' });
+        res.status(401).json({ error: 'User not found' });
         return;
       }
 
