@@ -1,5 +1,3 @@
-import dotenv from 'dotenv';
-dotenv.config();
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
@@ -12,6 +10,7 @@ const authService = {
     );
     return accessToken;
   },
+
   generateRefreshToken: (userId: string, userEmail: string): string => {
     const refreshToken = jwt.sign(
       { id: userId, email: userEmail },
