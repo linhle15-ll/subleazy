@@ -1,5 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import bannerImage from '@/public/bannerImg.jpg';
+
+// import LeasePostingGrid from '@/components/ui/cards/subleasePostGrid';
 import { SearchBarLg } from '@/components/ui/search/search-bar';
 
 export default function LandingPage() {
@@ -61,6 +65,26 @@ export default function LandingPage() {
             Join community
           </a>
         </div>
+      </section>
+
+      {/* Featured Listings Section */}
+      <section className="px-6 lg:px-12">
+        {/* <LeasePostingGrid
+          posts={posts}
+          isVertical={true}
+          onViewDetails={(id) => {
+          // TODO: Implement view details navigation
+          }}
+          onToggleFavorite={(id) => {
+            setPosts(
+              posts.map((post) =>
+                post.id === id
+                  ? { ...post, isFavorite: !post.isFavorite }
+                  : post
+              )
+            );
+          }}
+        /> */}
       </section>
     </div>
   );
