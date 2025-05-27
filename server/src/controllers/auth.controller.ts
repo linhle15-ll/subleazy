@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
 import User from '../models/user.model';
 import authService from '../services/auth.service';
 import { validateAcademicEmail } from '../utils/validators';
