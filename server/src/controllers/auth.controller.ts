@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model';
 import authService from '../services/auth.service';
-import { validateAcademicEmail } from '../utils/validators';
 
 const authController = {
   handleSignUp: async (req: Request, res: Response, next: NextFunction) => {
@@ -15,7 +14,7 @@ const authController = {
         return;
       }
 
-      const isAcademicEmail = await validateAcademicEmail(email);
+      const isAcademicEmail = await authService.validateAcademicEmail(email);
       if (!isAcademicEmail) {
         res.status(400).json({ error: 'Invalid academic email' });
         return;
@@ -112,12 +111,12 @@ const authController = {
         return;
       }
 
-      const newAccessToken = authService.generateAccessToken(
+      const accessToken = authService.generateAccessToken(
         existingUser._id.toString(),
         existingUser.email
       );
 
-      res.status(200).json({ newAccessToken });
+      res.status(200).json({ accessToken });
     } catch (error) {
       next(error);
     }
