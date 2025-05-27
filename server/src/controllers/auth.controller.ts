@@ -29,15 +29,7 @@ const authController = {
         isVerified: true,
       });
 
-      res.status(201).json({
-        user: {
-          id: newUser._id,
-          firstName: newUser.firstName,
-          lastName: newUser.lastName,
-          institution: newUser.institution,
-          email: newUser.email,
-        },
-      });
+      res.status(201).json(newUser);
     } catch (error) {
       next(error);
     }
