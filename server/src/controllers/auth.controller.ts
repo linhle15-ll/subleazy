@@ -2,10 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model';
 import authService from '../services/auth.service';
+import { validateAcademicEmail } from '../utils/validators';
 
 const authController = {
   handleSignUp: async (req: Request, res: Response, next: NextFunction) => {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, institution, email, password } = req.body;
 
     try {
       const existingUser = await User.findOne({ email });
@@ -14,27 +15,20 @@ const authController = {
         return;
       }
 
+      const isAcademicEmail = await validateAcademicEmail(email);
+      if (!isAcademicEmail) {
+        res.status(400).json({ error: 'Invalid academic email' });
+        return;
+      }
+
+      // Send verification email
       const newUser = await User.create({
         firstName,
         lastName,
+        institution,
         email,
         passwordHash: await authService.hashPassword(password),
-      });
-
-      const accessToken = authService.generateAccessToken(
-        newUser._id.toString(),
-        newUser.email
-      );
-
-      const refreshToken = authService.generateRefreshToken(
-        newUser._id.toString(),
-        newUser.email
-      );
-
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-        // secure: true, // Uncomment in production
+        isVerified: true,
       });
 
       res.status(201).json({
@@ -42,9 +36,9 @@ const authController = {
           id: newUser._id,
           firstName: newUser.firstName,
           lastName: newUser.lastName,
+          institution: newUser.institution,
           email: newUser.email,
         },
-        accessToken,
       });
     } catch (error) {
       next(error);
