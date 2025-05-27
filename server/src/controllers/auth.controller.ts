@@ -31,6 +31,7 @@ const authController = {
       });
 
       res.status(201).json(newUser);
+<<<<<<< HEAD
     } catch (error) {
       next(error);
     }
@@ -128,6 +129,8 @@ const authController = {
         secure: false, // Set to true in production
       });
       res.status(200).json({ message: 'Logged out successfully' });
+=======
+>>>>>>> d74d09a (Fix to return newUser)
     } catch (error) {
       next(error);
     }
