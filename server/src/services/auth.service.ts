@@ -24,6 +24,13 @@ const authService = {
     return await bcrypt.hash(password, 10);
   },
 
+  comparePassword: async (
+    plainPassword: string,
+    hashedPassword: string
+  ): Promise<boolean> => {
+    return await bcrypt.compare(plainPassword, hashedPassword);
+  },
+
   validateAcademicEmail: async (email: string): Promise<boolean> => {
     if (!email) return false;
     const res = await fetch('https://api.apyhub.com/validate/email/academic', {
