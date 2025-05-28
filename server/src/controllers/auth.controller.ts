@@ -41,6 +41,7 @@ const authController = {
 
     try {
       const existingUser = await User.findOne({ email });
+      
       if (!existingUser) {
         res.status(401).json({ error: 'User not found' });
         return;
@@ -50,6 +51,7 @@ const authController = {
         password,
         existingUser.passwordHash
       );
+      
       if (!isPasswordValid) {
         res.status(401).json({ error: 'Invalid password' });
         return;
@@ -77,11 +79,7 @@ const authController = {
     }
   },
 
-  handleRefreshToken: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  handleRefreshToken: async (req: Request, res: Response, next: NextFunction) => {
     const cookies = req.cookies;
 
     if (!cookies?.refreshToken) {
@@ -125,8 +123,9 @@ const authController = {
     try {
       res.clearCookie('refreshToken', {
         httpOnly: true,
-        secure: false, // Set to true in production
+        // secure: true, // Uncomment in production
       });
+      
       res.status(200).json({ message: 'Logged out successfully' });
     } catch (error) {
       next(error);
