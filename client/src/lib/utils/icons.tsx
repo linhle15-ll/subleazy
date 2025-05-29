@@ -1,6 +1,26 @@
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { Home, User, Users, Building } from 'lucide-react';
+import { PlaceType, HouseType } from '@/lib/types/enums';
 
-export const SearchIcon = <Search size={20} color="white" strokeWidth={2} />;
-export const FilterIcon = (
-  <SlidersHorizontal size={20} color="gray" strokeWidth={2} />
-);
+export const getPlaceTypeIcon = (type: PlaceType) => {
+  switch (type) {
+    case PlaceType.ENTIRE:
+      return Home;
+    case PlaceType.PRV:
+      return User;
+    case PlaceType.SHARED:
+      return Users;
+    default:
+      return Home; 
+  }
+};
+
+export const getHouseTypeIcon = (type: HouseType) => {
+  switch (type) {
+    case HouseType.HOUSE:
+      return Home;
+    case HouseType.APT:
+      return Building; 
+    default:
+      return Home; 
+  }
+}

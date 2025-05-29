@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const db = async () => {
   try {
@@ -8,7 +8,7 @@ const db = async () => {
     if (process.env.NODE_ENV === 'development') {
       mongoose.set('debug', true);
     }
-  
+
     console.log('Connected to MongoDB');
   } catch (error) {
     console.error('Failed to connect to MongoDB', error);

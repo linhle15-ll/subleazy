@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { AuthRequest } from '../types/commonType';
+import { AuthRequest } from '../types/common.types';
 
 export function getAuthRequest(req: Request): AuthRequest {
   if (!req.user) {
