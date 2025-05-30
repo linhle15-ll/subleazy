@@ -112,7 +112,9 @@ const postService = {
       throw new Error('User ID is required');
     }
 
-    const posts = await postModel.find({ author: userId }).sort({ date: -1 });
+    const posts = await postModel
+      .find({ author: userId })
+      .sort({ updatedAt: -1 });
     return posts;
   },
 };
