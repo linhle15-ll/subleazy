@@ -31,6 +31,9 @@ app.use('/api/auth', authRoutes);
 // wish routes
 app.use('/api/wishes', wishRoutes);
 
+// auth routes
+app.use('/api/auth', authRoutes);
+
 // Basic Error Handling Middleware
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   // _next is intentionally unused

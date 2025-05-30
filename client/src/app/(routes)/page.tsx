@@ -2,8 +2,8 @@
 
 import Image from 'next/image';
 import bannerImage from '@/public/bannerImg.jpg';
-import { SearchBar } from '@/components/ui/search-bar/search-bar';
 import LeasePostingGrid from '@/components/ui/cards/subleasePostGrid';
+import { SearchBar } from '@/components/ui/search-bar/search-bar';
 
 export default function LandingPage() {
   return (
