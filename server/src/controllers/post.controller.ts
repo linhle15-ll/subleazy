@@ -57,8 +57,25 @@ const postController = {
       }
 
       const posts = await postService.searchPosts(data);
-
       res.status(200).json(posts);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  getPostsByUserId: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // find in the posts collection user's posts by id as an author
+
+      const userIdParam = req.params.id;
+
+      if (!Types.ObjectId.isValid(userIdParam)) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+      }
+
+      const userId = new Types.ObjectId(req.params.id);
+      const userPosts = await postService.getPostsByUserId(userId);
+      res.status(200).json(userPosts);
     } catch (error) {
       next(error);
     }
