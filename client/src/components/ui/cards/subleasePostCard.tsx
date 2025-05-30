@@ -3,7 +3,7 @@
 import Image, { StaticImageData } from 'next/image';
 import { Heart, Star } from 'lucide-react';
 import { getPlaceTypeIcon, getHouseTypeIcon } from '@/lib/utils/icons';
-import { HouseType, PlaceType } from '@/lib/types/enums';  
+import { HouseType, PlaceType } from '@/lib/types/enums';
 
 interface LeasePostingCardProps {
   title: string;
@@ -34,8 +34,12 @@ export default function LeasePostingCard({
   const HouseTypeIcon = getHouseTypeIcon(houseType);
 
   return (
-    <div className={`bg-white rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-700 flex h-full ${isVertical ? 'flex-col' : 'flex-row'}`}>
-      <div className={`relative ${isVertical ? '' : 'h-full min-h-[220px] w-2/5'}`}>
+    <div
+      className={`bg-white rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-700 flex h-full ${isVertical ? 'flex-col' : 'flex-row'}`}
+    >
+      <div
+        className={`relative ${isVertical ? '' : 'h-full min-h-[220px] w-2/5'}`}
+      >
         <Image
           src={imageUrl}
           alt={title}
