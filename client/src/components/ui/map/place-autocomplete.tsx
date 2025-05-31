@@ -70,11 +70,14 @@ export function PlaceAutocomplete({
         placeholder="Search for a place"
       />
       {suggestions.length > 0 && showSuggestions && (
-        <ul className="absolute w-full border rounded-md bg-white shadow-md">
+        <ul className="absolute w-full border rounded-md bg-white shadow-md z-50">
           {suggestions.map((suggestion, index) => (
             <li
               key={index}
-              onClick={() => handleSelect(suggestion)}
+              onClick={(e: React.MouseEvent) => {
+                e.preventDefault();
+                handleSelect(suggestion);
+              }}
               className={cn(
                 'p-2 hover:bg-gray-100 hover:font-medium cursor-pointer focus:outline-none',
                 activeIndex === index && 'bg-gray-100 font-medium'
