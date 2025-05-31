@@ -58,7 +58,7 @@ export default function SubleaseStep8() {
       {/* Navigation buttons and progress bar */}
       <ProgressBar
         currentStep={7}
-        totalSteps={11}
+        totalSteps={12}
         buttons={[
           {
             text: 'Back',

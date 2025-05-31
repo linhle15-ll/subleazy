@@ -61,6 +61,10 @@ body {
     @apply flex items-center justify-between py-4 px-10 mb-4 transition-all duration-500 ease-in-out hover:bg-orange-50 active:scale-[0.98] cursor-pointer;
   }
 
+  .form-dropdown-box {
+    @apply flex items-center justify-center gap-4 w-16 h-15 border-2 rounded-xl text-lg text-center font-medium border-gray-400;
+  }
+
   @layer base {
     input[type='number']::-webkit-inner-spin-button,
     input[type='number']::-webkit-outer-spin-button {

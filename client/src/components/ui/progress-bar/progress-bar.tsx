@@ -23,9 +23,9 @@ export default function ProgressBar({
         <span className="text-gray-500 text-sm">
           Step {currentStep} of {totalSteps}
         </span>
-        <div className="w-full h-2 bg-gray-200 rounded-full ">
+        <div className="w-full h-3 bg-gray-200 rounded-full">
           <div
-            className="h-full bg-primaryOrange transition-all duration-300"
+            className="h-full bg-primaryOrange transition-all duration-300 rounded-full"
             style={{ width: `${progressPercentage}%` }}
           />
         </div>

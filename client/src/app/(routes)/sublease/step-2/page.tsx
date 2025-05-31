@@ -81,7 +81,7 @@ function SubleaseStep2() {
       <MainContent />
       <ProgressBar
         currentStep={1}
-        totalSteps={11}
+        totalSteps={12}
         buttons={[
           {
             text: 'Get started',
