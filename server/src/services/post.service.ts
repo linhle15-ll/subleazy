@@ -9,37 +9,16 @@ const postService = {
     return post;
   },
 
-  //Might need to be modified to also work on the sublesee side
-  getPostById: async (postId: string) => {
+  getPost: async (postId: string) => {
     const post = await postModel.findById(postId);
     return post;
   },
 
-  editPost: async (postId: string, data: Partial<PostRequestBody>) => {
-    const allowedFields = [
-      'title',
-      'description',
-      'media',
-      'houseInfo',
-      'bedroomInfo',
-      'bathroomInfo',
-      'whoElse',
-      'amenities',
-      'conveniences',
-      'price',
-      'rules',
-      'availability',
-    ];
-
-    const filteredData = Object.fromEntries(
-      Object.entries(data).filter(([key]) => allowedFields.includes(key))
-    );
-
-    const updatedPost = await postModel.findByIdAndUpdate(
-      postId,
-      { $set: filteredData },
-      { new: true, runValidators: true }
-    );
+  updatePost: async (postId: string, data: Partial<PostRequestBody>) => {
+    const updatedPost = await postModel.findByIdAndUpdate(postId, data, {
+      new: true,
+      runValidators: true,
+    });
     return updatedPost;
   },
 

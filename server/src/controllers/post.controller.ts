@@ -4,7 +4,7 @@ import postService from '../services/post.service';
 import { House } from '../types/house.types';
 import { PostRequestBody } from '../types/post.types';
 import { Types } from 'mongoose';
-import { validateMedia, validateTime } from '../utils/validators';
+import { validatePostData } from '../utils/validators';
 // import { getAuthRequest } from "../utils/commonUtils";
 
 const postController = {
@@ -18,13 +18,7 @@ const postController = {
       const data: PostRequestBody = req.body;
       data.author = new Types.ObjectId(req.body.user.id as string);
 
-      if (
-        !validateMedia(data.media) ||
-        !validateTime(data.availability.checkinTime as string) ||
-        !validateTime(data.availability.checkoutTime as string) ||
-        !validateTime(data.rules?.quietHours?.from as string) ||
-        !validateTime(data.rules?.quietHours?.to as string)
-      ) {
+      if (validatePostData(data)) {
         res.status(400).json({ error: 'Invalid data' });
         return;
       }
@@ -48,14 +42,19 @@ const postController = {
     }
   },
 
-  //Might need to be modified to also work on the sublesee side
-  getPostById: async (req: Request, res: Response, next: NextFunction) => {
+  // This function is for published posts only and not for drafts
+  getPost: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { postId } = req.params;
-      const post = await postService.getPostById(postId);
+      const post = await postService.getPost(postId);
+
       if (!post) {
         res.status(404).json({ error: 'Post not found' });
         return;
+      }
+
+      if (post.status !== 'active') {
+        res.status(403).json({ error: 'Unauthorized to view this post' });
       }
 
       res.status(200).json(post);
@@ -64,67 +63,64 @@ const postController = {
     }
   },
 
-  editPost: async (req: Request, res: Response, next: NextFunction) => {
+  updatePost: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { postId } = req.params;
-      const updates: Partial<PostRequestBody> = req.body;
-      const existingPost = await postService.getPostById(postId);
+      // Uncomment when auth middleware is merged
+      // const authReq = getAuthRequest(req);
+      // const updates: Partial<PostRequestBody> = authReq.body;
+      // updates.author = new Types.ObjectId(authReq.user.id);
+
+      const { postId } = req.params; //authReq.params;
+      const updates: Partial<PostRequestBody> = req.body; // authReq.body;
+      const existingPost = await postService.getPost(postId);
+
       if (!existingPost) {
         res.status(404).json({ error: 'Post not found' });
         return;
       }
 
-      // All other fields can be sent as full objects from frontend
-      const fieldsToMerge: (keyof PostRequestBody)[] = [
+      // if (existingPost.author.toString() !== authReq.user.id || existingPost.status === 'closed') {
+      //   res.status(403).json({ error: 'Unauthorized to edit this post' });
+      //   return;
+      // }
+
+      const allowedFields = [
+        'title',
+        'description',
+        'media',
         'houseInfo',
         'bedroomInfo',
         'bathroomInfo',
+        'whoElse',
+        'amenities',
+        'convenience',
+        'price',
         'rules',
+        'availability',
       ];
 
-      for (const field of fieldsToMerge) {
-        if (updates[field]) {
-          const existingValue =
-            existingPost[field as keyof typeof existingPost] || {};
-          const updateValue = updates[field] || {};
-          updates[field] = { ...existingValue, ...updateValue };
-        }
-      }
-
-      if (updates.availability) {
-        updates.availability = {
-          ...existingPost.availability,
-          ...updates.availability,
-        };
-      }
-
-      if (updates.rules?.quietHours) {
-        updates.rules.quietHours = {
-          ...existingPost.rules.quietHours,
-          ...updates.rules.quietHours,
-        };
-      }
+      const filteredData = Object.fromEntries(
+        Object.entries(updates).filter(([key]) => allowedFields.includes(key))
+      );
 
       if (
-        (updates.media && !validateMedia(updates.media)) ||
-        !validateTime(updates.availability?.checkinTime as string) ||
-        !validateTime(updates.availability?.checkoutTime as string) ||
-        (updates.rules?.quietHours &&
-          (!validateTime(updates.rules.quietHours.from as string) ||
-            !validateTime(updates.rules.quietHours.to as string)))
+        validatePostData({
+          ...existingPost.toObject(),
+          ...updates,
+        } as PostRequestBody)
       ) {
         res.status(400).json({ error: 'Invalid data' });
         return;
       }
 
-      const updatePost = await postService.editPost(postId, updates);
+      const updatedPost = await postService.updatePost(postId, filteredData);
 
-      if (!updatePost) {
+      if (!updatedPost) {
         res.status(404).json({ error: 'Post not found' });
         return;
       }
 
-      res.status(200).json(updatePost);
+      res.status(200).json(updatedPost);
     } catch (error) {
       next(error);
     }
