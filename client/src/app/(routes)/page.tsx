@@ -2,8 +2,9 @@
 
 import Image from 'next/image';
 import bannerImage from '@/public/bannerImg.jpg';
-import LeasePostingGrid from '@/components/ui/cards/subleasePostGrid';
-import { SearchBar } from '@/components/ui/search-bar/search-bar';
+
+// import LeasePostingGrid from '@/components/ui/cards/subleasePostGrid';
+import { SearchBarLg } from '@/components/ui/search/search-bar';
 
 export default function LandingPage() {
   return (
@@ -31,7 +32,7 @@ export default function LandingPage() {
           </p>
 
           <div className="relative z-10 mt-6 lg:mt-12">
-            <SearchBar />
+            <SearchBarLg />
           </div>
         </div>
 
@@ -68,8 +69,7 @@ export default function LandingPage() {
 
       {/* Featured Listings Section */}
       <section className="px-6 lg:px-12">
-
-        <LeasePostingGrid
+        {/* <LeasePostingGrid
           posts={posts}
           isVertical={true}
           onViewDetails={(id) => {
@@ -84,7 +84,7 @@ export default function LandingPage() {
               )
             );
           }}
-        />
+        /> */}
       </section>
     </div>
   );

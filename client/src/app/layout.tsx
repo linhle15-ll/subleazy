@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { Montserrat } from 'next/font/google';
 import Header from '@/components/layout/header';
-
+import ReactQueryProvider from '@/components/providers/react-query-provider';
+import MapProvider from '@/components/providers/map-provider';
 import './globals.css';
 
 const montserrat = Montserrat({
@@ -24,8 +25,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${montserrat.variable} antialiased`}>
-        <Header />
-        {children}
+        <ReactQueryProvider>
+          <MapProvider>
+            <Header />
+            {children}
+          </MapProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );

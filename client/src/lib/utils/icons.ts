@@ -10,7 +10,7 @@ export const getPlaceTypeIcon = (type: PlaceType) => {
     case PlaceType.SHARED:
       return Users;
     default:
-      return Home; 
+      return Home;
   }
 };
 
@@ -19,8 +19,8 @@ export const getHouseTypeIcon = (type: HouseType) => {
     case HouseType.HOUSE:
       return Home;
     case HouseType.APT:
-      return Building; 
+      return Building;
     default:
-      return Home; 
+      return Home;
   }
-}
+};

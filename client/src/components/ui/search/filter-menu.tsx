@@ -201,7 +201,7 @@ export function FilterMenu({ isLandingPage }: { isLandingPage: boolean }) {
       ...filters,
       rules: {
         ...filters.rules,
-        [key]: value == filters.rules?.[key] ? undefined : value,
+        [key]: value === filters.rules?.[key] ? undefined : value,
       },
     });
   };
@@ -209,18 +209,20 @@ export function FilterMenu({ isLandingPage }: { isLandingPage: boolean }) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        {/* TODO: Smaller button if not landing page */}
         {isLandingPage ? (
           <div className="flex gap-2 cursor-pointer">
             <Filter className="h-6 w-6 text-grey" />
             <span className="font-medium">Filters</span>
           </div>
         ) : (
-          <Button></Button>
+          <Button>
+            <Filter className="h-5 w-5 text-grey" />
+            <span className="font-medium">Filters</span>
+          </Button>
         )}
       </PopoverTrigger>
       <PopoverContent
-        align="start"
+        align={isLandingPage ? 'start' : 'end'}
         className="flex w-[90vw] sm:w-[28vw] flex-col bg-white space-y-2 p-2 focus:outline-none"
       >
         <div className="flex flex-col items-center border-b border-gray-300 pb-2">
