@@ -7,6 +7,7 @@ import postRoutes from './routes/post.routes';
 import wishRoutes from './routes/wish.routes';
 import authRoutes from './routes/auth.routes';
 // import houseRoutes from './routes/house.routes';
+import userRoutes from './routes/user.routes';
 
 const app: Application = express();
 
@@ -37,6 +38,9 @@ app.use('/api/posts', postRoutes);
 
 // wish routes
 app.use('/api/wishes', wishRoutes);
+
+// user routes
+app.use('/api/users', userRoutes);
 
 // auth routes
 app.use('/api/auth', authRoutes);
