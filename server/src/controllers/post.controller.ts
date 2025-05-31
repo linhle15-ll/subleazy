@@ -4,7 +4,7 @@ import postService from '../services/post.service';
 import { House } from '../types/house.types';
 import { PostRequestBody } from '../types/post.types';
 import { Types } from 'mongoose';
-import { validateMedia, validateTime } from '../utils/validators';
+import { validatePostData } from '../utils/validators';
 // import { getAuthRequest } from "../utils/commonUtils";
 
 const postController = {
@@ -18,13 +18,7 @@ const postController = {
       const data: PostRequestBody = req.body;
       data.author = new Types.ObjectId(req.body.user.id as string);
 
-      if (
-        !validateMedia(data.media) ||
-        !validateTime(data.availability.checkinTime as string) ||
-        !validateTime(data.availability.checkoutTime as string) ||
-        !validateTime(data.rules?.quietHours?.from as string) ||
-        !validateTime(data.rules?.quietHours?.to as string)
-      ) {
+      if (validatePostData(data)) {
         res.status(400).json({ error: 'Invalid data' });
         return;
       }
@@ -43,6 +37,90 @@ const postController = {
       const post = await postService.createPost(data);
 
       res.status(201).json(post);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // This function is for published posts only and not for drafts
+  getPost: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { postId } = req.params;
+      const post = await postService.getPost(postId);
+
+      if (!post) {
+        res.status(404).json({ error: 'Post not found' });
+        return;
+      }
+
+      if (post.status !== 'active') {
+        res.status(403).json({ error: 'Unauthorized to view this post' });
+      }
+
+      res.status(200).json(post);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  updatePost: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // Uncomment when auth middleware is merged
+      // const authReq = getAuthRequest(req);
+      // const updates: Partial<PostRequestBody> = authReq.body;
+      // updates.author = new Types.ObjectId(authReq.user.id);
+
+      const { postId } = req.params; //authReq.params;
+      const updates: Partial<PostRequestBody> = req.body; // authReq.body;
+      const existingPost = await postService.getPost(postId);
+
+      if (!existingPost) {
+        res.status(404).json({ error: 'Post not found' });
+        return;
+      }
+
+      // if (existingPost.author.toString() !== authReq.user.id || existingPost.status === 'closed') {
+      //   res.status(403).json({ error: 'Unauthorized to edit this post' });
+      //   return;
+      // }
+
+      const allowedFields = [
+        'title',
+        'description',
+        'media',
+        'houseInfo',
+        'bedroomInfo',
+        'bathroomInfo',
+        'whoElse',
+        'amenities',
+        'convenience',
+        'price',
+        'rules',
+        'availability',
+      ];
+
+      const filteredData = Object.fromEntries(
+        Object.entries(updates).filter(([key]) => allowedFields.includes(key))
+      );
+
+      if (
+        validatePostData({
+          ...existingPost.toObject(),
+          ...updates,
+        } as PostRequestBody)
+      ) {
+        res.status(400).json({ error: 'Invalid data' });
+        return;
+      }
+
+      const updatedPost = await postService.updatePost(postId, filteredData);
+
+      if (!updatedPost) {
+        res.status(404).json({ error: 'Post not found' });
+        return;
+      }
+
+      res.status(200).json(updatedPost);
     } catch (error) {
       next(error);
     }
