@@ -4,12 +4,9 @@ import { authenticate } from '../middleware/auth.middleware';
 
 const router = Router();
 
-// Public routes
-router.post('/search', postController.searchPosts);
-
-// Protected routes
 router.use(authenticate);
 
 router.post('/create', postController.createPost);
+router.post('/search', postController.searchPosts);
 
 export default router;
