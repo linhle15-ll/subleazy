@@ -75,14 +75,17 @@ const postSchema = new Schema<Post>(
     bedroomInfo: {
       maxGuests: {
         type: Number,
+        default: 1,
         required: true,
       },
       bedrooms: {
         type: Number,
+        default: 1,
         required: true,
       },
       beds: {
         type: Number,
+        default: 0,
         required: true,
       },
       lock: {
@@ -93,14 +96,17 @@ const postSchema = new Schema<Post>(
     bathroomInfo: {
       privateAttached: {
         type: Number,
+        default: 0,
         required: true,
       },
       privateAccessible: {
         type: Number,
+        default: 0,
         required: true,
       },
       shared: {
         type: Number,
+        default: 0,
         required: true,
       },
     },
