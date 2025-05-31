@@ -10,3 +10,8 @@ export interface User extends Base, Timestamps {
   profileImage: string;
   sublesseeHistory: (string | Post)[];
 }
+
+export interface UserPayload {
+  id: string;
+  email: string;
+}

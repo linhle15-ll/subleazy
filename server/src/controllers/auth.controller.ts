@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model';
 import authService from '../services/auth.service';
+import { UserPayload } from '../types/user.types';
 
 const authController = {
   handleSignUp: async (req: Request, res: Response, next: NextFunction) => {
@@ -41,7 +42,7 @@ const authController = {
 
     try {
       const existingUser = await User.findOne({ email });
-      
+
       if (!existingUser) {
         res.status(401).json({ error: 'User not found' });
         return;
@@ -51,7 +52,7 @@ const authController = {
         password,
         existingUser.passwordHash
       );
-      
+
       if (!isPasswordValid) {
         res.status(401).json({ error: 'Invalid password' });
         return;
@@ -79,7 +80,11 @@ const authController = {
     }
   },
 
-  handleRefreshToken: async (req: Request, res: Response, next: NextFunction) => {
+  handleRefreshToken: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     const cookies = req.cookies;
 
     if (!cookies?.refreshToken) {
@@ -93,7 +98,7 @@ const authController = {
       const decoded = jwt.verify(
         refreshToken,
         process.env.REFRESH_TOKEN_SECRET as string
-      ) as { id: string; email: string };
+      ) as UserPayload;
 
       const existingUser = await User.findById(decoded.id);
       if (!existingUser) {
@@ -125,7 +130,7 @@ const authController = {
         httpOnly: true,
         // secure: true, // Uncomment in production
       });
-      
+
       res.status(200).json({ message: 'Logged out successfully' });
     } catch (error) {
       next(error);

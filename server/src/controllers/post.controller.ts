@@ -5,18 +5,14 @@ import { House } from '../types/house.types';
 import { PostRequestBody } from '../types/post.types';
 import { Types } from 'mongoose';
 import { validateMedia, validateTime } from '../utils/validators';
-// import { getAuthRequest } from "../utils/commonUtils";
+import { getAuthRequest } from '../utils/common.utils';
 
 const postController = {
   createPost: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // TODO: Use authReq after jwt token is implemented
-      // const authReq = getAuthRequest(req);
-      // const data: PostRequestBody = authReq.body;
-      // data.author = new Types.ObjectId(authReq.user.id);
-
-      const data: PostRequestBody = req.body;
-      data.author = new Types.ObjectId(req.body.user.id as string);
+      const authReq = getAuthRequest(req);
+      const data: PostRequestBody = authReq.body;
+      data.author = new Types.ObjectId(authReq.user.id);
 
       if (
         !validateMedia(data.media) ||
@@ -50,7 +46,10 @@ const postController = {
 
   searchPosts: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data: Partial<PostRequestBody> = req.body;
+      const authReq = getAuthRequest(req);
+      const data: Partial<PostRequestBody> = authReq.body;
+      data.author = new Types.ObjectId(authReq.user.id);
+
       if (!data.zip && !data.state && (!data.lat || !data.long)) {
         res.status(400).json({ error: 'Missing location' });
         return;

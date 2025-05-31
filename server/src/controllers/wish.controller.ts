@@ -1,17 +1,19 @@
 import { NextFunction, Request, Response } from 'express';
+import { Types } from 'mongoose';
 import wishService from '../services/wish.service';
 import { Wish } from '../types/wish.types';
 import Post from '../models/post.model';
-// import { getAuthRequest } from '../utils/commonUtils';
+import { getAuthRequest } from '../utils/common.utils';
 
 const wishController = {
   createWish: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      //TODO: authReq
-      const data: Wish = req.body;
+      const authReq = getAuthRequest(req);
+      const data: Wish = authReq.body;
+      data.user = new Types.ObjectId(authReq.user.id);
 
-      if (!data.post || !data.user) {
-        res.status(400).json({ error: 'Missing post or user' });
+      if (!data.post) {
+        res.status(400).json({ error: 'Missing post' });
         return;
       }
 
