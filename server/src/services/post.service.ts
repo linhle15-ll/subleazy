@@ -2,6 +2,7 @@ import postModel from '../models/post.model';
 import { CustomQuery } from '../types/common.types';
 import { PostStatus } from '../types/enums';
 import { PostRequestBody } from '../types/post.types';
+import { Types } from 'mongoose';
 
 const postService = {
   createPost: async (data: PostRequestBody) => {
@@ -103,6 +104,17 @@ const postService = {
       query['rules.noPet'] = data.rules.noPet;
 
     const posts = await postModel.find(query);
+    return posts;
+  },
+
+  getPostsByUserId: async (userId: Types.ObjectId) => {
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
+
+    const posts = await postModel
+      .find({ author: userId })
+      .sort({ updatedAt: -1 });
     return posts;
   },
 };

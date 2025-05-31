@@ -3,7 +3,7 @@ import houseService from '../services/house.service';
 import postService from '../services/post.service';
 import { House } from '../types/house.types';
 import { PostRequestBody } from '../types/post.types';
-import { Types } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import { validateMedia, validateTime } from '../utils/validators';
 // import { getAuthRequest } from "../utils/commonUtils";
 
@@ -57,8 +57,25 @@ const postController = {
       }
 
       const posts = await postService.searchPosts(data);
-
       res.status(200).json(posts);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  getPostsByUserId: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // find in the posts collection user's posts by id as an author
+      const userIdParam = req.params.id;
+
+      if (!mongoose.isValidObjectId(userIdParam)) {
+        res.status(400).json({ error: 'Invalid user ID' });
+        return;
+      }
+
+      const userId = new Types.ObjectId(req.params.id);
+      const userPosts = await postService.getPostsByUserId(userId);
+      res.status(200).json(userPosts);
     } catch (error) {
       next(error);
     }
