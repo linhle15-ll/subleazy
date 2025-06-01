@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import houseService from '../services/house.service';
 import postService from '../services/post.service';
-import { House } from '../types/house.types';
 import { PostRequestBody } from '../types/post.types';
 import mongoose, { Types } from 'mongoose';
 import { validateMedia, validateTime } from '../utils/validators';
+import { parseGoogleMapPlaces } from '../utils/parsers';
 // import { getAuthRequest } from "../utils/commonUtils";
 
 const postController = {
@@ -29,17 +29,39 @@ const postController = {
         return;
       }
 
-      const houseData: House = {
+      const house = await houseService.getOrCreateHouse({
         address: data.address,
-        city: data.city,
-        state: data.state,
         zip: data.zip,
-        lat: data.lat,
-        long: data.long,
-      };
-      const house = await houseService.getOrCreateHouse(houseData);
-      data.house = house._id;
+      });
 
+      if (
+        !house.nearbyAmenities ||
+        (house.nearbyAmenities.supermarkets.length === 0 &&
+          house.nearbyAmenities.publicTransports.length === 0)
+      ) {
+        const spmkPlaces = await houseService.fetchNearbyPlaces(
+          data.lat,
+          data.long,
+          true
+        );
+        const transportPlaces = await houseService.fetchNearbyPlaces(
+          data.lat,
+          data.long,
+          false
+        );
+
+        const supermarkets = parseGoogleMapPlaces(spmkPlaces);
+        const publicTransports = parseGoogleMapPlaces(transportPlaces);
+
+        await houseService.updateHouse(house._id, {
+          nearbyAmenities: {
+            supermarkets,
+            publicTransports,
+          },
+        });
+      }
+
+      data.house = house._id;
       const post = await postService.createPost(data);
 
       res.status(201).json(post);
