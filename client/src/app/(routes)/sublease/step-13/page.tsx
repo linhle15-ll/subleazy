@@ -117,7 +117,7 @@ export default function SubleaseStep13() {
         <div className="form-h1">Review and publish</div>
       </div>
       <div className="form-h2">Set rules for your place</div>
-      <div className="text-gray-400 text-sm mb-8">
+      <div className="text-gray-400 text-sm mb-8 -mt-5">
         Pick what applies. You can always customize and edit after publishing
         your post.
       </div>

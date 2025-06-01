@@ -2,7 +2,7 @@ import { Types, ObjectId } from 'mongoose';
 import { Base, Timestamps } from './common.types';
 import { User } from './user.types';
 import { House } from './house.types';
-import { HouseType, PlaceType, PostStatus, WhoElse } from './enums';
+import { HouseType, PetRule, PlaceType, PostStatus, WhoElse } from './enums';
 
 interface HouseInfo {
   houseType: HouseType;
@@ -24,10 +24,32 @@ interface BathroomInfo {
 
 interface Amenities {
   wifi: boolean;
+  tv: boolean;
+  ac: boolean; // air conditioning
+  heating: boolean;
   kitchen: boolean;
-  laundry: boolean;
+  washer: boolean;
+  dryer: boolean;
   parking: boolean;
-  airConditioning: boolean;
+  pool: boolean;
+  pet: boolean; // pet friendly
+  coffee: boolean; // coffee maker
+  CookingPot: boolean;
+  microwave: boolean;
+  balcony: boolean;
+  gym: boolean;
+  workspace: boolean;
+  hairdryer: boolean;
+  Shirt: boolean;
+  fireplace: boolean;
+  outdoor: boolean; // outdoor dining
+  smoke: boolean; // smoke alarm
+  co: boolean; // CO alarm
+  extinguisher: boolean; // fire extinguisher
+  firstaid: boolean; // first aid kit
+  camera: boolean; // security cameras
+  lock: boolean; // lock on bedroom
+  exit: boolean; // emergency exit
 }
 
 interface Convenience {
@@ -36,16 +58,61 @@ interface Convenience {
   disabilityFriendly: boolean;
 }
 
-interface Rules {
+interface GuestRule {
   noGuest: boolean;
+  noOverNight: boolean;
   noParty: boolean;
-  quietHours?: {
-    from?: string;
-    to?: string;
+  noMusic: boolean;
+  quietHours: {
+    from: string;
+    to: string;
   };
+}
+
+interface Lifestyle {
   noSmoking: boolean;
-  noDrug: boolean;
-  noPet: boolean;
+  allowSmokingOutside: boolean;
+  noAlcohol: boolean;
+  noDrugs: boolean;
+}
+
+interface Cleanliness {
+  cleanShared: boolean;
+  takeOutTrash: boolean;
+  respectPrivacy: boolean;
+}
+
+interface PetRule {
+  noPets: boolean;
+  approval: boolean;
+}
+
+interface Utilities {
+  fridgeOnly: boolean;
+  ecoShower: boolean;
+  ecoElectricity: boolean;
+  limitLaundry: boolean;
+}
+
+interface Safety {
+  reportIssues: boolean;
+  noTamper: boolean;
+  lockDoor: boolean;
+}
+
+interface Move {
+  returnKeys: boolean;
+  leaveOriginal: boolean;
+}
+
+interface Rules {
+  guest: GuestRule;
+  lifestyle: Lifestyle;
+  cleanliness: Cleanliness;
+  pet: PetRule;
+  utilities: Utilities;
+  safety: Safety;
+  move: Move;
 }
 
 interface Availability {
