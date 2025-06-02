@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import bannerImage from '@/public/bannerImg.jpg';
-import LeasePostingGrid from '@/components/ui/cards/subleasePostGrid';
+// import LeasePostingGrid from '@/components/ui/cards/subleasePostGrid';
 import { SearchBar } from '@/components/ui/search-bar/search-bar';
 
 export default function LandingPage() {
@@ -67,10 +67,9 @@ export default function LandingPage() {
       </section>
 
       {/* Featured Listings Section */}
-      <section className="px-6 lg:px-12">
-
+      {/* <section className="px-6 lg:px-12">
         <LeasePostingGrid
-          posts={posts}
+          posts={[]}
           isVertical={true}
           onViewDetails={(id) => {
           // TODO: Implement view details navigation
@@ -85,7 +84,7 @@ export default function LandingPage() {
             );
           }}
         />
-      </section>
+      </section> */}
     </div>
   );
 }
