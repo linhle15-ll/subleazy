@@ -1,54 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
 import bannerImage from '@/public/bannerImg.jpg';
-import SearchFilterBar from '@/components/ui/searchFilterbar/searchFilterBarLg';
-import LeasePostingGrid from '@/components/ui/cards/LeasePostingGrid';
-import postingDemo from '@/public/postingDemo.jpg';
 
-// Sample data - replace with actual data from your API
-const samplePosts = [
-  {
-    id: '1',
-    title: 'Entire Studio Apartment',
-    location: 'Downtown San Francisco',
-    price: '$50',
-    rating: 4.8,
-    imageUrl: postingDemo,
-    isFavorite: false,
-  },
-  {
-    id: '2',
-    title: 'Cozy Studio Near Campus',
-    location: 'Berkeley',
-    price: '$45',
-    rating: 4.6,
-    imageUrl: postingDemo,
-    isFavorite: true,
-  },
-  {
-    id: '3',
-    title: 'Modern Studio with View',
-    location: 'San Jose',
-    price: '$55',
-    rating: 4.9,
-    imageUrl: postingDemo,
-    isFavorite: false,
-  },
-  {
-    id: '4',
-    title: 'Furnished Studio',
-    location: 'Palo Alto',
-    price: '$60',
-    rating: 4.7,
-    imageUrl: postingDemo,
-    isFavorite: false,
-  },
-];
+// import LeasePostingGrid from '@/components/ui/cards/subleasePostGrid';
+import { SearchBarLg } from '@/components/ui/search/search-bar';
 
 export default function LandingPage() {
-  const [posts, setPosts] = useState(samplePosts);
   return (
     <div className="flex flex-col gap-12 justify-center pb-5">
       {/* Hero Section */}
@@ -74,7 +32,7 @@ export default function LandingPage() {
           </p>
 
           <div className="relative z-10 mt-6 lg:mt-12">
-            <SearchFilterBar />
+            <SearchBarLg />
           </div>
         </div>
 
@@ -111,11 +69,12 @@ export default function LandingPage() {
 
       {/* Featured Listings Section */}
       <section className="px-6 lg:px-12">
-        <h2 className="text-2xl lg:text-3xl font-semibold mb-6">
-          Featured Listings
-        </h2>
-        <LeasePostingGrid
+        {/* <LeasePostingGrid
           posts={posts}
+          isVertical={true}
+          onViewDetails={(id) => {
+          // TODO: Implement view details navigation
+          }}
           onToggleFavorite={(id) => {
             setPosts(
               posts.map((post) =>
@@ -125,7 +84,7 @@ export default function LandingPage() {
               )
             );
           }}
-        />
+        /> */}
       </section>
     </div>
   );

@@ -37,25 +37,22 @@ interface Convenience {
 }
 
 interface Rules {
-  guest: boolean;
-  party: boolean;
-  loudMusic: boolean;
-  quietHours: {
+  noGuest: boolean;
+  noParty: boolean;
+  quietHours?: {
     from?: string;
     to?: string;
   };
-  smoking: boolean;
-  alcohol: boolean;
-  drug: boolean;
-  pet: boolean;
-  children: boolean;
+  noSmoking: boolean;
+  noDrug: boolean;
+  noPet: boolean;
 }
 
 interface Availability {
   startDate: Date;
   endDate: Date;
-  checkinTime: string;
-  checkoutTime: string;
+  checkinTime?: string;
+  checkoutTime?: string;
 }
 
 export interface Post extends Base, Timestamps {
@@ -70,6 +67,8 @@ export interface Post extends Base, Timestamps {
   city: string;
   state: string;
   zip: string;
+  lat: number;
+  long: number;
   bedroomInfo: BedroomInfo;
   bathroomInfo: BathroomInfo;
   whoElse: WhoElse[];
@@ -83,6 +82,6 @@ export interface Post extends Base, Timestamps {
 
 export interface PostRequestBody extends Post {
   address: string;
-  lat: number;
-  long: number;
+  minPrice: number;
+  maxPrice: number;
 }
