@@ -1,5 +1,3 @@
-//validate academic email
-
 export function checkPasswordStrength (password: string) {
   const error: string[] = [];
 

@@ -9,5 +9,10 @@ export interface Timestamps {
 
 export interface Result<T> {
   success: boolean;
-  data: T | string;
+  data?: T;
+  error?: string;
 }
+
+export type DeepPartial<T> = {
+  [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K];
+};

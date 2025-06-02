@@ -4,13 +4,12 @@
 
 /* Base styles */
 body {
-  @apply bg-light text-gray-900 text-sm dark:bg-dark dark:text-light;
+  @apply bg-light text-gray-900 text-sm;
   @apply transition-colors duration-300 ease-in-out;
   @apply font-montserrat font-regular leading-6;
 }
 
 /* when working on the components, when you see there is a repeated pattern, please define a class name here */
-
 @layer components {
   .btn-primary {
     @apply flex items-center w-full sm:w-auto text-center justify-center gap-2 rounded-lg px-4 py-2 bg-primaryOrange text-white font-medium
@@ -37,5 +36,13 @@ body {
 
   .input-field {
     @apply border rounded-md border-lightGray py-1 px-2 focus:border-primaryOrange focus:outline-none focus:ring-0 focus:ring-primaryOrange;
+  }
+}
+
+@layer base {
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
   }
 }

@@ -2,7 +2,6 @@ import '@/app/globals.css';
 import AuthForm from '../auth-form';
 import Image from 'next/image';
 import authenImg from '@/public/authenImg.jpg';
-// import authen
 
 export default function SignUpPage() {
   return (

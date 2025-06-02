@@ -23,7 +23,12 @@ const userSchema = new Schema<User>(
       unique: true,
       trim: true,
       lowercase: true,
-      match: /^[^\s@]+@[^\s@]+\.(edu)$/,
+      // match: /^[^\s@]+@[^\s@]+\.(edu)$/,
+    },
+    institution: {
+      type: String,
+      required: true,
+      trim: true,
     },
     isVerified: {
       type: Boolean,
@@ -32,6 +37,10 @@ const userSchema = new Schema<User>(
     profileImage: {
       type: String,
       // default: add a default profile image link here
+    },
+    bio: {
+      type: String,
+      trim: true,
     },
     sublesseeHistory: [{ type: Schema.Types.ObjectId, ref: 'Post' }], // Where user has been a sublessee
     // Additional stats to add later if necessary
