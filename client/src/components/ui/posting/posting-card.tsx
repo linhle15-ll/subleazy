@@ -1,35 +1,31 @@
 'use client';
 
-import Image, { StaticImageData } from 'next/image';
+import Image from 'next/image';
 import { Heart, Star } from 'lucide-react';
 import { getPlaceTypeIcon, getHouseTypeIcon } from '@/lib/utils/icons';
-import { HouseType, PlaceType } from '@/lib/types/enums';
+import { Post } from '@/lib/types/post.types';
 
-interface LeasePostingCardProps {
-  title: string;
-  location: string;
-  houseType: HouseType;
-  placeType: PlaceType;
-  price: string;
-  imageUrl: StaticImageData | string;
+interface PostingCardProps {
+  post: Post;
+  isVertical?: boolean;
+  isFavorite?: boolean;
   onViewDetails: () => void;
   onToggleFavorite: () => void;
-  isFavorite?: boolean;
-  isVertical?: boolean;
 }
 
-export default function LeasePostingCard({
-  title,
-  location,
-  houseType,
-  placeType,
-  price,
-  imageUrl,
+export function PostingCard({
+  post,
   onViewDetails,
   onToggleFavorite,
   isVertical,
   isFavorite = false,
-}: LeasePostingCardProps) {
+}: PostingCardProps) {
+  const placeType = post.houseInfo.placeType;
+  const houseType = post.houseInfo.houseType;
+  const imageUrl = post.media[0];
+  const location = `${post.city}, ${post.state} ${post.zip}`;
+  const { title, price } = post;
+
   const PlaceTypeIcon = getPlaceTypeIcon(placeType);
   const HouseTypeIcon = getHouseTypeIcon(houseType);
 
@@ -77,18 +73,21 @@ export default function LeasePostingCard({
           <div className="w-7 h-7 rounded-full bg-pink-500 flex items-center justify-center">
             <HouseTypeIcon className="w-4 h-4 stroke-white" />
           </div>
-          <span>{houseType}</span>
+          <span>{houseType.charAt(0).toUpperCase() + houseType.slice(1)}</span>
         </div>
         <div className="flex items-center gap-2 mb-2">
           <div className="w-7 h-7 rounded-full bg-blue-500 flex items-center justify-center">
             <PlaceTypeIcon className="w-4 h-4 stroke-white" />
           </div>
-          <span>{placeType} living space</span>
+          <span>
+            {placeType.charAt(0).toUpperCase() + placeType.slice(1)} living
+            space
+          </span>
         </div>
         {/* Spacer to push price/details to bottom */}
         <div className="flex-grow" />
         <div className="flex items-center justify-between pt-2 pb-3">
-          <span className="font-medium">${price}/ month</span>
+          <span className="font-medium">${price}/month</span>
           <button
             className="text-orange-500 hover:font-medium focus:outline-none"
             onClick={onViewDetails}

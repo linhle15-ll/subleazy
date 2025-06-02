@@ -9,5 +9,6 @@ const router = Router();
 
 router.post('/create', postController.createPost);
 router.post('/search', postController.searchPosts);
+router.get('/getByUserId/:id', postController.getPostsByUserId);
 
 export default router;
