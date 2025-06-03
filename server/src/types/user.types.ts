@@ -13,8 +13,3 @@ export interface User extends Base, Timestamps {
   bio: string;
   sublesseeHistory: (Types.ObjectId | ObjectId | Post)[];
 }
-
-export interface UserPayload {
-  id: string;
-  email: string;
-}
