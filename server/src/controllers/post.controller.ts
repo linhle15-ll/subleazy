@@ -75,7 +75,7 @@ const postController = {
         return;
       }
 
-      if (post.status !== 'active') {
+      if (post.status === 'closed') {
         res.status(403).json({ error: 'Unauthorized to view this post' });
       }
 
