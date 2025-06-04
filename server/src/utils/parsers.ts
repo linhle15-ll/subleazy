@@ -1,7 +1,11 @@
 import { Place } from '../types/house.types';
 
-export const parseGoogleMapPlaces = (places: any) => {
+export const parseGoogleMapPlaces = (places: any[]) => {
   const result: Place[] = [];
+  
+  if (!Array.isArray(places) || places.length === 0) {
+    return result;
+  }
 
   places.forEach((place: any) => {
     result.push({
