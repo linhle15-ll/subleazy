@@ -88,15 +88,20 @@ const postController = {
   getPostsByUserId: async (req: Request, res: Response, next: NextFunction) => {
     try {
       // find in the posts collection user's posts by id as an author
-      const userIdParam = req.params.id;
+      const userId = req.params.id;
 
-      if (!mongoose.isValidObjectId(userIdParam)) {
+      if (!userId || !mongoose.isValidObjectId(userId)) {
         res.status(400).json({ error: 'Invalid user ID' });
         return;
       }
 
-      const userId = new Types.ObjectId(req.params.id);
       const userPosts = await postService.getPostsByUserId(userId);
+
+      if (!userPosts || (Array.isArray(userPosts) && userPosts.length === 0)) {
+        res.status(200).json([]);
+        return;
+      }
+
       res.status(200).json(userPosts);
     } catch (error) {
       next(error);

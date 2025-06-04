@@ -2,7 +2,6 @@ import postModel from '../models/post.model';
 import { CustomQuery } from '../types/common.types';
 import { PostStatus } from '../types/enums';
 import { PostRequestBody } from '../types/post.types';
-import { Types } from 'mongoose';
 
 const postService = {
   createPost: async (data: PostRequestBody) => {
@@ -107,11 +106,7 @@ const postService = {
     return posts;
   },
 
-  getPostsByUserId: async (userId: Types.ObjectId) => {
-    if (!userId) {
-      throw new Error('User ID is required');
-    }
-
+  getPostsByUserId: async (userId: string) => {
     const posts = await postModel
       .find({ author: userId })
       .sort({ updatedAt: -1 });
