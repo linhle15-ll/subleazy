@@ -2,8 +2,7 @@
 
 import Image from 'next/image';
 import bannerImage from '@/public/bannerImg.jpg';
-
-// import LeasePostingGrid from '@/components/ui/cards/subleasePostGrid';
+import PostingGrid from '@/components/ui/posting/posting-grid';
 import { SearchBarLg } from '@/components/ui/search/search-bar';
 
 export default function LandingPage() {
@@ -69,13 +68,13 @@ export default function LandingPage() {
 
       {/* Featured Listings Section */}
       <section className="px-6 lg:px-12">
-        {/* <LeasePostingGrid
+        <PostingGrid
           posts={posts}
           isVertical={true}
-          onViewDetails={(id) => {
+          onViewDetails={(id: string) => {
           // TODO: Implement view details navigation
           }}
-          onToggleFavorite={(id) => {
+          onToggleFavorite={(id: string) => {
             setPosts(
               posts.map((post) =>
                 post.id === id
@@ -84,7 +83,7 @@ export default function LandingPage() {
               )
             );
           }}
-        /> */}
+        />
       </section>
     </div>
   );
