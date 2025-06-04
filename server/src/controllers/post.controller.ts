@@ -95,13 +95,13 @@ const postController = {
         return;
       }
 
-      const userPosts = await postService.getPostsByUserId(
-        new Types.ObjectId(userId)
-      );
+      const userPosts = await postService.getPostsByUserId(userId);
+
       if (!userPosts || (Array.isArray(userPosts) && userPosts.length === 0)) {
-        res.status(404).json({ error: 'User posts not found' });
+        res.status(200).json([]);
         return;
       }
+
       res.status(200).json(userPosts);
     } catch (error) {
       next(error);
