@@ -16,7 +16,7 @@ const postController = {
       // data.author = new Types.ObjectId(authReq.user.id);
 
       const data: PostRequestBody = req.body;
-      data.author = new Types.ObjectId(req.body.user.id as string);
+      // data.author = new Types.ObjectId(req.body.user.id as string);
 
       if (
         !validateMedia(data.media) ||
