@@ -64,27 +64,6 @@ const postController = {
     }
   },
 
-  // This function is for published posts only and not for drafts
-  getPost: async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { postId } = req.params;
-      const post = await postService.getPost(postId);
-
-      if (!post) {
-        res.status(404).json({ error: 'Post not found' });
-        return;
-      }
-
-      if (post.status === 'closed') {
-        res.status(403).json({ error: 'Unauthorized to view this post' });
-      }
-
-      res.status(200).json(post);
-    } catch (error) {
-      next(error);
-    }
-  },
-
   updatePost: async (req: Request, res: Response, next: NextFunction) => {
     try {
       // Uncomment when auth middleware is merged
