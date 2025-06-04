@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import postRoutes from './routes/post.routes';
 import wishRoutes from './routes/wish.routes';
 import authRoutes from './routes/auth.routes';
+// import houseRoutes from './routes/house.routes';
 
 const app: Application = express();
 
@@ -23,9 +24,16 @@ app.options(/(.*)/, cors());
 // Connect to MongoDB
 db();
 
-// Set up routes
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', message: 'Server is healthy' });
+});
+
 // post routes
 app.use('/api/posts', postRoutes);
+
+// // house routes
+// app.use('/api/houses', houseRoutes);
 
 // wish routes
 app.use('/api/wishes', wishRoutes);

@@ -117,6 +117,11 @@ const postService = {
       .sort({ updatedAt: -1 });
     return posts;
   },
+
+  getAllPosts: async () => {
+    const posts = await postModel.find();
+    return posts;
+  },
 };
 
 export default postService;

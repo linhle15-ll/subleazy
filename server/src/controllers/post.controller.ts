@@ -102,6 +102,15 @@ const postController = {
       next(error);
     }
   },
+
+  getAllPosts: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const posts = await postService.getAllPosts();
+      res.status(200).json(posts);
+    } catch (error) {
+      next(error);
+    }
+  },
 };
 
 export default postController;
