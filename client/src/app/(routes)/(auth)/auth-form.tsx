@@ -1,12 +1,14 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { EyeIcon, EyeOffIcon } from 'lucide-react';
+import { AxiosError } from 'axios';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   checkPasswordStrength,
   validateConfirmPassword,
 } from '@/lib/utils/auth-validator';
 import { useUserStore } from '@/lib/stores/user.store';
-import { AuthFormStore } from '@/lib/stores/user.store';
+import api from '@/services/api';
 
 export default function AuthForm() {
   const pathname = usePathname();
@@ -14,78 +16,68 @@ export default function AuthForm() {
 
   const router = useRouter();
 
-  const {
-    authForm,
-    updateAuthForm,
-    resetAuthForm,
-    setAccessToken,
-  } = useUserStore();
+  const { setUser, setAccessToken } = useUserStore();
+
+  const [authForm, setAuthForm] = useState({
+    firstName: '',
+    lastName: '',
+    institution: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+
+  const updateAuthForm = (field: keyof typeof authForm, value: string) => {
+    setAuthForm((prevState) => ({ ...prevState, [field]: value }));
+  };
+
   const [error, setError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [confirmPasswordError, setConfirmPasswordError] = useState<
+    string | null
+  >(null);
 
-  useEffect(() => {
-    if (!isSignUp) {
-      setError(null);
-      return;
-    }
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    if (authForm.password.length > 0) {
-      const passwordError = checkPasswordStrength(authForm.password);
-      if (passwordError.length > 0) {
-        setError(passwordError.join('\n'));
-        return;
-      }
-    }
+  const handlePasswordBlur = () => {
+    if (!isSignUp) return;
+    setPasswordError(checkPasswordStrength(authForm.password) ?? null);
+  };
 
-    if (authForm.confirmPassword.length > 0) {
-      const confirmPasswordError = validateConfirmPassword(
-        authForm.password,
-        authForm.confirmPassword
-      );
+  const handleConfirmPasswordBlur = () => {
+    if (!isSignUp) return;
+    setConfirmPasswordError(
+      validateConfirmPassword(authForm.password, authForm.confirmPassword) ??
+        null
+    );
+  };
 
-      if (confirmPasswordError) {
-        setError(confirmPasswordError);
-        return;
-      }
-    }
-
-    setError(null);
-  }, [isSignUp, authForm.password, authForm.confirmPassword]);
-
-  const handleSubmit = async (e: React.FormEvent, formData: AuthFormStore) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     try {
-      const url = isSignUp
-        ? 'http://localhost:5001/api/auth/signup'
-        : 'http://localhost:5001/api/auth/signin';
+      const url = isSignUp ? 'auth/signup' : 'auth/signin';
+      const res = await api.post(url, authForm);
 
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await res.json();
-
-      // Redirect to dashboard or home page (?) on successful sign up/sign in
-      // After implementing sending email verification link, successful sign up should redirect to sign in page
-      if (res.ok) {
+      const data = res.data;
+      if (!isSignUp) {
         setAccessToken(data.accessToken);
-        resetAuthForm();
-        router.push('/');
+        setUser(data.user);
 
-        return;
+        router.push('/home');
       } else {
-        setError(data?.error || 'An error occurred. Please try again.');
-        return;
+        router.push('/sign-in');
       }
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ error: string }>;
 
-    } catch (error) {
-      console.log(error);
-      setError('An error occurred. Please try again.');
+      const message =
+        axiosError.response?.data?.error ||
+        'An error occurred. Please try again.';
+
+      setError(message);
     }
   };
 
@@ -93,7 +85,7 @@ export default function AuthForm() {
     <div>
       <form
         className="flex flex-col gap-4 justify-start"
-        onSubmit={(e) => handleSubmit(e, authForm)}
+        onSubmit={(e) => handleSubmit(e)}
       >
         <div className="flex flex-col gap-2 text-left mb-5">
           <h1 className="text-3xl font-medium">
@@ -116,7 +108,7 @@ export default function AuthForm() {
                 value={authForm.firstName}
                 onChange={(e) => updateAuthForm('firstName', e.target.value)}
                 required
-                className="input-field"
+                className="auth-input-field"
               />
             </div>
           )}
@@ -130,7 +122,7 @@ export default function AuthForm() {
                 value={authForm.lastName}
                 onChange={(e) => updateAuthForm('lastName', e.target.value)}
                 required
-                className="input-field"
+                className="auth-input-field"
               />
             </div>
           )}
@@ -147,7 +139,7 @@ export default function AuthForm() {
               value={authForm.institution}
               onChange={(e) => updateAuthForm('institution', e.target.value)}
               required
-              className="input-field"
+              className="auth-input-field"
             />
           </div>
         )}
@@ -161,7 +153,7 @@ export default function AuthForm() {
             value={authForm.email}
             onChange={(e) => updateAuthForm('email', e.target.value)}
             required
-            className="input-field"
+            className="auth-input-field"
           />
         </div>
 
@@ -170,32 +162,68 @@ export default function AuthForm() {
             {' '}
             {isSignUp ? 'New password' : 'Password'}{' '}
           </label>
-          <input
-            id="password"
-            type="password"
-            placeholder="Enter your password"
-            value={authForm.password}
-            onChange={(e) => updateAuthForm('password', e.target.value)}
-            required
-            className="input-field"
-          />
+          <div className="relative w-full">
+            <input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Enter your password"
+              value={authForm.password}
+              onChange={(e) => updateAuthForm('password', e.target.value)}
+              onBlur={() => handlePasswordBlur()}
+              required
+              className="auth-input-field w-full"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              className="absolute right-3 top-1 text-gray-600 hover:text-gray-900 pl-10"
+            >
+              {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+            </button>
+          </div>
         </div>
+
+        {passwordError && (
+          <p className="text-sm text-red-500 whitespace-pre-wrap">
+            {passwordError}
+          </p>
+        )}
 
         {isSignUp && (
           <div className="grid gap-1">
             <label className="font-medium">Confirm new password</label>
-            <input
-              id="confirmPassword"
-              type="password"
-              placeholder="Re-enter your password"
-              value={authForm.confirmPassword}
-              onChange={(e) =>
-                updateAuthForm('confirmPassword', e.target.value)
-              }
-              required
-              className="input-field"
-            />
+            <div className="relative w-full">
+              <input
+                id="confirmPassword"
+                type={showConfirmPassword ? 'text' : 'password'}
+                placeholder="Re-enter your password"
+                value={authForm.confirmPassword}
+                onChange={(e) =>
+                  updateAuthForm('confirmPassword', e.target.value)
+                }
+                onBlur={() => handleConfirmPasswordBlur()}
+                required
+                className="auth-input-field w-full"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                aria-label={
+                  showConfirmPassword ? 'Hide password' : 'Show password'
+                }
+                className="absolute right-3 top-1 text-gray-600 hover:text-gray-900 pl-10"
+              >
+                {showConfirmPassword ? <EyeOffIcon /> : <EyeIcon />}
+              </button>
+            </div>
           </div>
+        )}
+
+        {confirmPasswordError && (
+          <p className="text-sm text-red-500 whitespace-pre-wrap">
+            {confirmPasswordError}
+          </p>
         )}
 
         {error && (
@@ -223,5 +251,4 @@ export default function AuthForm() {
       </form>
     </div>
   );
-
 }
