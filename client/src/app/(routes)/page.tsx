@@ -1,11 +1,13 @@
 'use client';
-
+import React, { useState } from 'react';
 import Image from 'next/image';
 import bannerImage from '@/public/bannerImg.jpg';
 import PostingGrid from '@/components/ui/posting/posting-grid';
 import { SearchBarLg } from '@/components/ui/search/search-bar';
 
 export default function LandingPage() {
+  const [posts, setPosts] = useState(samplePosts);
+
   return (
     <div className="flex flex-col gap-12 justify-center pb-5">
       {/* Hero Section */}

@@ -3,7 +3,12 @@
 import Image from 'next/image';
 import { Heart, Star } from 'lucide-react';
 import { getPlaceTypeIcon, getHouseTypeIcon } from '@/lib/utils/icons';
+<<<<<<< Updated upstream:client/src/components/ui/posting/posting-card.tsx
 import { Post } from '@/lib/types/post.types';
+=======
+import { HouseType, PlaceType } from '@/lib/types/enums';  
+import imageUrl1 from '@/public/bannerImg.jpg'; // Example image URL, replace with actual
+>>>>>>> Stashed changes:client/src/components/ui/cards/subleasePostCard.tsx
 
 interface PostingCardProps {
   post: Post;
@@ -37,7 +42,7 @@ export function PostingCard({
         className={`relative ${isVertical ? '' : 'h-full min-h-[220px] w-2/5'}`}
       >
         <Image
-          src={imageUrl}
+          src={imageUrl1}
           alt={title}
           fill={!isVertical} // Use fill prop for non-vertical
           width={isVertical ? 278 : undefined}
