@@ -10,7 +10,7 @@ export default function LandingPage() {
   const router = useRouter();
 
   const handleViewDetails = (id: string) => {
-    router.push(`/posts/${id}`);
+    router.push(`/posting?id=${id}`);
   };
 
   const handleToggleFavorite = (id: string) => {

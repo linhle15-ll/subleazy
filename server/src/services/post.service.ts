@@ -117,6 +117,11 @@ const postService = {
     const posts = await postModel.find();
     return posts;
   },
+
+  getPostById: async (postId: string) => {
+    const post = await postModel.findById(postId);
+    return post;
+  },
 };
 
 export default postService;
