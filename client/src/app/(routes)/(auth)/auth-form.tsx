@@ -57,6 +57,11 @@ export default function AuthForm() {
     e.preventDefault();
     setError(null);
 
+    if (passwordError || confirmPasswordError) {
+      setError('Please fix the errors before submitting.');
+      return;
+    }
+
     try {
       const url = isSignUp ? 'auth/signup' : 'auth/signin';
       const res = await api.post(url, authForm);
