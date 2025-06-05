@@ -1,12 +1,23 @@
 'use client';
 
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import bannerImage from '@/public/bannerImg.jpg';
-
-// import LeasePostingGrid from '@/components/ui/cards/subleasePostGrid';
+import { PostingGrid } from '@/components/ui/posting/posting-grid';
 import { SearchBarLg } from '@/components/ui/search/search-bar';
 
 export default function LandingPage() {
+  const router = useRouter();
+
+  const handleViewDetails = (id: string) => {
+    router.push(`/posts/${id}`);
+  };
+
+  const handleToggleFavorite = (id: string) => {
+    // TODO: Implement wish list functionality
+    console.log('Toggle favorite for post:', id);
+  };
+
   return (
     <div className="flex flex-col gap-12 justify-center pb-5">
       {/* Hero Section */}
@@ -69,22 +80,11 @@ export default function LandingPage() {
 
       {/* Featured Listings Section */}
       <section className="px-6 lg:px-12">
-        {/* <LeasePostingGrid
-          posts={posts}
+        <PostingGrid
           isVertical={true}
-          onViewDetails={(id) => {
-          // TODO: Implement view details navigation
-          }}
-          onToggleFavorite={(id) => {
-            setPosts(
-              posts.map((post) =>
-                post.id === id
-                  ? { ...post, isFavorite: !post.isFavorite }
-                  : post
-              )
-            );
-          }}
-        /> */}
+          onViewDetails={handleViewDetails}
+          onToggleFavorite={handleToggleFavorite}
+        />
       </section>
     </div>
   );
