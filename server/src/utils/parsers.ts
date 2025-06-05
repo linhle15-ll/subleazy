@@ -8,6 +8,10 @@ export const parseGoogleMapPlaces = (places: any[]) => {
     return result;
   }
 
+  if (!Array.isArray(places) || places.length === 0) {
+    return result;
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   places.forEach((place: any) => {
     result.push({
