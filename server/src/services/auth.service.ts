@@ -33,17 +33,7 @@ const authService = {
 
   validateAcademicEmail: async (email: string): Promise<boolean> => {
     if (!email) return false;
-    const res = await fetch('https://api.apyhub.com/validate/email/academic', {
-      method: 'POST',
-      headers: {
-        'apy-token': process.env.ACADEMIC_EMAIL_API_TOKEN as string,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email }),
-    });
-
-    const { data }: { data: boolean } = await res.json();
-    return data;
+    return email.toLowerCase().endsWith('.edu');
   },
 };
 
