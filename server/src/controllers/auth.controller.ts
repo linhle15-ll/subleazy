@@ -21,7 +21,7 @@ const authController = {
       }
 
       // Send verification email
-      const newUser = await User.create({
+      const user = await User.create({
         firstName,
         lastName,
         institution,
@@ -30,7 +30,7 @@ const authController = {
         isVerified: true,
       });
 
-      res.status(201).json(newUser);
+      res.status(201).json(user);
     } catch (error) {
       next(error);
     }
@@ -40,31 +40,31 @@ const authController = {
     const { email, password } = req.body;
 
     try {
-      const existingUser = await User.findOne({ email });
-      
-      if (!existingUser) {
+      const user = await User.findOne({ email });
+
+      if (!user) {
         res.status(401).json({ error: 'User not found' });
         return;
       }
 
       const isPasswordValid = await authService.comparePassword(
         password,
-        existingUser.passwordHash
+        user.passwordHash
       );
-      
+
       if (!isPasswordValid) {
         res.status(401).json({ error: 'Invalid password' });
         return;
       }
 
       const accessToken = authService.generateAccessToken(
-        existingUser._id.toString(),
-        existingUser.email
+        user._id.toString(),
+        user.email
       );
 
       const refreshToken = authService.generateRefreshToken(
-        existingUser._id.toString(),
-        existingUser.email
+        user._id.toString(),
+        user.email
       );
 
       res.cookie('refreshToken', refreshToken, {
@@ -73,13 +73,17 @@ const authController = {
         // secure: true, // Uncomment in production
       });
 
-      res.status(200).json({ accessToken });
+      res.status(200).json({ accessToken, user });
     } catch (error) {
       next(error);
     }
   },
 
-  handleRefreshToken: async (req: Request, res: Response, next: NextFunction) => {
+  handleRefreshToken: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     const cookies = req.cookies;
 
     if (!cookies?.refreshToken) {
@@ -125,7 +129,7 @@ const authController = {
         httpOnly: true,
         // secure: true, // Uncomment in production
       });
-      
+
       res.status(200).json({ message: 'Logged out successfully' });
     } catch (error) {
       next(error);
