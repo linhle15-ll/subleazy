@@ -1,75 +1,39 @@
 import { create } from 'zustand';
 import { devtools, subscribeWithSelector, persist } from 'zustand/middleware';
-import type { Post } from '@/lib/types/post.types';
-
-export interface AuthFormStore {
-  firstName: string;
-  lastName: string;
-  institution: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
+import { User } from '@/lib/types/user.types';
 
 interface UserStore {
-  id: string;
-  authForm: AuthFormStore;
-  profileImage: string;
-  bio: string;
-  isVerified: boolean;
-  sublesseeHistory: (string | Post)[];
+  user: User | null;
+  setUser: (user: User | null) => void;
 
-  accessToken: string;
+  accessToken: string | null;
   setAccessToken: (token: string) => void;
+
   clearAccessToken: () => void;
-
-  updateAuthForm: (field: keyof AuthFormStore, value: string) => void;
-  resetAuthForm: () => void;
 }
-
-const initialAuthFormValues: AuthFormStore = {
-  firstName: '',
-  lastName: '',
-  institution: '',
-  email: '',
-  password: '',
-  confirmPassword: '',
-};
 
 export const useUserStore = create<UserStore>()(
   devtools(
     subscribeWithSelector(
       persist(
         (set) => ({
-          id: '',
-          authForm: initialAuthFormValues,
-          profileImage: '',
-          bio: '',
-          isVerified: false,
-          sublesseeHistory: [],
+          user: null,
+          setUser: (user) => set({ user }),
 
-          accessToken: '',
+          accessToken: null,
           setAccessToken: (token) => set({ accessToken: token }),
-          clearAccessToken: () => set({ accessToken: '' }), //for log out
-
-          updateAuthForm: (field, value) =>
-            set((state) => ({
-              authForm: {
-                ...state.authForm,
-                [field]: value,
-              },
-            })),
-          resetAuthForm: () => set({ authForm: initialAuthFormValues }),
+          clearAccessToken: () => set({ accessToken: '' }),
         }),
         {
           name: 'user-store',
           partialize: (state) => ({
-            id: state.id,
-            authForm: state.authForm,
-            profileImage: state.profileImage,
-            bio: state.bio,
-            isVerified: state.isVerified,
-            sublesseeHistory: state.sublesseeHistory,
+            accessToken: state.accessToken,
+            user: state.user
+              ? {
+                  id: state.user._id,
+                  email: state.user.email,
+                }
+              : null,
           }),
         }
       )
