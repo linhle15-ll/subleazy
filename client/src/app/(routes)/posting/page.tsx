@@ -91,6 +91,12 @@ export default function PostingPage() {
     address: `${post.city}, ${post.state} ${post.zip}`,
     price: `$${post.price}`,
     rating: 4.8, // TODO: Add rating to post model
+    author: {
+      firstName:
+        typeof post.author === 'object' ? post.author.firstName : 'Unknown',
+      lastName:
+        typeof post.author === 'object' ? post.author.lastName : 'Unknown',
+    },
     images: post.media.map((url, index) => ({
       url,
       alt: `Image ${index + 1}`,
@@ -225,6 +231,14 @@ export default function PostingPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column - Main Content */}
         <div className="lg:col-span-2">
+          {/* Subleased By */}
+          <div className="mb-4">
+            <p className="font-semibold text-xl mb-4">
+              Subleased by {transformedPost.author.firstName}{' '}
+              {transformedPost.author.lastName}
+            </p>
+          </div>
+
           {/* Room Info */}
           <div className="mb-8">
             <h2 className="text-xl font-semibold mb-4">About this place</h2>
@@ -365,7 +379,6 @@ export default function PostingPage() {
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
                   <div>
                     <p className="text-xs text-gray-500">Available from</p>
                     <p className="font-medium">
@@ -374,7 +387,6 @@ export default function PostingPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
                   <div>
                     <p className="text-xs text-gray-500">Until</p>
                     <p className="font-medium">
@@ -383,7 +395,6 @@ export default function PostingPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                   <div>
                     <p className="text-xs text-gray-500">Check-in time</p>
                     <p className="font-medium">
@@ -392,7 +403,6 @@ export default function PostingPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                   <div>
                     <p className="text-xs text-gray-500">Check-out time</p>
                     <p className="font-medium">
