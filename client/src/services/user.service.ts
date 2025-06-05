@@ -1,7 +1,9 @@
+import { User } from '@/lib/types/user.types';
 import api from './api';
+import { Result } from '@/lib/types/common.types';
 
 const userService = {
-  getUserById: async(id: string) => {
+  getUserById: async(id: string):Promise<Result<User>>  => {
     try {
       const response = await api.get(`/users/${id}`);
       return {

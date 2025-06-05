@@ -68,7 +68,7 @@ export default function LandingPage() {
 
       {/* Featured Listings Section */}
       <section className="px-6 lg:px-12">
-        <PostingGrid
+        {/* <PostingGrid
           posts={posts}
           isVertical={true}
           onViewDetails={(id: string) => {
@@ -83,7 +83,7 @@ export default function LandingPage() {
               )
             );
           }}
-        />
+        /> */}
       </section>
     </div>
   );
