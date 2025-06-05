@@ -10,5 +10,5 @@ export interface Timestamps {
 }
 
 export interface CustomQuery {
-  [key: string]: unknown;
+  [key: string]: any;
 }
