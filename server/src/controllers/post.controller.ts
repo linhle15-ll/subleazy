@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import houseService from '../services/house.service';
 import postService from '../services/post.service';
 import { PostRequestBody } from '../types/post.types';
-import mongoose, { Types } from 'mongoose';
+import mongoose from 'mongoose';
 import { validatePostData } from '../utils/validators';
 import { parseGoogleMapPlaces } from '../utils/parsers';
 // import { getAuthRequest } from "../utils/commonUtils";
@@ -64,7 +64,31 @@ const postController = {
     }
   },
 
-  updatePost: async (req: Request, res: Response, next: NextFunction) => {
+  getPost: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // Test when auth middleware is merged
+      // const authReq = getAuthRequest(req);
+      // req.user = new Types.ObjectId(authReq.user.id);
+
+      const { postId } = req.params;
+      const post = await postService.getPost(postId);
+
+      if (!post) {
+        res.status(404).json({ error: 'Post not found' });
+        return;
+      }
+
+      // if (post.status !== 'active' && !post.author.equals(userId)) {
+      //   res.status(403).json({ error: 'Unauthorized to view this post' });
+      // }
+
+      res.status(200).json(post);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  editPost: async (req: Request, res: Response, next: NextFunction) => {
     try {
       // Uncomment when auth middleware is merged
       // const authReq = getAuthRequest(req);
@@ -114,14 +138,14 @@ const postController = {
         return;
       }
 
-      const updatedPost = await postService.updatePost(postId, filteredData);
+      const editedPost = await postService.updatePost(postId, filteredData);
 
-      if (!updatedPost) {
+      if (!editedPost) {
         res.status(404).json({ error: 'Post not found' });
         return;
       }
 
-      res.status(200).json(updatedPost);
+      res.status(200).json(editedPost);
     } catch (error) {
       next(error);
     }
