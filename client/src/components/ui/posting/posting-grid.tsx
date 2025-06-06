@@ -2,6 +2,7 @@
 
 import { PostingCard } from './posting-card';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 interface PostingGridProps {
   isVertical?: boolean;
@@ -15,12 +16,14 @@ export function PostingGrid({
   
   const router = useRouter()
 
+  const [isFavorite, setIsFavorite] = useState(false);
+
   const handleViewDetails = (id: string) => {
     router.push(`/posting?id=${id}`);
   };
 
   const handleToggleFavorite = (id: string) => {
-    // add post to wishlist
+    setIsFavorite(!isFavorite)
   };
 
   console.log('PostingGrid posts', posts);
@@ -35,6 +38,7 @@ export function PostingGrid({
           onViewDetails={() => handleViewDetails(post._id!)}
           onToggleFavorite={() => handleToggleFavorite(post._id!)}
           isVertical={isVertical}
+          isFavorite={isFavorite}
         />
       ))}
     </div>

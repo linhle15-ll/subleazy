@@ -1,5 +1,5 @@
 'use client';
-
+import React, { useState } from 'react';
 import Image from 'next/image';
 import bannerImage from '@/public/bannerImg.jpg';
 import { PostingGrid } from '@/components/ui/posting/posting-grid';

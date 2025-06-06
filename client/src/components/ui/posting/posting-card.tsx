@@ -73,7 +73,7 @@ export function PostingCard({
           aria-label={isFavorite ? 'Remove from wish list' : 'Add to wish list'}
         >
           <Heart
-            className={`w-7 h-7 ${isFavorite ? 'fill-red-600 stroke-none' : 'text-white'}`}
+            className={`w-7 h-7 ${isFavorite ? 'fill-orange-500 text-orange-500' : 'text-white'}`}
           />
         </button>
       </div>
@@ -111,7 +111,7 @@ export function PostingCard({
         {/* Spacer to push price/details to bottom */}
         <div className="flex-grow" />
         <div className="flex items-center justify-between pt-2 pb-3">
-          <span className="font-medium">${price || 0}/month</span>
+          <span className="font-medium">${price || 0}/ month</span>
           <button
             className="text-orange-500 hover:font-medium focus:outline-none"
             onClick={(e) => {

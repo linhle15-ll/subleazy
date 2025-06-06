@@ -16,6 +16,8 @@ export default function Header() {
               <Image
                 src={logo}
                 alt="Subleazy Logo"
+                width={120}
+                height={28}
                 className="h-7 w-auto"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
