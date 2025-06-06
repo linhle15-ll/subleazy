@@ -78,7 +78,7 @@ const postController = {
         return;
       }
 
-      // if (post.status !== 'active' && !post.author.equals(userId)) {
+      // if (post.status === 'pending' && !post.author.equals(userId)) {
       //   res.status(403).json({ error: 'Unauthorized to view this post' });
       // }
 
