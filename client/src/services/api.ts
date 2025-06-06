@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { ACCESS_TOKEN } from '@/lib/constants';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -7,7 +6,17 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem(ACCESS_TOKEN);
+    const persistedState = localStorage.getItem('user-store');
+    let token: string | null = null;
+    if (persistedState) {
+      try {
+        const parsed = JSON.parse(persistedState);
+        token = parsed?.state?.accessToken ?? null;
+      } catch {
+        token = null;
+      }
+    }
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
