@@ -26,7 +26,6 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import postService from '@/services/post.service';
-import { useGetUser } from '@/hooks/use-get-user.hook';
 import { Map, Marker } from '@vis.gl/react-google-maps';
 
 export default function PostingPage() {

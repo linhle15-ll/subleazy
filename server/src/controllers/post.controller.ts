@@ -79,6 +79,7 @@ const postController = {
       }
 
       const posts = await postService.searchPosts(data);
+      
       res.status(200).json(posts);
     } catch (error) {
       next(error);
