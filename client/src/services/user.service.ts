@@ -1,7 +1,6 @@
 import { Result } from '@/lib/types/common.types';
 import { User } from '@/lib/types/user.types';
 import api from './api';
-import { get } from 'http';
 
 const userService = {
   getUserById: async (id: string): Promise<Result<User>> => {

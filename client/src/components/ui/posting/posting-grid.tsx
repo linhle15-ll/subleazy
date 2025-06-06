@@ -22,7 +22,7 @@ export function PostingGrid({
     router.push(`/posting?id=${id}`);
   };
 
-  const handleToggleFavorite = (id: string) => {
+  const handleToggleFavorite = () => {
     setIsFavorite(!isFavorite)
   };
 

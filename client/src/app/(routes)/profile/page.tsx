@@ -1,6 +1,6 @@
 // personal page
 'use client';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import userService from '@/services/user.service';
