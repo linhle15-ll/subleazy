@@ -1,31 +1,39 @@
 'use client';
 
 import { PostingCard } from './posting-card';
-import { Post } from '@/lib/types/post.types';
+import { useRouter } from 'next/navigation';
 
 interface PostingGridProps {
-  posts: Post[];
   isVertical?: boolean;
-  onViewDetails: (id: string) => void;
-  onToggleFavorite: (id: string) => void;
+  posts?: any[]
 }
 
 export function PostingGrid({
-  posts,
   isVertical,
-  onViewDetails,
-  onToggleFavorite,
+  posts
 }: PostingGridProps) {
+  
+  const router = useRouter()
+
+  const handleViewDetails = (id: string) => {
+    router.push(`/posting?id=${id}`);
+  };
+
+  const handleToggleFavorite = (id: string) => {
+    // add post to wishlist
+  };
+
+  console.log('PostingGrid posts', posts);
   return (
     <div
       className={`grid gap-11 ${isVertical ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : 'grid-cols-1  lg:grid-cols-2'}`}
     >
-      {posts.map((post) => (
+      {Array.isArray(posts) && posts?.map((post) => (
         <PostingCard
           key={post._id}
           post={post}
-          onViewDetails={() => onViewDetails(post._id!)}
-          onToggleFavorite={() => onToggleFavorite(post._id!)}
+          onViewDetails={() => handleViewDetails(post._id!)}
+          onToggleFavorite={() => handleToggleFavorite(post._id!)}
           isVertical={isVertical}
         />
       ))}
