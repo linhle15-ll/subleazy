@@ -1,8 +1,12 @@
 import { Place } from '../types/house.types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const parseGoogleMapPlaces = (places: any) => {
+export const parseGoogleMapPlaces = (places: any[]) => {
   const result: Place[] = [];
+
+  if (!Array.isArray(places) || places.length === 0) {
+    return result;
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   places.forEach((place: any) => {

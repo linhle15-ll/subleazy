@@ -23,7 +23,7 @@
     ]
   },
   "dependencies": {
-    "@react-google-maps/api": "^2.20.6",
-    "@types/google.maps": "^3.58.1"
+    "@vis.gl/react-google-maps": "^1.5.2",
+    "react-google-maps": "^9.4.5"
   }
 }
