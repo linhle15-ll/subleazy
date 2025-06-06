@@ -188,6 +188,37 @@ const postController = {
       next(error);
     }
   },
+
+  getAllPosts: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const posts = await postService.getAllPosts();
+      res.status(200).json(posts);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  getPostById: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const postId = req.params.id;
+
+      if (!postId || !mongoose.isValidObjectId(postId)) {
+        res.status(400).json({ error: 'Invalid post ID' });
+        return;
+      }
+
+      const post = await postService.getPostById(postId);
+
+      if (!post) {
+        res.status(404).json({ error: 'Post not found' });
+        return;
+      }
+
+      res.status(200).json(post);
+    } catch (error) {
+      next(error);
+    }
+  },
 };
 
 export default postController;
