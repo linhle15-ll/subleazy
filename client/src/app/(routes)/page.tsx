@@ -2,11 +2,13 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import bannerImage from '@/public/bannerImg.jpg';
-import PostingGrid from '@/components/ui/posting/posting-grid';
+import { PostingGrid } from '@/components/ui/posting/posting-grid';
 import { SearchBarLg } from '@/components/ui/search/search-bar';
+import Loading from '@/components/ui/commons/loading';
+import { usePosts } from '@/hooks/use-get-posts.hook';
 
 export default function LandingPage() {
-  const [posts, setPosts] = useState(samplePosts);
+  const { posts, loading, error } = usePosts();
 
   return (
     <div className="flex flex-col gap-12 justify-center pb-5">
@@ -68,24 +70,19 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Featured Listings Section */}
+        {/* Featured Listings Section */}
       <section className="px-6 lg:px-12">
-        {/* <PostingGrid
-          posts={posts}
-          isVertical={true}
-          onViewDetails={(id: string) => {
-          // TODO: Implement view details navigation
-          }}
-          onToggleFavorite={(id: string) => {
-            setPosts(
-              posts.map((post) =>
-                post.id === id
-                  ? { ...post, isFavorite: !post.isFavorite }
-                  : post
-              )
-            );
-          }}
-        /> */}
+        {(loading) ? (
+          <div> <Loading /> </div>
+        ) : (error) ? (
+            <div>Error: {error}</div>
+        ) : (posts && posts.length > 0) ? (
+          <PostingGrid
+            isVertical={true}
+            posts={posts}
+          />
+        ) : (<div className="font-medium text-2xl text-grey">No posts available</div>)}
+        
       </section>
     </div>
   );
