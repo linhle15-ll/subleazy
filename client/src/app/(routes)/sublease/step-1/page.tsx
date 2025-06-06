@@ -8,8 +8,8 @@ import subleazy_logo from '@/public/subleazy_logo.png';
 
 export default function SubleaseStep1() {
   return (
-    <div className="form-border flex flex-row gap-6 relative">
-      <div className="max-w-3xl  bg-white flex flex-col items-start gap-0">
+    <div className="form-border flex flex-row gap-6 relative mb-15">
+      <div className="max-w-3xl bg-white flex flex-col items-start gap-0">
         <div className="flex flex-col items-start gap-0">
           <div className="form-brand-logo">
             <Image src={subleazy_logo} alt="subleazy logo" />

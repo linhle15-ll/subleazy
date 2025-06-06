@@ -13,7 +13,7 @@ export default function SubleaseStep5() {
     lat && long ? { lat, lng: long } : { lat: 37.7749, lng: -122.4194 };
 
   return (
-    <div className="form-border flex flex-col gap-6 relative">
+    <div className="form-border flex flex-col gap-6 relative mb-15">
       <LogoAndExitButton buttonName="Save & Exit" />
 
       {/* Step indicator and title */}

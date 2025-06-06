@@ -7,7 +7,7 @@ import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
 
 function MainContent() {
   return (
-    <div className="flex flex-row gap-6 relative">
+    <div className="flex flex-row gap-6 relative mb-15">
       {/* Left column */}
       <div className="flex-2 flex flex-col justify-center">
         <h1 className="text-3xl font-medium mb-4">

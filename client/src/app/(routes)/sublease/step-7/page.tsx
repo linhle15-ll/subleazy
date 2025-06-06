@@ -36,7 +36,7 @@ export default function SubleaseStep7() {
   };
 
   return (
-    <div className="form-border flex flex-col gap-6 relative">
+    <div className="form-border flex flex-col gap-6 relative mb-15">
       <LogoAndExitButton buttonName="Save & Exit" />
 
       <div className="flex items-center gap-4">
