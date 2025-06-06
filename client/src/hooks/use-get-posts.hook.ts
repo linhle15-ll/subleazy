@@ -13,13 +13,15 @@ export function usePosts() {
         setLoading(true);
         const result = await postService.getAllPosts();
         if (result.success && result.data) {
-          setPosts(result.data);
+          setPosts(Array.isArray(result.data) ? result.data : []);
           setError(null);
         } else {
           setError(result.error || 'Failed to fetch posts');
+          setPosts([]);
         }
       } catch {
         setError('Failed to fetch posts');
+        setPosts([]);
       } finally {
         setLoading(false);
       }

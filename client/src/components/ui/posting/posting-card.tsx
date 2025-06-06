@@ -20,6 +20,8 @@ export function PostingCard({
   isVertical,
   isFavorite = false,
 }: PostingCardProps) {
+
+  // If post is not provided, return null to avoid rendering
   if (!post) {
     return null;
   }
@@ -105,6 +107,7 @@ export function PostingCard({
             space
           </span>
         </div>
+        
         {/* Spacer to push price/details to bottom */}
         <div className="flex-grow" />
         <div className="flex items-center justify-between pt-2 pb-3">
