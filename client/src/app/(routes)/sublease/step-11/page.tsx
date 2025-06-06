@@ -1,16 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect } from 'react';
 // import Link from 'next/link';
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
 import ProgressBar from '@/components/ui/progress-bar/progress-bar';
+import { useFormStore } from '@/components/store/formStore';
 
 const TITLE_MAX = 50;
 const DESC_MAX = 500;
 
 export default function SubleaseStep11() {
-  const [title, setTitle] = useState('');
-  const [desc, setDesc] = useState('');
+  const { title, description, setField } = useFormStore();
+
+  // Log the current state whenever it changes
+  useEffect(() => {
+    console.log('Current form state:', useFormStore.getState());
+  }, [title, description]);
 
   return (
     <div className="form-border flex flex-col gap-6 relative mb-15">
@@ -37,11 +42,11 @@ export default function SubleaseStep11() {
           id="title"
           className="text-field w-full sm:w-1/2 sm:pr-4 sm:border-r sm:items-start"
           maxLength={TITLE_MAX}
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          value={title || ''}
+          onChange={(e) => setField('title', e.target.value)}
         />
         <div className="text-xs text-gray-400 mt-1">
-          {title.length}/{TITLE_MAX} character
+          {(title?.length || 0)}/{TITLE_MAX} character
         </div>
       </div>
 
@@ -54,11 +59,11 @@ export default function SubleaseStep11() {
           id="desc"
           className="text-field w-full min-h-[120px] sm:w-1/2 sm:pr-4 sm:border-r sm:items-start"
           maxLength={DESC_MAX}
-          value={desc}
-          onChange={(e) => setDesc(e.target.value)}
+          value={description || ''}
+          onChange={(e) => setField('description', e.target.value)}
         />
         <div className="text-xs text-gray-400 mt-1">
-          {desc.length}/{DESC_MAX} character
+          {(description?.length || 0)}/{DESC_MAX} character
         </div>
       </div>
 

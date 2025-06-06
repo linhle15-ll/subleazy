@@ -1,14 +1,39 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { PlusCircle, MinusCircle } from 'lucide-react';
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
 import ProgressBar from '@/components/ui/progress-bar/progress-bar';
+import { useFormStore } from '@/components/store/formStore';
 
 export default function SubleaseStep7() {
-  const [privateAttached, setPrivateAttached] = useState(1);
-  const [privateShared, setPrivateShared] = useState(0);
-  const [shared, setShared] = useState(0);
+  const { bathroomInfo, setField } = useFormStore();
+
+  // Log the current state whenever it changes
+  useEffect(() => {
+    console.log('Current form state:', useFormStore.getState());
+  }, [bathroomInfo]);
+
+  const handlePrivateAttachedChange = (newValue: number) => {
+    setField('bathroomInfo', {
+      ...bathroomInfo,
+      privateAttached: newValue,
+    });
+  };
+
+  const handlePrivateAccessibleChange = (newValue: number) => {
+    setField('bathroomInfo', {
+      ...bathroomInfo,
+      privateAccessible: newValue,
+    });
+  };
+
+  const handleSharedChange = (newValue: number) => {
+    setField('bathroomInfo', {
+      ...bathroomInfo,
+      shared: newValue,
+    });
+  };
 
   return (
     <div className="form-border flex flex-col gap-6 relative">
@@ -29,19 +54,28 @@ export default function SubleaseStep7() {
               <button
                 type="button"
                 aria-label="Decrease private attached"
-                onClick={() =>
-                  setPrivateAttached(Math.max(0, privateAttached - 1))
-                }
+                onClick={() => {
+                  const newValue = Math.max(
+                    0,
+                    (bathroomInfo?.privateAttached || 0) - 1
+                  );
+                  handlePrivateAttachedChange(newValue);
+                }}
                 className="disabled:opacity-50"
-                disabled={privateAttached <= 0}
+                disabled={(bathroomInfo?.privateAttached || 0) <= 0}
               >
                 <MinusCircle className="w-7 h-7 text-gray-400 hover:text-primaryOrange" />
               </button>
-              <span className="w-8 text-center">{privateAttached}</span>
+              <span className="w-8 text-center">
+                {bathroomInfo?.privateAttached || 0}
+              </span>
               <button
                 type="button"
                 aria-label="Increase private attached"
-                onClick={() => setPrivateAttached(privateAttached + 1)}
+                onClick={() => {
+                  const newValue = (bathroomInfo?.privateAttached || 0) + 1;
+                  handlePrivateAttachedChange(newValue);
+                }}
               >
                 <PlusCircle className="w-7 h-7 text-primaryOrange" />
               </button>
@@ -56,17 +90,28 @@ export default function SubleaseStep7() {
               <button
                 type="button"
                 aria-label="Decrease private shared"
-                onClick={() => setPrivateShared(Math.max(0, privateShared - 1))}
+                onClick={() => {
+                  const newValue = Math.max(
+                    0,
+                    (bathroomInfo?.privateAccessible || 0) - 1
+                  );
+                  handlePrivateAccessibleChange(newValue);
+                }}
                 className="disabled:opacity-50"
-                disabled={privateShared <= 0}
+                disabled={(bathroomInfo?.privateAccessible || 0) <= 0}
               >
                 <MinusCircle className="w-7 h-7 text-gray-400 hover:text-primaryOrange" />
               </button>
-              <span className="w-8 text-center">{privateShared}</span>
+              <span className="w-8 text-center">
+                {bathroomInfo?.privateAccessible || 0}
+              </span>
               <button
                 type="button"
                 aria-label="Increase private shared"
-                onClick={() => setPrivateShared(privateShared + 1)}
+                onClick={() => {
+                  const newValue = (bathroomInfo?.privateAccessible || 0) + 1;
+                  handlePrivateAccessibleChange(newValue);
+                }}
               >
                 <PlusCircle className="w-7 h-7 text-primaryOrange" />
               </button>
@@ -79,17 +124,25 @@ export default function SubleaseStep7() {
               <button
                 type="button"
                 aria-label="Decrease shared"
-                onClick={() => setShared(Math.max(0, shared - 1))}
+                onClick={() => {
+                  const newValue = Math.max(0, (bathroomInfo?.shared || 0) - 1);
+                  handleSharedChange(newValue);
+                }}
                 className="disabled:opacity-50"
-                disabled={shared <= 0}
+                disabled={(bathroomInfo?.shared || 0) <= 0}
               >
                 <MinusCircle className="w-7 h-7 text-gray-400 hover:text-primaryOrange" />
               </button>
-              <span className="w-8 text-center">{shared}</span>
+              <span className="w-8 text-center">
+                {bathroomInfo?.shared || 0}
+              </span>
               <button
                 type="button"
                 aria-label="Increase shared"
-                onClick={() => setShared(shared + 1)}
+                onClick={() => {
+                  const newValue = (bathroomInfo?.shared || 0) + 1;
+                  handleSharedChange(newValue);
+                }}
               >
                 <PlusCircle className="w-7 h-7 text-primaryOrange" />
               </button>

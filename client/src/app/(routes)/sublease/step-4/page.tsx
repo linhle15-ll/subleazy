@@ -1,17 +1,71 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { US_CITIES, USCity } from '@/lib/utils/us-cities';
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
 import ProgressBar from '@/components/ui/progress-bar/progress-bar';
+import { PlaceAutocomplete } from '@/components/ui/map/place-autocomplete';
+import { useFormStore } from '@/components/store/formStore';
 
 export default function SubleaseStep4() {
-  const [city, setCity] = useState<USCity | ''>('');
-  const [street, setStreet] = useState('');
-  const [apt, setApt] = useState('');
-  const [town, setTown] = useState('');
-  const [state, setState] = useState('');
-  const [zip, setZip] = useState('');
+  const { setField, setPartial, city, address, suites, state, zip, lat, long } =
+    useFormStore();
+
+  // Log the current state whenever it changes
+  useEffect(() => {
+    console.log('Current form state:', useFormStore.getState());
+  }, [city, address, suites, state, zip, lat, long]);
+
+  const handleCityChange = (city: USCity) => {
+    setField('city', city);
+  };
+
+  const handleAddressChange = (place: google.maps.places.Place | null) => {
+    if (place) {
+      const location = place.location;
+      let cityName = '';
+      let stateCode = '';
+      let zipCode = '';
+
+      // Extract address components
+      place.addressComponents?.forEach((component) => {
+        const types = component.types;
+        if (types.includes('locality')) {
+          cityName = component.longText || '';
+        } else if (types.includes('administrative_area_level_1')) {
+          stateCode = component.shortText || '';
+        } else if (types.includes('postal_code')) {
+          zipCode = component.longText || '';
+        }
+      });
+
+      // Update all fields at once
+      setPartial({
+        address: place.formattedAddress || '',
+        city: cityName,
+        state: stateCode,
+        zip: zipCode,
+        lat: location ? location.lat() : null,
+        long: location ? location.lng() : null,
+      });
+    }
+  };
+
+  const handleAptChange = (apt: string) => {
+    setField('suites', apt);
+  };
+
+  const handleTownChange = (town: string) => {
+    setField('city', town);
+  };
+
+  const handleStateChange = (state: string) => {
+    setField('state', state);
+  };
+
+  const handleZipChange = (zip: string) => {
+    setField('zip', zip);
+  };
 
   return (
     <div className="form-border flex flex-col gap-6 relative">
@@ -35,10 +89,7 @@ export default function SubleaseStep4() {
           <select
             className="text-field"
             value={city}
-            onChange={(e) => {
-              setCity(e.target.value as USCity);
-              console.log('City:', e.target.value);
-            }}
+            onChange={(e) => handleCityChange(e.target.value as USCity)}
             title="Select a city"
           >
             <option value="">Select a city</option>
@@ -48,50 +99,33 @@ export default function SubleaseStep4() {
               </option>
             ))}
           </select>
-          <input
-            className="text-field"
-            placeholder="Street address"
-            value={street}
-            onChange={(e) => {
-              setStreet(e.target.value);
-              console.log('Street:', e.target.value);
-            }}
+          <PlaceAutocomplete
+            onPlaceSelect={handleAddressChange}
+            className="text-field w-full"
           />
           <input
             className="text-field"
             placeholder="Apt, suite, unit (if applicable)"
-            value={apt}
-            onChange={(e) => {
-              setApt(e.target.value);
-              console.log('Apt:', e.target.value);
-            }}
+            value={suites || ''}
+            onChange={(e) => handleAptChange(e.target.value)}
           />
           <input
             className="text-field"
             placeholder="City / Town"
-            value={town}
-            onChange={(e) => {
-              setTown(e.target.value);
-              console.log('Town:', e.target.value);
-            }}
+            value={city || ''}
+            onChange={(e) => handleTownChange(e.target.value)}
           />
           <input
             className="text-field"
             placeholder="State / Territory"
-            value={state}
-            onChange={(e) => {
-              setState(e.target.value);
-              console.log('State:', e.target.value);
-            }}
+            value={state || ''}
+            onChange={(e) => handleStateChange(e.target.value)}
           />
           <input
             className="text-field"
             placeholder="ZIP code"
-            value={zip}
-            onChange={(e) => {
-              setZip(e.target.value);
-              console.log('Zip:', e.target.value);
-            }}
+            value={zip || ''}
+            onChange={(e) => handleZipChange(e.target.value)}
           />
         </div>
       </div>

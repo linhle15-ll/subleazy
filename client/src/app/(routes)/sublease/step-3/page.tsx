@@ -1,25 +1,45 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { Home, Building } from 'lucide-react';
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
 import ProgressBar from '@/components/ui/progress-bar/progress-bar';
 import { SelectionBox } from '@/components/ui/selection-box/selection-box';
+import { useFormStore } from '@/components/store/formStore';
+import { HouseType, PlaceType } from '@/lib/types/enums';
 
 const placeOptions = [
-  { label: 'House', value: 'house', icon: Home },
-  { label: 'Apartment', value: 'apartment', icon: Building },
+  { label: 'House', value: HouseType.HOUSE, icon: Home },
+  { label: 'Apartment', value: HouseType.APT, icon: Building },
 ];
 
 const typeOptions = [
-  { label: 'An entire place', value: 'entire' },
-  { label: 'Private room with shared spaces', value: 'private' },
-  { label: 'A shared room', value: 'shared' },
+  { label: 'An entire place', value: PlaceType.ENTIRE },
+  { label: 'Private room with shared spaces', value: PlaceType.PRV },
+  { label: 'A shared room', value: PlaceType.SHARED },
 ];
 
 export default function SubleaseStep3() {
-  const [place, setPlace] = useState<string | null>(null);
-  const [type, setType] = useState<string | null>(null);
+  const { houseInfo, setField } = useFormStore();
+
+  // Log the current state whenever it changes
+  useEffect(() => {
+    console.log('Current form state:', useFormStore.getState());
+  }, [houseInfo]);
+
+  const handlePlaceSelect = (value: HouseType) => {
+    setField('houseInfo', {
+      ...houseInfo,
+      houseType: value,
+    });
+  };
+
+  const handleTypeSelect = (value: PlaceType) => {
+    setField('houseInfo', {
+      ...houseInfo,
+      placeType: value,
+    });
+  };
 
   return (
     <div className="form-border flex flex-col gap-6 relative">
@@ -40,12 +60,12 @@ export default function SubleaseStep3() {
         <div className="flex flex-wrap gap-6">
           {placeOptions.map((opt) => {
             const Icon = opt.icon;
-            const active = place === opt.value;
+            const active = houseInfo.houseType === opt.value;
             return (
               <SelectionBox
                 key={opt.value}
                 active={active}
-                onClick={() => setPlace(opt.value)}
+                onClick={() => handlePlaceSelect(opt.value)}
               >
                 <Icon
                   className={`w-9 h-9 ${active ? 'text-primaryOrange' : 'text-gray-500'}`}
@@ -64,12 +84,12 @@ export default function SubleaseStep3() {
         </div>
         <div className="flex flex-wrap gap-6">
           {typeOptions.map((opt) => {
-            const active = type === opt.value;
+            const active = houseInfo.placeType === opt.value;
             return (
               <SelectionBox
                 key={opt.value}
                 active={active}
-                onClick={() => setType(opt.value)}
+                onClick={() => handleTypeSelect(opt.value)}
               >
                 {opt.label}
               </SelectionBox>

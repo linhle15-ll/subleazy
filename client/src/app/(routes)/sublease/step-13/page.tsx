@@ -1,112 +1,117 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
-import ProgressBar from '@/components/ui/progress-bar/progress-bar';
 import { SelectionBox } from '@/components/ui/selection-box/selection-box';
-
-const guestOptions = [
-  'No overnight guests',
-  'Guests allowed with prior notice',
-  'No parties or large gatherings',
-  'No loud music or noise',
-];
-
-const lifestyleOptions = [
-  'No smoking',
-  'Smoking allowed only outside and designated areas',
-  'No alcohol allowed',
-  'No recreational drugs',
-];
-
-const cleanlinessOptions = [
-  'Keep shared areas clean',
-  'Take out trash regularly',
-  "Respect others' privacy",
-];
-
-const petOptions = ['No pets allowed', 'Pets allowed with approval'];
-
-const utilitiesOptions = [
-  'Shared fridge place only',
-  'Economical use of showers and water',
-  'Economical use of electricity (lights, AC, etc)',
-  'Limit on laundry use',
-];
-
-const safetyOptions = [
-  'Report issues immediately',
-  'Do not tamper with locks/security',
-  'Keep door locked when leaving',
-];
-
-const moveOptions = [
-  'Return keys at the end of stay',
-  'Leave room in original condition',
-];
+import { useFormStore } from '@/components/store/formStore';
+import { Button } from '@/components/ui/button';
 
 const hours = Array.from({ length: 12 }, (_, i) => i + 1);
 const minutes = ['00', '15', '30', '45'];
 const ampm = ['AM', 'PM'];
 
-// function getTimeValue(hour: number, minute: string, ampmVal: string) {
-//   let h = hour % 12;
-//   if (ampmVal === 'PM') h += 12;
-//   return h * 60 + parseInt(minute, 10);
-// }
+function formatTimeString(
+  hour: number,
+  minute: string,
+  ampmVal: string
+): string {
+  return `${hour.toString().padStart(2, '0')}:${minute} ${ampmVal}`;
+}
+
+function parseTimeString(timeStr: string | undefined): {
+  hour: number;
+  minute: string;
+  ampm: string;
+} {
+  if (!timeStr) return { hour: 12, minute: '00', ampm: 'AM' };
+
+  // Split only on the first space to get time and AM/PM
+  const [time, ampm] = timeStr.split(' ');
+  const [hour, minute] = time.split(':');
+
+  return {
+    hour: parseInt(hour),
+    minute: minute || '00',
+    ampm: ampm || 'AM',
+  };
+}
 
 export default function SubleaseStep13() {
-  // State for toggles
-  const [guests, setGuests] = useState<string[]>([]);
-  const [lifestyle, setLifestyle] = useState<string[]>([]);
-  const [cleanliness, setCleanliness] = useState<string[]>([]);
-  const [pets, setPets] = useState<string>('');
-  const [utilities, setUtilities] = useState<string[]>([]);
-  const [safety, setSafety] = useState<string[]>([]);
-  const [move, setMove] = useState<string[]>([]);
+  const router = useRouter();
+  const { rules, availability, setField } = useFormStore();
 
-  // Quiet hours state
-  const [quietFromHour, setQuietFromHour] = useState(10);
-  const [quietFromMinute, setQuietFromMinute] = useState('00');
-  const [quietFromAMPM, setQuietFromAMPM] = useState('PM');
-  const [quietToHour, setQuietToHour] = useState(7);
-  const [quietToMinute, setQuietToMinute] = useState('00');
-  const [quietToAMPM, setQuietToAMPM] = useState('AM');
+  // Log the current state whenever it changes
+  useEffect(() => {
+    console.log('Current form state:', useFormStore.getState());
+  }, [rules, availability]);
 
-  // Check-in/out state
-  const [checkInHour, setCheckInHour] = useState(3);
-  const [checkInMinute, setCheckInMinute] = useState('00');
-  const [checkInAMPM, setCheckInAMPM] = useState('PM');
-  const [checkOutHour, setCheckOutHour] = useState(11);
-  const [checkOutMinute, setCheckOutMinute] = useState('00');
-  const [checkOutAMPM, setCheckOutAMPM] = useState('AM');
+  const handleRuleChange = (field: keyof typeof rules, value: boolean) => {
+    setField('rules', {
+      ...rules,
+      [field]: value,
+    });
+  };
 
-  // Logic for time validation
-  // const quietFromValue = getTimeValue(
-  //   quietFromHour,
-  //   quietFromMinute,
-  //   quietFromAMPM
-  // );
-  // const quietToValue = getTimeValue(quietToHour, quietToMinute, quietToAMPM);
-  // // const isQuietInvalid = quietToValue <= quietFromValue;
+  const handleQuietHoursChange = (from: string, to: string) => {
+    setField('rules', {
+      ...rules,
+      quietHours: { from, to },
+    });
+  };
 
-  // const checkInValue = getTimeValue(checkInHour, checkInMinute, checkInAMPM);
-  // const checkOutValue = getTimeValue(
-  //   checkOutHour,
-  //   checkOutMinute,
-  //   checkOutAMPM
-  // );
-  // const isCheckInvalid = checkOutValue <= checkInValue;
-
-  // Toggle helpers
-  const toggle = (
-    arr: string[],
-    setArr: (v: string[]) => void,
+  const handleCheckTimeChange = (
+    field: 'checkinTime' | 'checkoutTime',
     value: string
   ) => {
-    setArr(
-      arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value]
-    );
+    setField('availability', {
+      ...availability,
+      [field]: value,
+    });
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const formData = useFormStore.getState();
+
+      // Add required availability dates if not present
+      const submissionData = {
+        ...formData,
+        availability: {
+          ...formData.availability,
+          startDate:
+            formData.availability?.startDate || new Date().toISOString(),
+          endDate:
+            formData.availability?.endDate ||
+            new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // Default to 30 days from now
+        },
+      };
+
+      const response = await fetch('http://localhost:5001/api/posts/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submissionData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create post');
+      }
+
+      const data = await response.json();
+      console.log('Post created successfully:', data);
+
+      // Clear the form data after successful submission
+      useFormStore.getState().resetForm();
+
+      // Redirect to success page or home
+      router.push('/sublease/success');
+    } catch (error) {
+      console.error('Error creating post:', error);
+      // Handle error (show error message to user)
+    }
   };
 
   return (
@@ -122,27 +127,42 @@ export default function SubleaseStep13() {
         your post.
       </div>
 
-      {/* Guests & Socialize */}
+      {/* Guest Rules */}
       <div className="mb-6">
-        <div className="font-medium text-lg mb-2">Guests & Socialize</div>
-        <div className="flex flex-wrap gap-4 mb-4">
-          {guestOptions.map((opt) => (
-            <SelectionBox
-              key={opt}
-              active={guests.includes(opt)}
-              onClick={() => toggle(guests, setGuests, opt)}
-            >
-              {opt}
-            </SelectionBox>
-          ))}
+        <div className="font-medium text-lg mb-2">Guest Rules</div>
+        <div className="flex flex-wrap gap-4">
+          <SelectionBox
+            active={rules?.noGuest || false}
+            onClick={() => handleRuleChange('noGuest', !rules?.noGuest)}
+          >
+            No overnight guests
+          </SelectionBox>
+          <SelectionBox
+            active={rules?.noParty || false}
+            onClick={() => handleRuleChange('noParty', !rules?.noParty)}
+          >
+            No parties or large gatherings
+          </SelectionBox>
         </div>
+      </div>
+
+      {/* Quiet Hours */}
+      <div className="mb-6">
+        <div className="font-medium text-lg mb-2">Quiet Hours</div>
         <div className="flex flex-row items-center justify-center gap-4 w-full h-28 pl-5 pr-5 border-2 rounded-xl text-lg text-center font-medium border-gray-400">
-          <span>Quiet hours</span>
+          <span>From</span>
           <select
-            value={quietFromHour}
-            onChange={(e) => setQuietFromHour(Number(e.target.value))}
+            aria-label="Quiet hours from hour"
+            value={parseTimeString(rules?.quietHours?.from).hour}
+            onChange={(e) => {
+              const hour = Number(e.target.value);
+              const { minute, ampm } = parseTimeString(rules?.quietHours?.from);
+              handleQuietHoursChange(
+                formatTimeString(hour, minute, ampm),
+                rules?.quietHours?.to || '07:00 AM'
+              );
+            }}
             className="form-dropdown-box"
-            title="Quiet hours from hour"
           >
             {hours.map((h) => (
               <option key={h} value={h}>
@@ -152,10 +172,17 @@ export default function SubleaseStep13() {
           </select>
           :
           <select
-            value={quietFromMinute}
-            onChange={(e) => setQuietFromMinute(e.target.value)}
+            aria-label="Quiet hours from minute"
+            value={parseTimeString(rules?.quietHours?.from).minute}
+            onChange={(e) => {
+              const { hour, ampm } = parseTimeString(rules?.quietHours?.from);
+              const minute = e.target.value;
+              handleQuietHoursChange(
+                formatTimeString(hour, minute, ampm),
+                rules?.quietHours?.to || '07:00 AM'
+              );
+            }}
             className="form-dropdown-box"
-            title="Quiet hours from minute"
           >
             {minutes.map((m) => (
               <option key={m} value={m}>
@@ -164,10 +191,16 @@ export default function SubleaseStep13() {
             ))}
           </select>
           <select
-            value={quietFromAMPM}
-            onChange={(e) => setQuietFromAMPM(e.target.value)}
+            aria-label="Quiet hours from AM/PM"
+            value={parseTimeString(rules?.quietHours?.from).ampm}
+            onChange={(e) => {
+              const { hour, minute } = parseTimeString(rules?.quietHours?.from);
+              handleQuietHoursChange(
+                formatTimeString(hour, minute, e.target.value),
+                rules?.quietHours?.to || '07:00 AM'
+              );
+            }}
             className="form-dropdown-box"
-            title="Quiet hours from AM/PM"
           >
             {ampm.map((a) => (
               <option key={a} value={a}>
@@ -177,10 +210,17 @@ export default function SubleaseStep13() {
           </select>
           <span>to</span>
           <select
-            value={quietToHour}
-            onChange={(e) => setQuietToHour(Number(e.target.value))}
+            aria-label="Quiet hours to hour"
+            value={parseTimeString(rules?.quietHours?.to).hour}
+            onChange={(e) => {
+              const hour = Number(e.target.value);
+              const { minute, ampm } = parseTimeString(rules?.quietHours?.to);
+              handleQuietHoursChange(
+                rules?.quietHours?.from || '10:00 PM',
+                formatTimeString(hour, minute, ampm)
+              );
+            }}
             className="form-dropdown-box"
-            title="Quiet hours to hour"
           >
             {hours.map((h) => (
               <option key={h} value={h}>
@@ -190,10 +230,17 @@ export default function SubleaseStep13() {
           </select>
           :
           <select
-            value={quietToMinute}
-            onChange={(e) => setQuietToMinute(e.target.value)}
+            aria-label="Quiet hours to minute"
+            value={parseTimeString(rules?.quietHours?.to).minute}
+            onChange={(e) => {
+              const { hour, ampm } = parseTimeString(rules?.quietHours?.to);
+              const minute = e.target.value;
+              handleQuietHoursChange(
+                rules?.quietHours?.from || '10:00 PM',
+                formatTimeString(hour, minute, ampm)
+              );
+            }}
             className="form-dropdown-box"
-            title="Quiet hours to minute"
           >
             {minutes.map((m) => (
               <option key={m} value={m}>
@@ -202,10 +249,16 @@ export default function SubleaseStep13() {
             ))}
           </select>
           <select
-            value={quietToAMPM}
-            onChange={(e) => setQuietToAMPM(e.target.value)}
+            aria-label="Quiet hours to AM/PM"
+            value={parseTimeString(rules?.quietHours?.to).ampm}
+            onChange={(e) => {
+              const { hour, minute } = parseTimeString(rules?.quietHours?.to);
+              handleQuietHoursChange(
+                rules?.quietHours?.from || '10:00 PM',
+                formatTimeString(hour, minute, e.target.value)
+              );
+            }}
             className="form-dropdown-box"
-            title="Quiet hours to AM/PM"
           >
             {ampm.map((a) => (
               <option key={a} value={a}>
@@ -216,98 +269,50 @@ export default function SubleaseStep13() {
         </div>
       </div>
 
-      {/* Lifestyle */}
+      {/* Lifestyle Rules */}
       <div className="mb-6">
-        <div className="font-medium text-lg mb-2">Lifestyle</div>
+        <div className="font-medium text-lg mb-2">Lifestyle Rules</div>
         <div className="flex flex-wrap gap-4">
-          {lifestyleOptions.map((opt) => (
-            <SelectionBox
-              key={opt}
-              active={lifestyle.includes(opt)}
-              onClick={() => toggle(lifestyle, setLifestyle, opt)}
-            >
-              {opt}
-            </SelectionBox>
-          ))}
+          <SelectionBox
+            active={rules?.noSmoking || false}
+            onClick={() => handleRuleChange('noSmoking', !rules?.noSmoking)}
+          >
+            No smoking
+          </SelectionBox>
+          <SelectionBox
+            active={rules?.noDrug || false}
+            onClick={() => handleRuleChange('noDrug', !rules?.noDrug)}
+          >
+            No recreational drugs
+          </SelectionBox>
+          <SelectionBox
+            active={rules?.noPet || false}
+            onClick={() => handleRuleChange('noPet', !rules?.noPet)}
+          >
+            No pets allowed
+          </SelectionBox>
         </div>
       </div>
 
-      {/* Cleanliness & Shared Places */}
+      {/* Check-in/Check-out Times */}
       <div className="mb-6">
-        <div className="font-medium text-lg mb-2">
-          Cleanliness & Shared Places
-        </div>
-        <div className="flex flex-wrap gap-4">
-          {cleanlinessOptions.map((opt) => (
-            <SelectionBox
-              key={opt}
-              active={cleanliness.includes(opt)}
-              onClick={() => toggle(cleanliness, setCleanliness, opt)}
-            >
-              {opt}
-            </SelectionBox>
-          ))}
-        </div>
-      </div>
-
-      {/* Pets */}
-      <div className="mb-6">
-        <div className="font-medium text-lg mb-2">Pets</div>
-        <div className="flex flex-wrap gap-4">
-          {petOptions.map((opt) => (
-            <SelectionBox
-              key={opt}
-              active={pets === opt}
-              onClick={() => setPets(opt)}
-            >
-              {opt}
-            </SelectionBox>
-          ))}
-        </div>
-      </div>
-
-      {/* Utilities & Appliances */}
-      <div className="mb-6">
-        <div className="font-medium text-lg mb-2">Utilities & Appliances</div>
-        <div className="flex flex-wrap gap-4">
-          {utilitiesOptions.map((opt) => (
-            <SelectionBox
-              key={opt}
-              active={utilities.includes(opt)}
-              onClick={() => toggle(utilities, setUtilities, opt)}
-            >
-              {opt}
-            </SelectionBox>
-          ))}
-        </div>
-      </div>
-
-      {/* Safety & Maintenance */}
-      <div className="mb-6">
-        <div className="font-medium text-lg mb-2">Safety & Maintenance</div>
-        <div className="flex flex-wrap gap-4">
-          {safetyOptions.map((opt) => (
-            <SelectionBox
-              key={opt}
-              active={safety.includes(opt)}
-              onClick={() => toggle(safety, setSafety, opt)}
-            >
-              {opt}
-            </SelectionBox>
-          ))}
-        </div>
-      </div>
-
-      {/* Move-in/Move-out */}
-      <div className="flex flex-col gap-4 mb-6">
-        <div className="font-medium text-lg mb-2">Move-in/Move-out</div>
+        <div className="font-medium text-lg mb-2">Check-in/Check-out Times</div>
         <div className="flex flex-row items-center justify-center gap-4 w-full h-28 pl-5 pr-5 border-2 rounded-xl text-lg text-center font-medium border-gray-400">
           <span>Check-in time</span>
           <select
-            value={checkInHour}
-            onChange={(e) => setCheckInHour(Number(e.target.value))}
+            aria-label="Check-in hour"
+            value={parseTimeString(availability?.checkinTime).hour}
+            onChange={(e) => {
+              const hour = Number(e.target.value);
+              const { minute, ampm } = parseTimeString(
+                availability?.checkinTime
+              );
+              handleCheckTimeChange(
+                'checkinTime',
+                formatTimeString(hour, minute, ampm)
+              );
+            }}
             className="form-dropdown-box"
-            title="Check-in hour"
           >
             {hours.map((h) => (
               <option key={h} value={h}>
@@ -317,10 +322,17 @@ export default function SubleaseStep13() {
           </select>
           :
           <select
-            value={checkInMinute}
-            onChange={(e) => setCheckInMinute(e.target.value)}
+            aria-label="Check-in minute"
+            value={parseTimeString(availability?.checkinTime).minute}
+            onChange={(e) => {
+              const { hour, ampm } = parseTimeString(availability?.checkinTime);
+              const minute = e.target.value;
+              handleCheckTimeChange(
+                'checkinTime',
+                formatTimeString(hour, minute, ampm)
+              );
+            }}
             className="form-dropdown-box"
-            title="Check-in minute"
           >
             {minutes.map((m) => (
               <option key={m} value={m}>
@@ -329,10 +341,18 @@ export default function SubleaseStep13() {
             ))}
           </select>
           <select
-            value={checkInAMPM}
-            onChange={(e) => setCheckInAMPM(e.target.value)}
+            aria-label="Check-in AM/PM"
+            value={parseTimeString(availability?.checkinTime).ampm}
+            onChange={(e) => {
+              const { hour, minute } = parseTimeString(
+                availability?.checkinTime
+              );
+              handleCheckTimeChange(
+                'checkinTime',
+                formatTimeString(hour, minute, e.target.value)
+              );
+            }}
             className="form-dropdown-box"
-            title="Check-in AM/PM"
           >
             {ampm.map((a) => (
               <option key={a} value={a}>
@@ -342,10 +362,19 @@ export default function SubleaseStep13() {
           </select>
           <span>Check-out time</span>
           <select
-            value={checkOutHour}
-            onChange={(e) => setCheckOutHour(Number(e.target.value))}
+            aria-label="Check-out hour"
+            value={parseTimeString(availability?.checkoutTime).hour}
+            onChange={(e) => {
+              const hour = Number(e.target.value);
+              const { minute, ampm } = parseTimeString(
+                availability?.checkoutTime
+              );
+              handleCheckTimeChange(
+                'checkoutTime',
+                formatTimeString(hour, minute, ampm)
+              );
+            }}
             className="form-dropdown-box"
-            title="Check-out hour"
           >
             {hours.map((h) => (
               <option key={h} value={h}>
@@ -355,10 +384,19 @@ export default function SubleaseStep13() {
           </select>
           :
           <select
-            value={checkOutMinute}
-            onChange={(e) => setCheckOutMinute(e.target.value)}
+            aria-label="Check-out minute"
+            value={parseTimeString(availability?.checkoutTime).minute}
+            onChange={(e) => {
+              const { hour, ampm } = parseTimeString(
+                availability?.checkoutTime
+              );
+              const minute = e.target.value;
+              handleCheckTimeChange(
+                'checkoutTime',
+                formatTimeString(hour, minute, ampm)
+              );
+            }}
             className="form-dropdown-box"
-            title="Check-out minute"
           >
             {minutes.map((m) => (
               <option key={m} value={m}>
@@ -367,10 +405,18 @@ export default function SubleaseStep13() {
             ))}
           </select>
           <select
-            value={checkOutAMPM}
-            onChange={(e) => setCheckOutAMPM(e.target.value)}
+            aria-label="Check-out AM/PM"
+            value={parseTimeString(availability?.checkoutTime).ampm}
+            onChange={(e) => {
+              const { hour, minute } = parseTimeString(
+                availability?.checkoutTime
+              );
+              handleCheckTimeChange(
+                'checkoutTime',
+                formatTimeString(hour, minute, e.target.value)
+              );
+            }}
             className="form-dropdown-box"
-            title="Check-out AM/PM"
           >
             {ampm.map((a) => (
               <option key={a} value={a}>
@@ -379,35 +425,33 @@ export default function SubleaseStep13() {
             ))}
           </select>
         </div>
-        <div className="flex flex-wrap gap-4 mb-4">
-          {moveOptions.map((opt) => (
-            <SelectionBox
-              key={opt}
-              active={move.includes(opt)}
-              onClick={() => toggle(move, setMove, opt)}
-            >
-              {opt}
-            </SelectionBox>
-          ))}
-        </div>
       </div>
 
-      <ProgressBar
-        currentStep={12}
-        totalSteps={12}
-        buttons={[
-          {
-            text: 'Back',
-            url: '/sublease/step-12',
-            variant: 'secondary',
-          },
-          {
-            text: 'Review and post',
-            url: '/sublease/review',
-            variant: 'primary',
-          },
-        ]}
-      />
+      <div className="flex flex-row items-center justify-between mt-8">
+        <div className="flex flex-col w-[80%] gap-2">
+          <span className="text-gray-500 text-sm">Step 12 of 12</span>
+          <div className="w-full h-3 bg-gray-200 rounded-full">
+            <div
+              className="h-full bg-primaryOrange transition-all duration-300 rounded-full"
+              style={{ width: '100%' }}
+            />
+          </div>
+        </div>
+        <div className="flex flex-row gap-4 ml-16">
+          <Button
+            className="w-40 btn-secondary text-center rounded-xl"
+            onClick={() => router.push('/sublease/step-12')}
+          >
+            Back
+          </Button>
+          <Button
+            className="w-40 btn-primary text-center rounded-xl"
+            onClick={handleSubmit}
+          >
+            Review and post
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

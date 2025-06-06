@@ -1,20 +1,35 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { User, Users, UserPlus } from 'lucide-react';
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
 import ProgressBar from '@/components/ui/progress-bar/progress-bar';
 import { SelectionBox } from '@/components/ui/selection-box/selection-box';
+import { useFormStore } from '@/components/store/formStore';
+import { WhoElse } from '@/lib/types/enums';
 
 const options = [
-  { label: 'Me', value: 'me', icon: User },
-  { label: 'My family', value: 'family', icon: Users },
-  { label: 'Other guests', value: 'other', icon: Users },
-  { label: 'Roommates', value: 'roommates', icon: UserPlus },
+  { label: 'Me', value: WhoElse.ME, icon: User },
+  { label: 'My family', value: WhoElse.FAM, icon: Users },
+  { label: 'Other guests', value: WhoElse.GUESTS, icon: Users },
+  { label: 'Roommates', value: WhoElse.ROOMMATES, icon: UserPlus },
 ];
 
 export default function SubleaseStep8() {
-  const [selected, setSelected] = useState<string>('');
+  const { whoElse, setField } = useFormStore();
+
+  // Log the current state whenever it changes
+  useEffect(() => {
+    console.log('Current form state:', useFormStore.getState());
+  }, [whoElse]);
+
+  const handleSelection = (value: WhoElse) => {
+    const currentSelection = whoElse || [];
+    const newSelection = currentSelection.includes(value)
+      ? currentSelection.filter((item) => item !== value)
+      : [...currentSelection, value];
+    setField('whoElse', newSelection);
+  };
 
   return (
     <div className="form-border flex flex-col gap-6 relative">
@@ -35,15 +50,12 @@ export default function SubleaseStep8() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           {options.map((opt) => {
             const Icon = opt.icon;
-            const active = selected.includes(opt.value);
+            const active = whoElse?.includes(opt.value) || false;
             return (
               <SelectionBox
                 key={opt.value}
                 active={active}
-                onClick={() => {
-                  setSelected(opt.value);
-                  console.log('selected: ', selected);
-                }}
+                onClick={() => handleSelection(opt.value)}
               >
                 <Icon
                   className={`w-8 h-8 ${active ? 'text-primaryOrange' : 'text-gray-500'}`}

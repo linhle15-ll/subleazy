@@ -1,80 +1,47 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect } from 'react';
 import {
   Wifi,
-  Tv,
-  Snowflake,
-  Thermometer,
   Utensils,
   WashingMachine,
   ParkingCircle,
-  WavesLadder,
-  Dog,
-  Coffee,
-  CookingPot,
-  Microwave,
-  Landmark,
-  Dumbbell,
-  Laptop,
-  Fan,
-  Shirt,
-  Flame,
-  UtensilsCrossed,
-  AlarmSmoke,
-  FireExtinguisher,
-  Bandage,
-  Camera,
-  Lock,
-  DoorOpen,
+  Snowflake,
+  LucideIcon,
 } from 'lucide-react';
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
 import ProgressBar from '@/components/ui/progress-bar/progress-bar';
 import { SelectionBox } from '@/components/ui/selection-box/selection-box';
+import { useFormStore } from '@/components/store/formStore';
 
-const favorites = [
+type AmenityKey =
+  | 'wifi'
+  | 'kitchen'
+  | 'laundry'
+  | 'parking'
+  | 'airConditioning';
+
+const amenities: { label: string; value: AmenityKey; icon: LucideIcon }[] = [
   { label: 'Wifi', value: 'wifi', icon: Wifi },
-  { label: 'TV', value: 'tv', icon: Tv },
-  { label: 'Air conditioning', value: 'ac', icon: Snowflake },
-  { label: 'Heating', value: 'heating', icon: Thermometer },
   { label: 'Kitchen', value: 'kitchen', icon: Utensils },
-  { label: 'Washer', value: 'washer', icon: WashingMachine },
-  { label: 'Dryer', value: 'dryer', icon: WashingMachine },
-  { label: 'Free parking', value: 'parking', icon: ParkingCircle },
-  { label: 'Pool', value: 'pool', icon: WavesLadder },
-  { label: 'Pet friendly', value: 'pet', icon: Dog },
-];
-
-const niceToHaves = [
-  { label: 'Coffee maker', value: 'coffee', icon: Coffee },
-  { label: 'CookingPot', value: 'CookingPot', icon: CookingPot },
-  { label: 'Microwave', value: 'microwave', icon: Microwave },
-  { label: 'Balcony', value: 'balcony', icon: Landmark },
-  { label: 'Gym', value: 'gym', icon: Dumbbell },
-  { label: 'Workspace', value: 'workspace', icon: Laptop },
-  { label: 'Hair dryer', value: 'hairdryer', icon: Fan },
-  { label: 'Shirt', value: 'Shirt', icon: Shirt },
-  { label: 'Fireplace', value: 'fireplace', icon: Flame },
-  { label: 'Outdoor dining', value: 'outdoor', icon: UtensilsCrossed },
-];
-
-const safety = [
-  { label: 'Smoke alarm', value: 'smoke', icon: AlarmSmoke },
-  { label: 'CO alarm', value: 'co', icon: AlarmSmoke },
-  { label: 'Fire extinguisher', value: 'extinguisher', icon: FireExtinguisher },
-  { label: 'First aid kit', value: 'firstaid', icon: Bandage },
-  { label: 'Security cameras', value: 'camera', icon: Camera },
-  { label: 'Lock on bedroom', value: 'lock', icon: Lock },
-  { label: 'Emergency exit', value: 'exit', icon: DoorOpen },
+  { label: 'Laundry', value: 'laundry', icon: WashingMachine },
+  { label: 'Parking', value: 'parking', icon: ParkingCircle },
+  { label: 'Air conditioning', value: 'airConditioning', icon: Snowflake },
 ];
 
 export default function SubleaseStep9() {
-  const [selected, setSelected] = useState<string[]>([]);
+  const { amenities: selectedAmenities, setField } = useFormStore();
 
-  const toggle = (value: string) => {
-    setSelected((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
-    );
+  // Log the current state whenever it changes
+  useEffect(() => {
+    console.log('Current form state:', useFormStore.getState());
+  }, [selectedAmenities]);
+
+  const toggle = (value: AmenityKey) => {
+    setField('amenities', {
+      ...selectedAmenities,
+      [value]: !selectedAmenities?.[value],
+    });
   };
 
   return (
@@ -89,77 +56,22 @@ export default function SubleaseStep9() {
 
       {/* Amenities section */}
       <div className="mb-8">
-        <div className="form-h2">Tell us what your place has to offer</div>
-        <div className="mb-11">
-          You can add more amenities after you publish your listing
-        </div>
+        <div className="form-h2 mb-8">Tell us what your place has to offer</div>
 
-        {/* Favorites */}
+        {/* Amenities */}
         <div className="mb-9">
-          <div className="form-h2">Guests' favorites</div>
+          <div className="form-h2">Available amenities</div>
           <div className="flex flex-wrap gap-4">
-            {favorites.map((item) => {
+            {amenities.map((item) => {
               const Icon = item.icon;
-              const active = selected.includes(item.value);
+              const active = selectedAmenities?.[item.value] || false;
               return (
                 <SelectionBox
                   key={item.value}
                   active={active}
                   onClick={() => {
                     toggle(item.value);
-                    console.log('selected amenities: ', selected);
-                  }}
-                >
-                  <Icon
-                    className={`w-8 h-8 ${active ? 'text-primaryOrange' : 'text-gray-500'}`}
-                  />
-                  {item.label}
-                </SelectionBox>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Nice-to-haves */}
-        <div className="mb-9">
-          <div className="form-h2">Nice-to-haves</div>
-          <div className="flex flex-wrap gap-4">
-            {niceToHaves.map((item) => {
-              const Icon = item.icon;
-              const active = selected.includes(item.value);
-              return (
-                <SelectionBox
-                  key={item.value}
-                  active={active}
-                  onClick={() => {
-                    toggle(item.value);
-                    console.log('selected amenities: ', selected);
-                  }}
-                >
-                  <Icon
-                    className={`w-8 h-8 ${active ? 'text-primaryOrange' : 'text-gray-500'}`}
-                  />
-                  {item.label}
-                </SelectionBox>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Safety details */}
-        <div className="mb-9">
-          <div className="form-h2">Safety details</div>
-          <div className="flex flex-wrap gap-4">
-            {safety.map((item) => {
-              const Icon = item.icon;
-              const active = selected.includes(item.value);
-              return (
-                <SelectionBox
-                  key={item.value}
-                  active={active}
-                  onClick={() => {
-                    toggle(item.value);
-                    console.log('selected amenities: ', selected);
+                    console.log('selected amenities: ', selectedAmenities);
                   }}
                 >
                   <Icon

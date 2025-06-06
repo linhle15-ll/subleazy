@@ -1,17 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect } from 'react';
 // import Link from 'next/link';
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
 import ProgressBar from '@/components/ui/progress-bar/progress-bar';
+import { useFormStore } from '@/components/store/formStore';
 
 export default function SubleaseStep12() {
-  const [price, setPrice] = useState('');
+  const { price, setField } = useFormStore();
+
+  // Log the current state whenever it changes
+  useEffect(() => {
+    console.log('Current form state:', useFormStore.getState());
+  }, [price]);
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
     // Only allow numbers
-    const val = e.target.value.replace(/[^0-9]/g, '');
-    setPrice(val);
+    if (value === '' || /^\d+$/.test(value)) {
+      setField('price', value === '' ? 0 : parseInt(value, 10));
+    }
   };
 
   return (
@@ -37,7 +45,7 @@ export default function SubleaseStep12() {
             inputMode="numeric"
             pattern="[0-9]*"
             className="w-32 text-5xl font-medium text-center border-none outline-none bg-transparent focus:ring-0"
-            value={price}
+            value={price || ''}
             onChange={handlePriceChange}
             maxLength={6}
             aria-label="Price per month"
