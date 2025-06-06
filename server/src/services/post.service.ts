@@ -125,6 +125,18 @@ const postService = {
       .sort({ updatedAt: -1 });
     return posts;
   },
+
+  getAllPosts: async () => {
+    const posts = await postModel.find();
+    return posts;
+  },
+
+  getPostById: async (postId: string) => {
+    const post = await postModel
+      .findById(postId)
+      .populate('author', 'firstName lastName');
+    return post;
+  },
 };
 
 export default postService;
