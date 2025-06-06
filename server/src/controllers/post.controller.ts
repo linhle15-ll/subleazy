@@ -1,18 +1,20 @@
 import { NextFunction, Request, Response } from 'express';
 import houseService from '../services/house.service';
 import postService from '../services/post.service';
-import { House } from '../types/house.types';
 import { PostRequestBody } from '../types/post.types';
-import { Types } from 'mongoose';
+import mongoose from 'mongoose';
 import { validateMedia, validateTime } from '../utils/validators';
+import { parseGoogleMapPlaces } from '../utils/parsers';
 import { getAuthRequest } from '../utils/common.utils';
 
 const postController = {
   createPost: async (req: Request, res: Response, next: NextFunction) => {
     try {
+
       const authReq = getAuthRequest(req);
       const data: PostRequestBody = authReq.body;
       data.author = new Types.ObjectId(authReq.user.id);
+
 
       if (
         !validateMedia(data.media) ||
@@ -25,17 +27,39 @@ const postController = {
         return;
       }
 
-      const houseData: House = {
+      const house = await houseService.getOrCreateHouse({
         address: data.address,
-        city: data.city,
-        state: data.state,
         zip: data.zip,
-        lat: data.lat,
-        long: data.long,
-      };
-      const house = await houseService.getOrCreateHouse(houseData);
-      data.house = house._id;
+      });
 
+      if (
+        !house.nearbyAmenities ||
+        (house.nearbyAmenities.supermarkets.length === 0 &&
+          house.nearbyAmenities.publicTransports.length === 0)
+      ) {
+        const spmkPlaces = await houseService.fetchNearbyPlaces(
+          data.lat,
+          data.long,
+          true
+        );
+        const transportPlaces = await houseService.fetchNearbyPlaces(
+          data.lat,
+          data.long,
+          false
+        );
+
+        const supermarkets = parseGoogleMapPlaces(spmkPlaces);
+        const publicTransports = parseGoogleMapPlaces(transportPlaces);
+
+        await houseService.updateHouse(house._id, {
+          nearbyAmenities: {
+            supermarkets,
+            publicTransports,
+          },
+        });
+      }
+
+      data.house = house._id;
       const post = await postService.createPost(data);
 
       res.status(201).json(post);
@@ -56,8 +80,61 @@ const postController = {
       }
 
       const posts = await postService.searchPosts(data);
-
       res.status(200).json(posts);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  getPostsByUserId: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // find in the posts collection user's posts by id as an author
+      const userId = req.params.id;
+
+      if (!userId || !mongoose.isValidObjectId(userId)) {
+        res.status(400).json({ error: 'Invalid user ID' });
+        return;
+      }
+
+      const userPosts = await postService.getPostsByUserId(userId);
+
+      if (!userPosts || (Array.isArray(userPosts) && userPosts.length === 0)) {
+        res.status(200).json([]);
+        return;
+      }
+
+      res.status(200).json(userPosts);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  getAllPosts: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const posts = await postService.getAllPosts();
+      res.status(200).json(posts);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  getPostById: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const postId = req.params.id;
+
+      if (!postId || !mongoose.isValidObjectId(postId)) {
+        res.status(400).json({ error: 'Invalid post ID' });
+        return;
+      }
+
+      const post = await postService.getPostById(postId);
+
+      if (!post) {
+        res.status(404).json({ error: 'Post not found' });
+        return;
+      }
+
+      res.status(200).json(post);
     } catch (error) {
       next(error);
     }
