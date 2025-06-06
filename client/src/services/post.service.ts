@@ -7,7 +7,7 @@ const postService = {
     filter: Partial<PostRequestBody>
   ): Promise<Result<Post[]>> => {
     try {
-      const response = await api.post('/posts/search', filter);
+      const response = await api.post('http://localhost:5000/api/posts/search', filter);
       return {
         success: true,
         data: response.data,
@@ -23,7 +23,7 @@ const postService = {
 
   getAllPosts: async (): Promise<Result<Post[]>> => {
     try {
-      const response = await api.get('/posts');
+      const response = await api.get('http://localhost:5000/api/posts/');
       return {
         success: true,
         data: response.data,
@@ -37,9 +37,22 @@ const postService = {
     }
   },
 
-  getPostById: async (id: string): Promise<Post> => {
-    const response = await api.get(`/posts/${id}`);
-    return response.data;
+  getPostById: async (id: string): Promise<Result<Post>> => {
+    try {
+      const response = await api.get(`http://localhost:5000/api/posts/${id}`);
+      return {
+        success: true,
+        data: response.data
+      }
+    } catch (error) {
+      // Optionally, you can log the error or handle it as needed
+      console.error('Error fetching post by ID:', error);
+      return {
+        success: false,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        error: (error as any).response?.data?.error || 'Failed to fetch post by ID',
+      }
+    }
   },
 };
 

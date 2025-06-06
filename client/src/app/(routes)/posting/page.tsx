@@ -20,10 +20,13 @@ import {
   ShoppingCart,
   Accessibility,
 } from 'lucide-react';
+import authorAvatar from '@/public/bannerImg.jpg';
+import Loading from '@/components/ui/commons/loading';
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import postService from '@/services/post.service';
+import { useGetUser } from '@/hooks/use-get-user.hook';
 import { Map, Marker } from '@vis.gl/react-google-maps';
 
 export default function PostingPage() {
@@ -42,7 +45,10 @@ export default function PostingPage() {
     queryFn: () => postService.getPostById(postId!),
     enabled: !!postId,
   });
-
+  
+  // Transform post data to match the UI structure
+  const postData = post?.data
+  
   useEffect(() => {
     if (!postId) {
       router.push('/');
@@ -51,17 +57,8 @@ export default function PostingPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-3/4 mb-4"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
-          <div className="grid grid-cols-4 gap-2 mb-8">
-            <div className="col-span-2 row-span-2 h-96 bg-gray-200 rounded"></div>
-            <div className="h-48 bg-gray-200 rounded"></div>
-            <div className="h-48 bg-gray-200 rounded"></div>
-            <div className="h-48 bg-gray-200 rounded"></div>
-          </div>
-        </div>
+      <div>
+        <Loading />
       </div>
     );
   }
@@ -70,7 +67,7 @@ export default function PostingPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="text-center">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+          <h2 className="text-2xl font-medium text-gray-900 mb-4">
             {error ? 'Error loading post' : 'Post not found'}
           </h2>
           <button
@@ -84,94 +81,108 @@ export default function PostingPage() {
     );
   }
 
-  // Transform post data to match the UI structure
+  const handleAuthorClick = () => {
+    if (
+      postData &&
+      postData.author &&
+      typeof postData.author === 'object' &&
+      '_id' in postData.author
+    ) {
+      router.push(`/profile/${(postData.author as { _id: string })._id}`);
+    }
+  };
+
   const transformedPost = {
-    id: post._id,
-    title: post.title,
-    address: `${post.city}, ${post.state} ${post.zip}`,
-    price: `$${post.price}`,
-    rating: 4.8, // TODO: Add rating to post model
+    id: postData?._id,
+    title: postData?.title,
+    address: `${postData?.city}, ${postData?.state} ${postData?.zip}`,
+    price: `$${postData?.price}`,
+    rating: 5.0, // TODO: Add rating to post model
     author: {
       firstName:
-        typeof post.author === 'object' ? post.author.firstName : 'Unknown',
+        typeof postData?.author === 'object' && postData?.author !== null && 'firstName' in postData.author
+          ? postData.author.firstName
+          : 'Unknown',
       lastName:
-        typeof post.author === 'object' ? post.author.lastName : 'Unknown',
+        typeof postData?.author === 'object' && postData?.author !== null && 'lastName' in postData.author
+          ? postData.author.lastName
+          : 'Unknown',
     },
-    images: post.media.map((url, index) => ({
+    images: postData?.media.map((url, index) => ({
       url,
       alt: `Image ${index + 1}`,
     })),
-    description: post.description,
+    description: postData?.description,
     amenities: [
-      { icon: Wifi, label: post.amenities.wifi ? 'High-speed internet' : '' },
-      { icon: Utensils, label: post.amenities.kitchen ? 'Kitchen' : '' },
-      { icon: Dog, label: post.rules.noPet ? 'No pets' : 'Pets allowed' },
-      { icon: Wind, label: post.amenities.laundry ? 'Laundry' : '' },
+      { icon: Wifi, label: postData?.amenities.wifi ? 'High-speed internet' : '' },
+      { icon: Utensils, label: postData?.amenities.kitchen ? 'Kitchen' : '' },
+      { icon: Dog, label: postData?.rules.noPet ? 'No pets' : 'Pets allowed' },
+      { icon: Wind, label: postData?.amenities.laundry ? 'Laundry' : '' },
       {
         icon: Wind,
-        label: post.amenities.airConditioning ? 'Air conditioning' : '',
+        label: postData?.amenities.airConditioning ? 'Air conditioning' : '',
       },
-      { icon: Car, label: post.amenities.parking ? 'Parking available' : '' },
+      { icon: Car, label: postData?.amenities.parking ? 'Parking available' : '' },
     ].filter((amenity) => amenity.label),
     convenience: [
       {
         icon: Train,
-        label: post.convenience.publicTransport ? 'Near public transport' : '',
+        label: postData?.convenience.publicTransport ? 'Near public transport' : '',
       },
       {
         icon: ShoppingCart,
-        label: post.convenience.supermarket ? 'Near supermarket' : '',
+        label: postData?.convenience.supermarket ? 'Near supermarket' : '',
       },
       {
         icon: Accessibility,
-        label: post.convenience.disabilityFriendly ? 'Disability friendly' : '',
+        label: postData?.convenience.disabilityFriendly ? 'Disability friendly' : '',
       },
     ].filter((item) => item.label),
     roomInfo: [
       {
         icon: Home,
-        label: `${post.houseInfo.houseType.charAt(0).toUpperCase() + post.houseInfo.houseType.slice(1)}`,
+        label: `${postData?.houseInfo?.houseType?.charAt(0).toUpperCase() + (postData?.houseInfo?.houseType?.slice(1) ?? '')}`,
       },
       {
         icon: Building2,
-        label: `${post.houseInfo.placeType.charAt(0).toUpperCase() + post.houseInfo.placeType.slice(1)} living space`,
+        label: `${postData?.houseInfo?.placeType?.charAt(0).toUpperCase() + (postData?.houseInfo?.placeType?.slice(1) ?? '')} living space`,
       },
       {
         icon: Users,
-        label: `Max ${post.bedroomInfo.maxGuests} guest${post.bedroomInfo.maxGuests > 1 ? 's' : ''}`,
+        label: `Max ${postData?.bedroomInfo.maxGuests} guest${(postData?.bedroomInfo?.maxGuests?? 0) > 1 ? 's' : ''}`,
       },
       {
         icon: BedDouble,
-        label: `${post.bedroomInfo.beds} bed${post.bedroomInfo.beds > 1 ? 's' : ''}`,
+        label: `${postData?.bedroomInfo?.beds ?? 0} bed${(postData?.bedroomInfo?.beds ?? 0) > 1 ? 's' : ''}`,
       },
       {
         icon: Bath,
-        label: `${post.bathroomInfo.privateAttached + post.bathroomInfo.privateAccessible} private, ${post.bathroomInfo.shared} shared bathroom`,
+        label: `${(postData?.bathroomInfo?.privateAttached ?? 0) + (postData?.bathroomInfo?.privateAccessible ?? 0)} private, ${(postData?.bathroomInfo?.shared ?? 0)} shared bathroom`,
       },
     ],
     rules: [
       {
         icon: Clock,
-        label: post.rules.quietHours
-          ? `Quiet hours: ${post.rules.quietHours.from} - ${post.rules.quietHours.to}`
+        label: postData?.rules.quietHours
+          ? `Quiet hours: ${postData.rules.quietHours.from} - ${postData.rules.quietHours.to}`
           : 'No quiet hours specified',
       },
       {
         icon: Users,
-        label: post.rules.noGuest ? 'No guests allowed' : 'Guests allowed',
+        label: postData?.rules.noGuest ? 'No guests allowed' : 'Guests allowed',
       },
       {
         icon: Dog,
-        label: post.rules.noPet ? 'No pets allowed' : 'Pets allowed',
+        label: postData?.rules.noPet ? 'No pets allowed' : 'Pets allowed',
       },
     ],
     availability: {
-      startDate: new Date(post.availability.startDate).toLocaleDateString(),
-      endDate: new Date(post.availability.endDate).toLocaleDateString(),
-      checkinTime: post.availability.checkinTime,
-      checkoutTime: post.availability.checkoutTime,
+      startDate: new Date(postData?.availability.startDate ?? '').toLocaleDateString(),
+      endDate: new Date(postData?.availability.endDate ?? '').toLocaleDateString(),
+      checkinTime: postData?.availability.checkinTime,
+      checkoutTime: postData?.availability.checkoutTime,
     },
-    whoElse: post.whoElse
+    whoElse: postData?.whoElse
       .map((item) => item.charAt(0).toUpperCase() + item.slice(1))
       .join(', '),
   };
@@ -181,7 +192,7 @@ export default function PostingPage() {
       {/* Header Section */}
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h1 className="text-2xl font-semibold mb-2">
+          <h1 className="text-2xl font-medium mb-2">
             {transformedPost.title}
           </h1>
           <div className="flex items-center gap-4">
@@ -211,7 +222,7 @@ export default function PostingPage() {
 
       {/* Image Gallery */}
       <div className="grid grid-cols-4 gap-2 mb-8 rounded-xl overflow-hidden">
-        {transformedPost.images.map((image, index) => (
+        {transformedPost.images?.map((image, index) => (
           <div
             key={index}
             className={`relative ${index === 0 ? 'col-span-2 row-span-2' : ''} group cursor-pointer overflow-hidden`}
@@ -232,16 +243,23 @@ export default function PostingPage() {
         {/* Left Column - Main Content */}
         <div className="lg:col-span-2">
           {/* Subleased By */}
-          <div className="mb-4">
-            <p className="font-semibold text-xl mb-4">
+        
+          <button className="flex gap-2 mb-4 items-center" onClick={handleAuthorClick}>
+            <Image 
+              src={authorAvatar}
+              alt="Author Avatar"
+              className="w-11 h-11 rounded-full"
+            />
+            <p className="font-medium text-xl">
               Subleased by {transformedPost.author.firstName}{' '}
               {transformedPost.author.lastName}
             </p>
-          </div>
+            
+          </button>
 
           {/* Room Info */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">About this place</h2>
+            <h2 className="text-xl font-medium mb-4">About this place</h2>
             <div className="grid grid-cols-2 gap-4">
               {transformedPost.roomInfo.map((info, index) => {
                 const Icon = info.icon;
@@ -257,19 +275,19 @@ export default function PostingPage() {
 
           {/* Description */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Description</h2>
+            <h2 className="text-xl font-medium mb-4">Description</h2>
             <p>{transformedPost.description}</p>
           </div>
 
           {/* Who else lives here */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Who else lives here</h2>
+            <h2 className="text-xl font-medium mb-4">Who else lives here</h2>
             <p>{transformedPost.whoElse}</p>
           </div>
 
           {/* What this place offers */}
           <section className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">
+            <h2 className="text-xl font-medium mb-4">
               What this place offers
             </h2>
             <div className="grid grid-cols-2 gap-4">
@@ -302,7 +320,7 @@ export default function PostingPage() {
 
           {/* Convenience */}
           <section className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Convenience</h2>
+            <h2 className="text-xl font-medium mb-4">Convenience</h2>
             <div className="grid grid-cols-2 gap-4">
               {transformedPost.convenience.map((item, index) => {
                 const Icon = item.icon;
@@ -318,7 +336,7 @@ export default function PostingPage() {
 
           {/* House Rules */}
           <section className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">House Rules</h2>
+            <h2 className="text-xl font-medium mb-4">House Rules</h2>
             <div className="grid grid-cols-2 gap-4">
               {transformedPost.rules.map((rule, index) => {
                 const Icon = rule.icon;
@@ -334,7 +352,7 @@ export default function PostingPage() {
 
           {/* Location */}
           <section className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Where you'll be</h2>
+            <h2 className="text-xl font-medium mb-4">Where you'll be</h2>
             <div className="mb-4">
               <div>
                 <h3 className="font-medium text-lg mb-2">
@@ -345,13 +363,13 @@ export default function PostingPage() {
             </div>
             <div className="h-[400px] w-full rounded-lg overflow-hidden">
               <Map
-                defaultCenter={{ lat: post.lat, lng: post.long }}
+                defaultCenter={{ lat: postData?.lat || 0, lng: postData?.long || 0 }}
                 defaultZoom={15}
                 gestureHandling={'greedy'}
                 disableDefaultUI={true}
                 mapId="posting-map"
               >
-                <Marker position={{ lat: post.lat, lng: post.long }} />
+                <Marker position={{ lat: postData?.lat || 0, lng: postData?.long || 0 }} />
               </Map>
             </div>
           </section>
@@ -361,9 +379,9 @@ export default function PostingPage() {
         <div className="lg:col-span-1">
           <div className="sticky top-4 bg-white rounded-lg shadow-lg p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-semibold">
                 {transformedPost.price}
-                <span className="text-sm font-normal">/ month</span>
+                <span className="font-normal">/ month</span>
               </div>
               <div className="flex items-center gap-1">
                 <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
@@ -413,7 +431,7 @@ export default function PostingPage() {
               </div>
             </div>
 
-            <button className="btn-primary">Contact Host</button>
+            <button className="btn-primary" onClick={handleAuthorClick}>Contact Host</button>
           </div>
         </div>
       </div>
