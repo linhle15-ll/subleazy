@@ -25,7 +25,7 @@ const postService = {
 
   getPost: async (id: string): Promise<Result<Post>> => {
     try {
-      const response = await api.get(`/posts/${id}`);
+      const response = await api.post('http://localhost:5001/api/posts/search', filter);
       return {
         success: true,
         data: response.data,
@@ -61,7 +61,7 @@ const postService = {
 
   getAllPosts: async (): Promise<Result<Post[]>> => {
     try {
-      const response = await api.get('/posts/');
+      const response = await api.get('http://localhost:5001/api/posts/');
       return {
         success: true,
         data: response.data,
@@ -76,7 +76,7 @@ const postService = {
 
   getPostsByUserId: async (id: string): Promise<Result<Post[]>> => {
     try {
-      const response = await api.get(`/posts/getByUserId/${id}`);
+      const response = await api.get(`http://localhost:5001/api/posts/${id}`);
       return {
         success: true,
         data: response.data,

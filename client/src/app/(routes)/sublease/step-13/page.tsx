@@ -49,9 +49,42 @@ export default function SubleaseStep13() {
   const { rules, availability } = post;
 
   const handleSubmit = async () => {
-    const res = await postService.createPost(post as Partial<Post>);
-    if (res.success) {
-      setPost({});
+    try {
+      const formData = useFormStore.getState();
+
+      // Add required availability dates if not present
+      const submissionData = {
+        ...formData,
+        availability: {
+          ...formData.availability,
+          startDate:
+            formData.availability?.startDate || new Date().toISOString(),
+          endDate:
+            formData.availability?.endDate ||
+            new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // Default to 30 days from now
+        },
+      };
+
+      const response = await fetch('http://localhost:5001/api/posts/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submissionData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create post');
+      }
+
+      const data = await response.json();
+      console.log('Post created successfully:', data);
+
+      // Clear the form data after successful submission
+      useFormStore.getState().resetForm();
+
+      // Redirect to success page or home
       router.push('/sublease/success');
     }
   };
