@@ -9,11 +9,6 @@ import { useFormStore } from '@/components/store/formStore';
 export default function SubleaseStep12() {
   const { price, setField } = useFormStore();
 
-  // Log the current state whenever it changes
-  useEffect(() => {
-    console.log('Current form state:', useFormStore.getState());
-  }, [price]);
-
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     // Only allow numbers

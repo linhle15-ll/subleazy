@@ -1,6 +1,4 @@
 'use client';
-
-import { useEffect } from 'react';
 import { User, Users, UserPlus } from 'lucide-react';
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
 import ProgressBar from '@/components/ui/progress-bar/progress-bar';
@@ -17,11 +15,6 @@ const options = [
 
 export default function SubleaseStep8() {
   const { whoElse, setField } = useFormStore();
-
-  // Log the current state whenever it changes
-  useEffect(() => {
-    console.log('Current form state:', useFormStore.getState());
-  }, [whoElse]);
 
   const handleSelection = (value: WhoElse) => {
     const currentSelection = whoElse || [];

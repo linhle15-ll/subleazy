@@ -12,11 +12,6 @@ const DESC_MAX = 500;
 export default function SubleaseStep11() {
   const { title, description, setField } = useFormStore();
 
-  // Log the current state whenever it changes
-  useEffect(() => {
-    console.log('Current form state:', useFormStore.getState());
-  }, [title, description]);
-
   return (
     <div className="form-border flex flex-col gap-6 relative mb-15">
       <LogoAndExitButton buttonName="Save & Exit" />

@@ -1,6 +1,4 @@
 'use client';
-
-import { useEffect } from 'react';
 import {
   Wifi,
   Utensils,
@@ -31,11 +29,6 @@ const amenities: { label: string; value: AmenityKey; icon: LucideIcon }[] = [
 
 export default function SubleaseStep9() {
   const { amenities: selectedAmenities, setField } = useFormStore();
-
-  // Log the current state whenever it changes
-  useEffect(() => {
-    console.log('Current form state:', useFormStore.getState());
-  }, [selectedAmenities]);
 
   const toggle = (value: AmenityKey) => {
     setField('amenities', {

@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import { Home, Building } from 'lucide-react';
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
 import ProgressBar from '@/components/ui/progress-bar/progress-bar';
@@ -21,12 +20,7 @@ const typeOptions = [
 
 export default function SubleaseStep3() {
   const { houseInfo, setField } = useFormStore();
-
-  // Log the current state whenever it changes
-  useEffect(() => {
-    console.log('Current form state:', useFormStore.getState());
-  }, [houseInfo]);
-
+  
   const handlePlaceSelect = (value: HouseType) => {
     setField('houseInfo', {
       ...houseInfo,
