@@ -32,6 +32,7 @@ app.get('/health', (req, res) => {
 
 // post routes
 app.use('/api/posts', postRoutes);
+app.use('/api/auth', authRoutes);
 
 // // house routes
 // app.use('/api/houses', houseRoutes);
