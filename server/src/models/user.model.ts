@@ -24,11 +24,6 @@ const userSchema = new Schema<User>(
       trim: true,
       lowercase: true,
     },
-    institution: {
-      type: String,
-      required: true,
-      trim: true,
-    },
     isVerified: {
       type: Boolean,
       default: false,

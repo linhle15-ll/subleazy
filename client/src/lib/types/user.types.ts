@@ -5,7 +5,6 @@ export interface User extends Base, Timestamps {
   firstName: string;
   lastName: string;
   email: string;
-  institution: string;
   isVerified: boolean;
   profileImage: string;
   bio: string;

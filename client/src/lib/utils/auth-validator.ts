@@ -20,7 +20,7 @@ export function validateConfirmPassword(
   password: string,
   confirmPassword: string
 ) {
-  if (password != confirmPassword) {
+  if (password !== confirmPassword) {
     return 'Passwords must match.';
   }
 }

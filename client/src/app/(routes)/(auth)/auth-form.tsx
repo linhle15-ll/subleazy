@@ -21,7 +21,6 @@ export default function AuthForm() {
   const [authForm, setAuthForm] = useState({
     firstName: '',
     lastName: '',
-    institution: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -43,6 +42,7 @@ export default function AuthForm() {
   const handlePasswordBlur = () => {
     if (!isSignUp) return;
     setPasswordError(checkPasswordStrength(authForm.password) ?? null);
+    if (!passwordError && !confirmPasswordError) setError(null);
   };
 
   const handleConfirmPasswordBlur = () => {
@@ -51,6 +51,7 @@ export default function AuthForm() {
       validateConfirmPassword(authForm.password, authForm.confirmPassword) ??
         null
     );
+    if (!passwordError && !confirmPasswordError) setError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -133,22 +134,6 @@ export default function AuthForm() {
           )}
         </div>
 
-        {isSignUp && (
-          <div className="grid gap-1">
-            {/* <Label htmlFor="institution">Institution Full Name</Label> */}
-            <label className="font-medium">Institution Full Name</label>
-            <input
-              id="institution"
-              type="text"
-              placeholder="University of California, Berkeley"
-              value={authForm.institution}
-              onChange={(e) => updateAuthForm('institution', e.target.value)}
-              required
-              className="auth-input-field"
-            />
-          </div>
-        )}
-
         <div className="grid gap-1">
           <label className="font-medium">Academic email address</label>
           <input
@@ -174,7 +159,7 @@ export default function AuthForm() {
               placeholder="Enter your password"
               value={authForm.password}
               onChange={(e) => updateAuthForm('password', e.target.value)}
-              onBlur={() => handlePasswordBlur()}
+              onBlur={() => [handlePasswordBlur(), handleConfirmPasswordBlur()]}
               required
               className="auth-input-field w-full"
             />
