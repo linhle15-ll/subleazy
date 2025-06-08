@@ -121,7 +121,7 @@ const postService = {
   getPostById: async (postId: string) => {
     const post = await postModel
       .findById(postId)
-      .populate('author', 'firstName lastName');
+      .populate('author', 'firstName lastName profileImage');
     return post;
   },
 };

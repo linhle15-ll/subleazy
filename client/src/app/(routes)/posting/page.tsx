@@ -20,7 +20,7 @@ import {
   ShoppingCart,
   Accessibility,
 } from 'lucide-react';
-import authorAvatar from '@/public/bannerImg.jpg';
+import authorAvatar from '@/public/bannerImg.jpg'; // Placeholder for author avatar
 import Loading from '@/components/ui/commons/loading';
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -55,11 +55,7 @@ export default function PostingPage() {
   }, [postId, router]);
 
   if (isLoading) {
-    return (
-      <div>
-        <Loading />
-      </div>
-    );
+    return ( <div> <Loading /> </div> );
   }
 
   if (error || !post) {
@@ -80,15 +76,15 @@ export default function PostingPage() {
     );
   }
 
-  const handleAuthorClick = () => {
-    if (
-      postData &&
-      postData.author &&
-      typeof postData.author === 'object' &&
-      '_id' in postData.author
-    ) {
-      router.push(`/profile/${(postData.author as { _id: string })._id}`);
-    }
+  function handleAuthorClick () {
+    const author = postData?.author;
+    const authorId =
+      typeof author === 'object' && author !== null && '_id' in author
+        ? (author as { _id: string })._id
+        : typeof author === 'string'
+        ? author
+        : '';
+    router.push(`/profile?id=${authorId}`);
   };
 
   const transformedPost = {
@@ -106,6 +102,10 @@ export default function PostingPage() {
         typeof postData?.author === 'object' && postData?.author !== null && 'lastName' in postData.author
           ? postData.author.lastName
           : 'Unknown',
+      profileImage:
+        typeof postData?.author === 'object' && postData?.author !== null && 'profileImage' in postData.author
+          ? (postData.author as { profileImage?: string }).profileImage
+          : undefined,
     },
     images: postData?.media.map((url, index) => ({
       url,
@@ -213,7 +213,7 @@ export default function PostingPage() {
         >
           <Heart
             className={`w-6 h-6 ${
-              isFavorite ? 'fill-orange-500 text-orange-500' : 'text-gray-400'
+              isFavorite ? 'fill-orange-500 text-orange-500' : 'text-white'
             }`}
           />
         </button>
@@ -229,9 +229,9 @@ export default function PostingPage() {
             <Image
               src={image.url}
               alt={image.alt}
-              className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
               width={800}
               height={600}
+              className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
             />
           </div>
         ))}
@@ -245,13 +245,15 @@ export default function PostingPage() {
         
           <button className="flex gap-2 mb-4 items-center" onClick={handleAuthorClick}>
             <Image 
-              src={authorAvatar}
+              src={transformedPost.author.profileImage || authorAvatar}
               alt="Author Avatar"
               className="w-11 h-11 rounded-full"
+              width={44}
+              height={44}
             />
             <p className="font-medium text-xl">
-              Subleased by {transformedPost.author.firstName}{' '}
-              {transformedPost.author.lastName}
+              Subleased by <span className='text-primaryOrange'>{transformedPost.author.firstName}{' '}
+              {transformedPost.author.lastName}</span>
             </p>
             
           </button>
@@ -430,7 +432,12 @@ export default function PostingPage() {
               </div>
             </div>
 
-            <button className="btn-primary" onClick={handleAuthorClick}>Contact Host</button>
+            <button
+              className="btn-primary"
+              onClick={handleAuthorClick}
+            >
+              Contact Host
+            </button>
           </div>
         </div>
       </div>
