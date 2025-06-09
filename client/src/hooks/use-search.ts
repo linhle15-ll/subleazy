@@ -18,11 +18,11 @@ export const useSearch = () => {
   }, []);
 
   // Workflow: filters change -> query change -> fetch
-  const { data } = useQuery({
+  const { data, isFetching } = useQuery({
     queryKey: ['search', query],
     queryFn: () => postService.searchPosts(filters as Partial<PostRequestBody>),
     enabled: Object.values(filters).length > 0,
   });
 
-  return data;
+  return { result: data, isFetching };
 };
