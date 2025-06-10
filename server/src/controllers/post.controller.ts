@@ -6,6 +6,7 @@ import mongoose, { Types } from 'mongoose';
 import { validateMedia, validateTime } from '../utils/validators';
 import { parseGoogleMapPlaces } from '../utils/parsers';
 import { getAuthRequest, getPostAuthorId } from '../utils/common.utils';
+import { PostStatus } from '../types/enums';
 
 const postController = {
   createPost: async (req: Request, res: Response, next: NextFunction) => {
@@ -68,8 +69,7 @@ const postController = {
 
   searchPosts: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const authReq = getAuthRequest(req);
-      const data: Partial<PostRequestBody> = authReq.body;
+      const data: Partial<PostRequestBody> = req.body;
 
       if (!data.zip && !data.state && (!data.lat || !data.long)) {
         res.status(400).json({ error: 'Missing location' });
@@ -77,9 +77,8 @@ const postController = {
       }
 
       const posts = await postService.searchPosts(data);
-      const filteredPosts = posts.filter(post => post.status !== 'pending');
 
-      res.status(200).json(filteredPosts);
+      res.status(200).json(posts);
     } catch (error) {
       next(error);
     }
@@ -100,8 +99,8 @@ const postController = {
 
       const posts = await postService.getPostsByUserId(userId);
 
-      const filteredPosts = posts.filter(post => {
-        if (post.status !== 'pending') return true;
+      const filteredPosts = posts.filter((post) => {
+        if (post.status !== PostStatus.PENDING) return true;
         return userId === reqUserId;
       });
 
@@ -114,7 +113,9 @@ const postController = {
   getAllPosts: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const posts = await postService.getAllPosts();
-      const filteredPosts = posts.filter((post) => post.status !== 'pending');
+      const filteredPosts = posts.filter(
+        (post) => post.status !== PostStatus.PENDING
+      );
 
       res.status(200).json(filteredPosts);
     } catch (error) {
@@ -143,7 +144,7 @@ const postController = {
 
       const authorId = getPostAuthorId(post);
 
-      if (post.status === 'pending' && authorId !== reqUserId) {
+      if (post.status === PostStatus.PENDING && authorId !== reqUserId) {
         res.status(403).json({ error: 'Unauthorized to view this post' });
         return;
       }
