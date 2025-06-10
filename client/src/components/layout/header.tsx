@@ -7,15 +7,17 @@ import {
 
 export default function Header() {
   return (
-    <div className="bg-white py-3">
+    <div className="bg-white py-5">
       <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex-1 md:flex md:items-center md:gap-12">
-            <a className="block text-teal-600" href="/home">
+            <a className="block text-teal-600" href="/">
               <span className="sr-only">Home</span>
               <Image
                 src={logo}
                 alt="Subleazy Logo"
+                width={120}
+                height={28}
                 className="h-7 w-auto"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
@@ -44,7 +46,7 @@ export default function Header() {
                 </li>
 
                 <li>
-                  <a className="btn-primary" href="/sublease">
+                  <a className="btn-primary" href="/sublease/step-1">
                     Sublease your space
                   </a>
                 </li>

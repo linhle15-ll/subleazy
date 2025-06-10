@@ -10,8 +10,8 @@ interface LeasePost {
   location: string;
   price: string;
   imageUrl: StaticImageData | string;
-  houseType: HouseType; 
-  placeType: PlaceType; 
+  houseType: HouseType;
+  placeType: PlaceType;
   isFavorite?: boolean;
   isVertical?: boolean;
 }
@@ -27,10 +27,12 @@ export default function LeasePostingGrid({
   posts,
   onViewDetails,
   onToggleFavorite,
-  isVertical
+  isVertical,
 }: LeasePostingGridProps) {
   return (
-    <div className={`grid gap-11 ${isVertical ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : 'grid-cols-1  lg:grid-cols-2'}`}>
+    <div
+      className={`grid gap-11 ${isVertical ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : 'grid-cols-1  lg:grid-cols-2'}`}
+    >
       {posts.map((post: LeasePost) => (
         <LeasePostingCard
           key={post.id}
