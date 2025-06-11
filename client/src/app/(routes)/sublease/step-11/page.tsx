@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 // import Link from 'next/link';
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
 import ProgressBar from '@/components/ui/progress-bar/progress-bar';

@@ -23,12 +23,6 @@ const userSchema = new Schema<User>(
       unique: true,
       trim: true,
       lowercase: true,
-      match: /^[^\s@]+@[^\s@]+\.(edu)$/,
-    },
-    institution: {
-      type: String,
-      required: true,
-      trim: true,
     },
     isVerified: {
       type: Boolean,
