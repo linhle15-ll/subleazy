@@ -9,6 +9,19 @@ const postService = {
     return post;
   },
 
+  getPost: async (postId: string) => {
+    const post = await postModel.findById(postId);
+    return post;
+  },
+
+  updatePost: async (postId: string, data: Partial<PostRequestBody>) => {
+    const updatedPost = await postModel.findByIdAndUpdate(postId, data, {
+      new: true,
+      runValidators: true,
+    });
+    return updatedPost;
+  },
+
   searchPosts: async (data: Partial<PostRequestBody>) => {
     const query: CustomQuery = {};
 
