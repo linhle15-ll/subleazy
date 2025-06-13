@@ -87,7 +87,7 @@ const InputField = ({
       <span className={`text-xs text-center pb-1`}>{name}</span>
       <input
         type="number"
-        className={`w-20 border-2 border-gray-300 focus:outline-none rounded-xl p-1 text-center self-center`}
+        className={`w-20 border-2 border-gray-300 focus:outline-none focus:border-lightOrange rounded-xl p-1 text-center self-center`}
         value={value}
         onChange={onChange}
         onBlur={onBlur}

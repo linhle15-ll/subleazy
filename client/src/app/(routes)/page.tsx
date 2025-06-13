@@ -70,19 +70,27 @@ export default function LandingPage() {
         </div>
       </section>
 
-        {/* Featured Listings Section */}
+      {/* Featured Listings Section */}
       <section className="px-6 lg:px-12">
-        {(loading) ? (
-          <div> <Loading /> </div>
-        ) : (error) ? (
-            <div>Error: {error}</div>
-        ) : (posts && posts.length > 0) ? (
+        {loading ? (
+          <div>
+            {' '}
+            <Loading />{' '}
+          </div>
+        ) : error ? (
+          <div>Error: {error}</div>
+        ) : posts && posts.length > 0 ? (
           <PostingGrid
             isVertical={true}
             posts={posts}
+            onViewDetails={() => {}}
+            onToggleFavorite={() => {}}
           />
-        ) : (<div className="font-medium text-2xl text-grey">No posts available</div>)}
-        
+        ) : (
+          <div className="font-medium text-2xl text-grey">
+            No posts available
+          </div>
+        )}
       </section>
     </div>
   );
