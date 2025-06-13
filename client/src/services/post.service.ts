@@ -1,11 +1,10 @@
 import { Result } from '@/lib/types/common.types';
 import { Post, PostRequestBody } from '@/lib/types/post.types';
+import { AxiosError } from 'axios';
 import api from './api';
 
 const postService = {
-  createPost: async (
-    submissionData: any
-  ): Promise<Result<Post>> => {
+  createPost: async (submissionData: Partial<Post>): Promise<Result<Post>> => {
     try {
       const response = await api.post('/posts/create', submissionData);
       return {
@@ -15,17 +14,16 @@ const postService = {
     } catch (error) {
       return {
         success: false,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        error: (error as any).response?.data?.error || 'Failed to create post',
+        error:
+          (error as AxiosError<{ error: string }>).response?.data.error ||
+          'Failed to create post',
       };
     }
   },
- 
-  searchPosts: async (
-    filter: Partial<PostRequestBody>
-  ): Promise<Result<Post[]>> => {
+
+  getPost: async (id: string): Promise<Result<Post>> => {
     try {
-      const response = await api.post('http://localhost:5000/api/posts/search', filter);
+      const response = await api.get(`/posts/${id}`);
       return {
         success: true,
         data: response.data,
@@ -33,15 +31,35 @@ const postService = {
     } catch (error) {
       return {
         success: false,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        error: (error as any).response.data.error,
+        error:
+          (error as AxiosError<{ error: string }>).response?.data.error ||
+          'Failed to get post by ID',
+      };
+    }
+  },
+
+  searchPosts: async (
+    filter: Partial<PostRequestBody>
+  ): Promise<Result<Post[]>> => {
+    try {
+      const response = await api.post('/posts/search', filter);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          (error as AxiosError<{ error: string }>).response?.data.error ||
+          'Failed to search posts',
       };
     }
   },
 
   getAllPosts: async (): Promise<Result<Post[]>> => {
     try {
-      const response = await api.get('http://localhost:5000/api/posts/');
+      const response = await api.get('/posts/');
       return {
         success: true,
         data: response.data,
@@ -49,27 +67,23 @@ const postService = {
     } catch (error) {
       return {
         success: false,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        error: (error as any).response.data.error,
+        error: (error as AxiosError<{ error: string }>).response?.data.error,
       };
     }
   },
 
-  getPostById: async (id: string): Promise<Result<Post>> => {
+  getPostsByUserId: async (id: string): Promise<Result<Post[]>> => {
     try {
-      const response = await api.get(`http://localhost:5000/api/posts/${id}`);
+      const response = await api.get(`/posts/getByUserId/${id}`);
       return {
         success: true,
-        data: response.data
-      }
+        data: response.data,
+      };
     } catch (error) {
-      // Optionally, you can log the error or handle it as needed
-      console.error('Error fetching post by ID:', error);
       return {
         success: false,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        error: (error as any).response?.data?.error || 'Failed to fetch post by ID',
-      }
+        error: (error as AxiosError<{ error: string }>).response?.data.error,
+      };
     }
   },
 };
