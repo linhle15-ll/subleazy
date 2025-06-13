@@ -5,18 +5,15 @@ import { PostRequestBody } from '../types/post.types';
 import mongoose from 'mongoose';
 import { validatePostData } from '../utils/validators';
 import { parseGoogleMapPlaces } from '../utils/parsers';
-// import { getAuthRequest } from "../utils/commonUtils";
+import { getAuthRequest, getPostAuthorId } from '../utils/common.utils';
+import { PostStatus } from '../types/enums';
 
 const postController = {
   createPost: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // TODO: Use authReq after jwt token is implemented
-      // const authReq = getAuthRequest(req);
-      // const data: PostRequestBody = authReq.body;
-      // data.author = new Types.ObjectId(authReq.user.id);
-
-      const data: PostRequestBody = req.body;
-      // data.author = new Types.ObjectId(req.body.user.id as string);
+      const authReq = getAuthRequest(req);
+      const data: PostRequestBody = authReq.body;
+      data.author = new Types.ObjectId(authReq.user.id);
 
       if (validatePostData(data)) {
         res.status(400).json({ error: 'Invalid data' });
@@ -154,13 +151,13 @@ const postController = {
   searchPosts: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data: Partial<PostRequestBody> = req.body;
+
       if (!data.zip && !data.state && (!data.lat || !data.long)) {
         res.status(400).json({ error: 'Missing location' });
         return;
       }
 
       const posts = await postService.searchPosts(data);
-      
       res.status(200).json(posts);
     } catch (error) {
       next(error);
@@ -169,22 +166,25 @@ const postController = {
 
   getPostsByUserId: async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const authReq = getAuthRequest(req);
+      const reqUserId = authReq.user.id;
+
       // find in the posts collection user's posts by id as an author
-      const userId = req.params.id;
+      const userId = authReq.params.id;
 
       if (!userId || !mongoose.isValidObjectId(userId)) {
         res.status(400).json({ error: 'Invalid user ID' });
         return;
       }
 
-      const userPosts = await postService.getPostsByUserId(userId);
+      const posts = await postService.getPostsByUserId(userId);
 
-      if (!userPosts || (Array.isArray(userPosts) && userPosts.length === 0)) {
-        res.status(200).json([]);
-        return;
-      }
+      const filteredPosts = posts.filter((post) => {
+        if (post.status !== PostStatus.PENDING) return true;
+        return userId === reqUserId;
+      });
 
-      res.status(200).json(userPosts);
+      res.status(200).json(filteredPosts);
     } catch (error) {
       next(error);
     }
@@ -193,7 +193,11 @@ const postController = {
   getAllPosts: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const posts = await postService.getAllPosts();
-      res.status(200).json(posts);
+      const filteredPosts = posts.filter(
+        (post) => post.status !== PostStatus.PENDING
+      );
+
+      res.status(200).json(filteredPosts);
     } catch (error) {
       next(error);
     }
@@ -201,6 +205,9 @@ const postController = {
 
   getPostById: async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const authReq = getAuthRequest(req);
+      const reqUserId = authReq.user.id;
+
       const postId = req.params.id;
 
       if (!postId || !mongoose.isValidObjectId(postId)) {
@@ -212,6 +219,13 @@ const postController = {
 
       if (!post) {
         res.status(404).json({ error: 'Post not found' });
+        return;
+      }
+
+      const authorId = getPostAuthorId(post);
+
+      if (post.status === PostStatus.PENDING && authorId !== reqUserId) {
+        res.status(403).json({ error: 'Unauthorized to view this post' });
         return;
       }
 

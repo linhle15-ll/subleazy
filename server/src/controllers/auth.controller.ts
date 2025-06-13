@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model';
 import authService from '../services/auth.service';
+import { UserPayload } from '../types/user.types';
 
 const authController = {
   handleSignUp: async (req: Request, res: Response, next: NextFunction) => {
@@ -96,7 +97,7 @@ const authController = {
       const decoded = jwt.verify(
         refreshToken,
         process.env.REFRESH_TOKEN_SECRET as string
-      ) as { id: string; email: string };
+      ) as UserPayload;
 
       const existingUser = await User.findById(decoded.id);
       if (!existingUser) {
