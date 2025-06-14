@@ -4,7 +4,7 @@ import { Search, MapPin, Calendar } from 'lucide-react';
 import { DatePickerWithPresets } from '../date/date-picker';
 import { FilterMenu } from './filter-menu';
 import { PlaceAutocomplete } from '../map/place-autocomplete';
-import { useFilterLocation } from '@/hooks/use-filter-location.hook';
+import { useFilterLocation } from '@/hooks/use-filter-location';
 import { useSearchHandler } from '@/hooks/use-search-handler';
 
 const InputField = ({
