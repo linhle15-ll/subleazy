@@ -18,6 +18,24 @@ const postService = {
       };
     }
   },
+
+  editPost: async (id: string, submissionData: any): Promise<Result<Post>> => {
+    try {
+      const response = await api.put(`/posts/edit/${id}`, submissionData);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } 
+    catch (error) {
+      return {
+        success: false,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        error: (error as any).response?.data?.error || 'Failed to update post',
+      };
+    }
+  },
+
   searchPosts: async (
     filter: Partial<PostRequestBody>
   ): Promise<Result<Post[]>> => {

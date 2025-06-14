@@ -35,7 +35,7 @@ export default function SubleaseFormBathrooms() {
   };
 
   return (
-    <div className="flex flex-col gap-6 relative mb-15">
+    <div className="flex flex-col gap-6 relative mb-15 mr-8">
       <div className="form-h1">Bathrooms</div>
       <div className="-mt-5 mb-5">
         Students might need to share bathrooms with roommates (although we don't

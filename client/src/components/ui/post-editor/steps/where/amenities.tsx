@@ -39,7 +39,7 @@ export default function SubleaseFormAmenities() {
   };
 
   return (
-    <div className="flex flex-col gap-6 relative mb-15">
+    <div className="flex flex-col gap-6 relative mb-15 mr-8">
       <div className="form-h1">Amenities</div>
       <div className="-mt-5 mb-5">Tell us what your place has to offer.</div>
       {/* Amenities section */}
@@ -58,7 +58,7 @@ export default function SubleaseFormAmenities() {
                   onClick={() => {
                     handleAmenitiesChange(item.value);
                   }}
-                  className={`text-base ml-10 ${active ? 'font-medium' : 'font-normal'}`}
+                  className={`w-56 text-base ml-10 ${active ? 'font-medium' : 'font-normal'}`}
                 >
                   <Icon
                     className={`w-8 h-8 ${active ? 'text-primaryOrange' : 'text-gray-500'}`}

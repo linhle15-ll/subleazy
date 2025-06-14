@@ -28,7 +28,7 @@ export default function SubleaseFormPhotos() {
   };
 
   return (
-    <div className="flex flex-col gap-6 relative mb-15">
+    <div className="flex flex-col gap-6 relative mb-15 mr-8">
       <div className="form-h1">Photos</div>
       <div className="-mt-5 mb-5">
         High-quality photos attract more interest. Feel free to update or add

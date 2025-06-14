@@ -6,12 +6,11 @@ import SubleaseFormBedroom from './steps/where/bedroom';
 import SubleaseFormBathroom from './steps/where/bathroom';
 import SubleaseFormWhoElse from './steps/where/who-else';
 import SubleaseFormAmenities from './steps/where/amenities';
-// import SubleaseFormConvenience from "./steps/where/convenience";
 import SubleaseFormAddress from './steps/where/address';
-// import SubleaseFormAvailability from "./steps/when-how/availability";
-// import SubleaseFormTime from "./steps/when-how/time";
+import SubleaseFormAvailability from "./steps/when-how/check-in-out";
+import SubleaseFormTime from "./steps/when-how/availability";
 import SubleaseFormPrice from './steps/when-how/price';
-// import SubleaseFormRules from "./steps/when-how/rules";
+import SubleaseFormRules from "./steps/when-how/rules";
 
 export default function PostEditorEditPanel() {
   const { step } = usePostEditorStore();
@@ -31,18 +30,16 @@ export default function PostEditorEditPanel() {
       return <SubleaseFormWhoElse />;
     case 'amenities':
       return <SubleaseFormAmenities />;
-    //case 'convenience':
-    // return (<SubleaseFormConvenience />);
     case 'address':
       return <SubleaseFormAddress />;
-    //case 'availability':
-    // return (<SubleaseFormAvailability />);
-    //case 'time':
-    // return (<SubleaseFormTime />);
+    case 'availability':
+      return (<SubleaseFormAvailability />);
+    case 'time':
+      return (<SubleaseFormTime />);
     case 'price':
       return <SubleaseFormPrice />;
-    //     case 'rules':
-    // return (<SubleaseFormRules />);
+    case 'rules':
+      return (<SubleaseFormRules />);
     default:
       return null;
   }

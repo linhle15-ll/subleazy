@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/commons/select';
 import { CalendarIcon } from 'lucide-react';
 import { useFilterDate } from '@/hooks/use-filter-date.hook';
+import { usePostEditorStore } from '@/lib/stores/post.editor.store';
 
 export function DatePickerWithPresets({
   field,
@@ -103,5 +104,36 @@ export function DatePickerFilterButton({
         <Calendar mode="single" selected={date} onSelect={setDate} />
       </PopoverContent>
     </Popover>
+  );
+}
+
+export function DatePickerPostEditor({
+  field,
+}: {
+  field: 'startDate' | 'endDate';
+}) {
+  const { post, setPost } = usePostEditorStore();
+
+  const dateValue = post?.availability?.[field]
+    ? new Date(post.availability[field] as string)
+    : undefined;
+
+  const handleDateChange = (date: Date | undefined) => {
+    setPost({
+      availability: {
+        ...post.availability,
+        [field]: date ? date.toISOString() : undefined,
+      },
+    });
+  };
+
+  return (
+    <div className="rounded-md border p-2 bg-white">
+      <Calendar
+        mode="single"
+        selected={dateValue}
+        onSelect={handleDateChange}
+      />
+    </div>
   );
 }

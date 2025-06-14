@@ -12,7 +12,7 @@ export default function SubleaseFormDescription() {
   const description = usePostEditorStore((state) => state.post.description);
 
   return (
-    <div className="flex flex-col gap-6 relative mb-15">
+    <div className="flex flex-col gap-6 relative mb-15 mr-8">
       <div className="form-h1">Title and description</div>
       <div className="-mt-5 mb-5">
         A good title and description can help your post stand out.
@@ -29,6 +29,7 @@ export default function SubleaseFormDescription() {
           maxLength={TITLE_MAX}
           value={title || ''}
           onChange={(e) => setPost({ ...post, title: e.target.value })}
+          required
         />
         <div className="text-xs text-gray-400 mt-1">
           {title?.length || 0}/{TITLE_MAX} character
@@ -46,6 +47,7 @@ export default function SubleaseFormDescription() {
           maxLength={DESC_MAX}
           value={description || ''}
           onChange={(e) => setPost({ ...post, description: e.target.value })}
+          required
         />
         <div className="text-xs text-gray-400 mt-1">
           {description?.length || 0}/{DESC_MAX} character

@@ -39,7 +39,7 @@ export default function SubleaseFormPlaceType() {
   };
 
   return (
-    <div className="flex flex-col gap-6 relative mb-15">
+    <div className="flex flex-col gap-6 relative mb-15 mr-8">
       <div className="form-h1">Type of place</div>
       <div className="-mt-5 mb-5">
         Let your guests know what to expect from your place.
@@ -49,7 +49,7 @@ export default function SubleaseFormPlaceType() {
         <div className="font-medium text-lg mb-4">
           Which best describes your place?
         </div>
-        <div className="flex flex-wrap gap-6">
+        <div className="flex gap-6">
           {placeOptions.map((opt) => {
             const Icon = opt.icon;
             const active = houseInfo?.houseType === opt.value;
@@ -75,7 +75,7 @@ export default function SubleaseFormPlaceType() {
         <div className="font-medium text-lg mb-4">
           Which type of place will your guests have?
         </div>
-        <div className="flex flex-wrap gap-6">
+        <div className="flex gap-4">
           {typeOptions.map((opt) => {
             const active = houseInfo?.placeType === opt.value;
             return (

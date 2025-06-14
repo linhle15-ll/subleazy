@@ -39,6 +39,7 @@ export default function SubleaseFormPrice() {
             onChange={handlePriceChange}
             maxLength={6}
             aria-label="Price per month"
+            required
           />
           <span className="ml-2 text-5xl font-medium">/ month</span>
         </div>

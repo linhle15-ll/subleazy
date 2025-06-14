@@ -10,7 +10,6 @@ export type StepKeys =
   | 'bathroom'
   | 'who-else'
   | 'amenities'
-  | 'convenience'
   | 'address'
   | 'availability'
   | 'time'

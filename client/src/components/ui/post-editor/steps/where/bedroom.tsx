@@ -44,7 +44,7 @@ export default function SubleaseFormBedrooms() {
   };
 
   return (
-    <div className="flex flex-col gap-6 relative mb-15">
+    <div className="flex flex-col gap-6 relative mb-15 mr-8">
       <div className="form-h1">Bedrooms</div>
       <div className="-mt-5 mb-5">
         As students, we often share our rooms with roommates. Let your guests

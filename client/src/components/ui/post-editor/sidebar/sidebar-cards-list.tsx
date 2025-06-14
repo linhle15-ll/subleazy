@@ -78,12 +78,6 @@ export default function PostEditorSidebarCardsList({ tab }: TabProps) {
       summary: `${post.amenities?.wifi ? 'wifi | ' : ''}${post.amenities?.kitchen ? 'kitchen | ' : ''}${post.amenities?.laundry ? 'laundry | ' : ''}${post.amenities?.parking ? 'parking | ' : ''}${post.amenities?.airConditioning ? 'AC' : ''}`,
     },
     {
-      key: 'convenience',
-      layout: 'single',
-      title: 'Conveniences',
-      summary: `${post.convenience?.publicTransport ? 'near public transport | ' : ''}${post.convenience?.supermarket ? 'near supermarket | ' : ''}${post.convenience?.disabilityFriendly ? 'disability friendly' : ''}`,
-    },
-    {
       key: 'address',
       layout: 'single',
       title: 'Address',
@@ -93,7 +87,7 @@ export default function PostEditorSidebarCardsList({ tab }: TabProps) {
 
   const stepsWhenHow: CardProps[] = [
     {
-      key: 'availability',
+      key: 'time',
       layout: 'double',
       items: [
         {
@@ -113,7 +107,7 @@ export default function PostEditorSidebarCardsList({ tab }: TabProps) {
       ],
     },
     {
-      key: 'time',
+      key: 'availability',
       layout: 'double',
       items: [
         {

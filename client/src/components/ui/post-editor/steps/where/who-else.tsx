@@ -27,7 +27,7 @@ export default function SubleaseFormWhoElse() {
   };
 
   return (
-    <div className="flex flex-col gap-6 relative mb-15">
+    <div className="flex flex-col gap-6 relative mb-15 mr-8">
       {/* Who else will be there? */}
       <div className="form-h1">Who Else Will Be There?</div>
       <div className="-mt-5 mb-5">

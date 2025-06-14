@@ -7,7 +7,7 @@ export default function SubleaseFormAddress() {
   const { city, address, suites, state, zip } = post;
 
   return (
-    <div className="flex flex-col gap-6 relative mb-15">
+    <div className="flex flex-col gap-6 relative mb-15 mr-8">
       <div className="form-h1">Address</div>
       <div className="-mt-5 mb-5 text-primaryOrange">
         To change your address, please delete and re-create the post.
