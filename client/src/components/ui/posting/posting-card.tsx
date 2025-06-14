@@ -20,24 +20,19 @@ export function PostingCard({
   isVertical,
   isFavorite = false,
 }: PostingCardProps) {
-
   // If post is not provided, return null to avoid rendering
   if (!post) {
     return null;
   }
 
-  const placeType = post.houseInfo?.placeType;
-  const houseType = post.houseInfo?.houseType;
+  const placeType = post.houseInfo.placeType;
+  const houseType = post.houseInfo.houseType;
   const imageUrl = post.media?.[0] || '/placeholder-image.jpg'; // Add a placeholder image
   const location =
     post.city && post.state && post.zip
       ? `${post.city}, ${post.state} ${post.zip}`
       : 'Location not specified';
   const { title, price } = post;
-
-  if (!placeType || !houseType) {
-    return null;
-  }
 
   const PlaceTypeIcon = getPlaceTypeIcon(placeType);
   const HouseTypeIcon = getHouseTypeIcon(houseType);
@@ -107,7 +102,7 @@ export function PostingCard({
             space
           </span>
         </div>
-        
+
         {/* Spacer to push price/details to bottom */}
         <div className="flex-grow" />
         <div className="flex items-center justify-between pt-2 pb-3">

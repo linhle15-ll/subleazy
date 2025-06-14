@@ -30,7 +30,7 @@ body {
   }
 
   .text-field {
-    @apply bg-light dark:bg-dark border border-gray-500 rounded-lg text-sm p-4 
+    @apply bg-light border border-gray-500 rounded-lg text-sm p-4 
     transition-all duration-300 ease-in-out hover:border-primaryOrange hover:shadow-md focus:border-primaryOrange focus:bg-orange-50 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-primaryOrange/20;
   }
 
@@ -53,6 +53,7 @@ body {
   .form-heading-number-orange {
     @apply items-center justify-center border-primaryOrange text-2xl font-bold text-primaryOrange;
   }
+
   .form-h1 {
     @apply text-2xl font-medium;
   }

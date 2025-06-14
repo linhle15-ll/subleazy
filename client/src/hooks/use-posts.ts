@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Post } from '@/lib/types/post.types';
 import postService from '@/services/post.service';
-import userService from '@/services/user.service';
 
 export function usePosts(userId?: string) {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -15,11 +14,11 @@ export function usePosts(userId?: string) {
         let result;
 
         if (userId) {
-          result = await userService.getPostsByUserId(userId);
+          result = await postService.getPostsByUserId(userId);
         } else {
           result = await postService.getAllPosts();
         }
-      
+
         if (result.success && result.data) {
           setPosts(Array.isArray(result.data) ? result.data : []);
           setError(null);

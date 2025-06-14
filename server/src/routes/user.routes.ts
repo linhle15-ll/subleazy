@@ -6,5 +6,5 @@ const router = Router();
 
 router.use(authenticate);
 
-router.get('/:id', userController.getUserById);
+router.get('/:userId', userController.getUser);
 export default router;

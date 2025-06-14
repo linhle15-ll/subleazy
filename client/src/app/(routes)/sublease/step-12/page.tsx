@@ -1,18 +1,25 @@
 'use client';
 
-// import Link from 'next/link';
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
-import ProgressBar from '@/components/ui/progress-bar/progress-bar';
-import { useFormStore } from '@/components/store/formStore';
+import { ProgressBar } from '@/components/ui/post-form/progress-bar';
+import { usePostCreateStore } from '@/stores/post-create.store';
 
 export default function SubleaseStep12() {
-  const { price, setField } = useFormStore();
+  const post = usePostCreateStore((state) => state.post);
+  const setPost = usePostCreateStore((state) => state.setPost);
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
+
     // Only allow numbers
-    if (value === '' || /^\d+$/.test(value)) {
-      setField('price', value === '' ? 0 : parseInt(value, 10));
+    if (/^\d+$/.test(value)) {
+      const num = parseInt(value, 10);
+      const price = num < 0 ? 0 : num;
+
+      setPost({
+        ...post,
+        price,
+      });
     }
   };
 
@@ -39,7 +46,7 @@ export default function SubleaseStep12() {
             inputMode="numeric"
             pattern="[0-9]*"
             className="w-32 text-5xl font-medium text-center border-none outline-none bg-transparent focus:ring-0"
-            value={price || ''}
+            value={post.price || ''}
             onChange={handlePriceChange}
             maxLength={6}
             aria-label="Price per month"

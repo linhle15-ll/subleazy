@@ -1,16 +1,37 @@
 'use client';
 
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
-import ProgressBar from '@/components/ui/progress-bar/progress-bar';
-import { Map, Marker } from '@vis.gl/react-google-maps';
-import { useFormStore } from '@/components/store/formStore';
+import { ProgressBar } from '@/components/ui/post-form/progress-bar';
+import {
+  AdvancedMarker,
+  Map,
+  MapCameraChangedEvent,
+  MapCameraProps,
+} from '@vis.gl/react-google-maps';
+import { useEffect, useState } from 'react';
+import { usePostCreateStore } from '@/stores/post-create.store';
 
 export default function SubleaseStep5() {
-  const { lat, long, suites, address } = useFormStore();
+  const post = usePostCreateStore((state) => state.post);
 
-  // Default center to San Francisco if no coordinates are available
-  const defaultCenter =
-    lat && long ? { lat, lng: long } : { lat: 37.7749, lng: -122.4194 };
+  const { lat, long, address, city, state, zip, suites } = post;
+
+  const [cameraProps, setCameraProps] = useState<MapCameraProps>({
+    center: { lat: 38.907, lng: -77.036 },
+    zoom: 12,
+  });
+
+  useEffect(() => {
+    if (lat && long) {
+      setCameraProps({
+        ...cameraProps,
+        center: { lat, lng: long },
+      });
+    }
+  }, [lat, long]);
+
+  const handleCameraChange = (e: MapCameraChangedEvent) =>
+    setCameraProps(e.detail);
 
   return (
     <div className="form-border flex flex-col gap-6 relative mb-15">
@@ -32,7 +53,7 @@ export default function SubleaseStep5() {
           <div className="flex flex-col gap-2">
             <div className="form-h3">Address</div>
             <div className="text-field">
-              Apt {suites}, {address}
+              {address}, {suites ? `${suites},` : ''} {city}, {state} {zip}
             </div>
           </div>
         </div>
@@ -41,13 +62,11 @@ export default function SubleaseStep5() {
       {/* Map Pin Section */}
       <div className="h-[400px] w-full rounded-lg overflow-hidden">
         <Map
-          defaultCenter={defaultCenter}
-          defaultZoom={15}
-          gestureHandling={'greedy'}
-          disableDefaultUI={true}
-          mapId="posting-map"
+          mapId={'12b033e06f8b8b2463b91f1e'}
+          {...cameraProps}
+          onCameraChanged={handleCameraChange}
         >
-          {lat && long && <Marker position={{ lat, lng: long }} />}
+          {lat && long && <AdvancedMarker position={{ lat, lng: long }} />}
         </Map>
       </div>
 

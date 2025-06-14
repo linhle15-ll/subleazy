@@ -1,4 +1,4 @@
-import { useFilterStore } from '@/lib/stores/filter.store';
+import { useFilterStore } from '@/stores/filter.store';
 import { encodeQuery } from '@/lib/utils/search-query';
 import { useRouter } from 'next/navigation';
 

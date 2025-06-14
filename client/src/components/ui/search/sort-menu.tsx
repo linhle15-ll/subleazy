@@ -2,9 +2,9 @@ import { ArrowDownWideNarrow, Filter, Trash2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '../commons/popover';
 import { TextSearch } from '../map/text-search';
 import { useSortPlaces } from '@/hooks/use-sort-places';
-import { useSortStore } from '@/lib/stores/sort.store';
+import { useSortStore } from '@/stores/sort.store';
 import { Button } from '../button';
-import { cn } from '@/lib/cn-utils';
+import { cn } from '@/lib/utils/cn';
 import { Post } from '@/lib/types/post.types';
 import { scoreAndSortPosts } from '@/lib/utils/sorting';
 

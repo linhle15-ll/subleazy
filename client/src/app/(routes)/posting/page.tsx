@@ -41,13 +41,13 @@ export default function PostingPage() {
     error,
   } = useQuery({
     queryKey: ['post', postId],
-    queryFn: () => postService.getPostById(postId!),
+    queryFn: () => postService.getPost(postId!),
     enabled: !!postId,
   });
-  
+
   // Transform post data to match the UI structure
-  const postData = post?.data
-  
+  const postData = post?.data;
+
   useEffect(() => {
     if (!postId) {
       router.push('/');
@@ -55,7 +55,12 @@ export default function PostingPage() {
   }, [postId, router]);
 
   if (isLoading) {
-    return ( <div> <Loading /> </div> );
+    return (
+      <div>
+        {' '}
+        <Loading />{' '}
+      </div>
+    );
   }
 
   if (error || !post) {
@@ -76,16 +81,16 @@ export default function PostingPage() {
     );
   }
 
-  function handleAuthorClick () {
+  function handleAuthorClick() {
     const author = postData?.author;
     const authorId =
       typeof author === 'object' && author !== null && '_id' in author
         ? (author as { _id: string })._id
         : typeof author === 'string'
-        ? author
-        : '';
+          ? author
+          : '';
     router.push(`/profile?id=${authorId}`);
-  };
+  }
 
   const transformedPost = {
     id: postData?._id,
@@ -95,15 +100,21 @@ export default function PostingPage() {
     rating: 5.0, // TODO: Add rating to post model
     author: {
       firstName:
-        typeof postData?.author === 'object' && postData?.author !== null && 'firstName' in postData.author
+        typeof postData?.author === 'object' &&
+        postData?.author !== null &&
+        'firstName' in postData.author
           ? postData.author.firstName
           : 'Unknown',
       lastName:
-        typeof postData?.author === 'object' && postData?.author !== null && 'lastName' in postData.author
+        typeof postData?.author === 'object' &&
+        postData?.author !== null &&
+        'lastName' in postData.author
           ? postData.author.lastName
           : 'Unknown',
       profileImage:
-        typeof postData?.author === 'object' && postData?.author !== null && 'profileImage' in postData.author
+        typeof postData?.author === 'object' &&
+        postData?.author !== null &&
+        'profileImage' in postData.author
           ? (postData.author as { profileImage?: string }).profileImage
           : undefined,
     },
@@ -113,7 +124,10 @@ export default function PostingPage() {
     })),
     description: postData?.description,
     amenities: [
-      { icon: Wifi, label: postData?.amenities.wifi ? 'High-speed internet' : '' },
+      {
+        icon: Wifi,
+        label: postData?.amenities.wifi ? 'High-speed internet' : '',
+      },
       { icon: Utensils, label: postData?.amenities.kitchen ? 'Kitchen' : '' },
       { icon: Dog, label: postData?.rules.noPet ? 'No pets' : 'Pets allowed' },
       { icon: Wind, label: postData?.amenities.laundry ? 'Laundry' : '' },
@@ -121,12 +135,17 @@ export default function PostingPage() {
         icon: Wind,
         label: postData?.amenities.airConditioning ? 'Air conditioning' : '',
       },
-      { icon: Car, label: postData?.amenities.parking ? 'Parking available' : '' },
+      {
+        icon: Car,
+        label: postData?.amenities.parking ? 'Parking available' : '',
+      },
     ].filter((amenity) => amenity.label),
     convenience: [
       {
         icon: Train,
-        label: postData?.convenience.publicTransport ? 'Near public transport' : '',
+        label: postData?.convenience.publicTransport
+          ? 'Near public transport'
+          : '',
       },
       {
         icon: ShoppingCart,
@@ -134,7 +153,9 @@ export default function PostingPage() {
       },
       {
         icon: Accessibility,
-        label: postData?.convenience.disabilityFriendly ? 'Disability friendly' : '',
+        label: postData?.convenience.disabilityFriendly
+          ? 'Disability friendly'
+          : '',
       },
     ].filter((item) => item.label),
     roomInfo: [
@@ -148,7 +169,7 @@ export default function PostingPage() {
       },
       {
         icon: Users,
-        label: `Max ${postData?.bedroomInfo.maxGuests} guest${(postData?.bedroomInfo?.maxGuests?? 0) > 1 ? 's' : ''}`,
+        label: `Max ${postData?.bedroomInfo.maxGuests} guest${(postData?.bedroomInfo?.maxGuests ?? 0) > 1 ? 's' : ''}`,
       },
       {
         icon: BedDouble,
@@ -156,7 +177,7 @@ export default function PostingPage() {
       },
       {
         icon: Bath,
-        label: `${(postData?.bathroomInfo?.privateAttached ?? 0) + (postData?.bathroomInfo?.privateAccessible ?? 0)} private, ${(postData?.bathroomInfo?.shared ?? 0)} shared bathroom`,
+        label: `${(postData?.bathroomInfo?.privateAttached ?? 0) + (postData?.bathroomInfo?.privateAccessible ?? 0)} private, ${postData?.bathroomInfo?.shared ?? 0} shared bathroom`,
       },
     ],
     rules: [
@@ -176,8 +197,12 @@ export default function PostingPage() {
       },
     ],
     availability: {
-      startDate: new Date(postData?.availability.startDate ?? '').toLocaleDateString(),
-      endDate: new Date(postData?.availability.endDate ?? '').toLocaleDateString(),
+      startDate: new Date(
+        postData?.availability.startDate ?? ''
+      ).toLocaleDateString(),
+      endDate: new Date(
+        postData?.availability.endDate ?? ''
+      ).toLocaleDateString(),
       checkinTime: postData?.availability.checkinTime,
       checkoutTime: postData?.availability.checkoutTime,
     },
@@ -191,9 +216,7 @@ export default function PostingPage() {
       {/* Header Section */}
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h1 className="text-2xl font-medium mb-2">
-            {transformedPost.title}
-          </h1>
+          <h1 className="text-2xl font-medium mb-2">{transformedPost.title}</h1>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1">
               <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
@@ -242,9 +265,12 @@ export default function PostingPage() {
         {/* Left Column - Main Content */}
         <div className="lg:col-span-2">
           {/* Subleased By */}
-        
-          <button className="flex gap-2 mb-4 items-center" onClick={handleAuthorClick}>
-            <Image 
+
+          <button
+            className="flex gap-2 mb-4 items-center"
+            onClick={handleAuthorClick}
+          >
+            <Image
               src={transformedPost.author.profileImage || authorAvatar}
               alt="Author Avatar"
               className="w-11 h-11 rounded-full"
@@ -252,10 +278,12 @@ export default function PostingPage() {
               height={44}
             />
             <p className="font-medium text-xl">
-              Subleased by <span className='text-primaryOrange'>{transformedPost.author.firstName}{' '}
-              {transformedPost.author.lastName}</span>
+              Subleased by{' '}
+              <span className="text-primaryOrange">
+                {transformedPost.author.firstName}{' '}
+                {transformedPost.author.lastName}
+              </span>
             </p>
-            
           </button>
 
           {/* Room Info */}
@@ -288,9 +316,7 @@ export default function PostingPage() {
 
           {/* What this place offers */}
           <section className="mb-8">
-            <h2 className="text-xl font-medium mb-4">
-              What this place offers
-            </h2>
+            <h2 className="text-xl font-medium mb-4">What this place offers</h2>
             <div className="grid grid-cols-2 gap-4">
               {(showAllAmenities
                 ? transformedPost.amenities
@@ -364,13 +390,21 @@ export default function PostingPage() {
             </div>
             <div className="h-[400px] w-full rounded-lg overflow-hidden">
               <Map
-                defaultCenter={{ lat: postData?.lat || 0, lng: postData?.long || 0 }}
+                defaultCenter={{
+                  lat: postData?.lat || 0,
+                  lng: postData?.long || 0,
+                }}
                 defaultZoom={15}
                 gestureHandling={'greedy'}
                 disableDefaultUI={true}
                 mapId="posting-map"
               >
-                <Marker position={{ lat: postData?.lat || 0, lng: postData?.long || 0 }} />
+                <Marker
+                  position={{
+                    lat: postData?.lat || 0,
+                    lng: postData?.long || 0,
+                  }}
+                />
               </Map>
             </div>
           </section>
@@ -432,10 +466,7 @@ export default function PostingPage() {
               </div>
             </div>
 
-            <button
-              className="btn-primary"
-              onClick={handleAuthorClick}
-            >
+            <button className="btn-primary" onClick={handleAuthorClick}>
               Contact Host
             </button>
           </div>

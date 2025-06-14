@@ -1,11 +1,12 @@
 'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import bannerImage from '@/public/bannerImg.jpg';
 import { PostingGrid } from '@/components/ui/posting/posting-grid';
 import { SearchBarLg } from '@/components/ui/search/search-bar';
 import Loading from '@/components/ui/commons/loading';
-import { usePosts } from '@/hooks/use-get-posts.hook';
+import { usePosts } from '@/hooks/use-posts';
 
 export default function LandingPage() {
   const { posts, loading, error } = usePosts();
@@ -80,12 +81,7 @@ export default function LandingPage() {
         ) : error ? (
           <div>Error: {error}</div>
         ) : posts && posts.length > 0 ? (
-          <PostingGrid
-            isVertical={true}
-            posts={posts}
-            onViewDetails={() => {}}
-            onToggleFavorite={() => {}}
-          />
+          <PostingGrid isVertical={true} posts={posts} />
         ) : (
           <div className="font-medium text-2xl text-grey">
             No posts available

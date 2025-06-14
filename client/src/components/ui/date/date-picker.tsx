@@ -2,7 +2,7 @@
 
 import { addDays, format } from 'date-fns';
 
-import { cn } from '@/lib/cn-utils';
+import { cn } from '@/lib/utils/cn';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/date/calendar';
 import {
@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/commons/select';
 import { CalendarIcon } from 'lucide-react';
-import { useFilterDate } from '@/hooks/use-filter-date.hook';
+import { useFilterDate } from '@/hooks/use-filter-date';
 
 export function DatePickerWithPresets({
   field,
@@ -79,19 +79,21 @@ export function DatePickerWithPresets({
   );
 }
 
-export function DatePickerFilterButton({
+export function DatePickerButton({
   text,
-  field,
+  date,
+  setDate,
+  className,
 }: {
   text: string;
-  field: 'startDate' | 'endDate';
+  date: Date | undefined;
+  setDate: (date: Date | undefined) => void;
+  className?: string;
 }) {
-  const { date, setDate } = useFilterDate(field);
-
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className="rounded-2xl border-2 text-xs font-normal">
+        <Button className={className}>
           <CalendarIcon />
           {date ? format(date, 'PPP') : text}
         </Button>

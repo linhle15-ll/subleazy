@@ -5,15 +5,13 @@ import { PriceMarker } from '@/components/ui/map/price-marker';
 import { ChevronLeft } from 'lucide-react';
 import { SortMenu } from '@/components/ui/search/sort-menu';
 import { useEffect, useState } from 'react';
-import { useSortStore } from '@/lib/stores/sort.store';
+import { useSortStore } from '@/stores/sort.store';
 import { Post } from '@/lib/types/post.types';
 import { SearchBarSm } from '@/components/ui/search/search-bar';
 import { useSearch } from '@/hooks/use-search';
 import { PostingGrid } from '@/components/ui/posting/posting-grid';
-import { useRouter } from 'next/navigation';
 
 export default function SearchPage() {
-  const router = useRouter();
   const { result } = useSearch();
   const setCenter = useSortStore((state) => state.setCenter);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -30,15 +28,6 @@ export default function SearchPage() {
     setCenter({ lat: avgLat, lng: avgLng });
     setPosts(postsData);
   }, [result]);
-
-  const handleViewDetails = (id: string) => {
-    router.push(`/posting?id=${id}`);
-  };
-
-  const handleToggleFavorite = (id: string) => {
-    // TODO: Implement wish list functionality
-    console.log('Toggle favorite for post:', id);
-  };
 
   return (
     <>
@@ -58,12 +47,7 @@ export default function SearchPage() {
             <div className="font-semibold text-3xl">Stays</div>
             <SortMenu posts={posts} setPosts={setPosts} />
           </div>
-          <PostingGrid
-            posts={posts}
-            isVertical={false}
-            onViewDetails={handleViewDetails}
-            onToggleFavorite={handleToggleFavorite}
-          />
+          <PostingGrid posts={posts} isVertical={false} />
           <button className="bg-primaryOrange p-3 rounded-full">
             <ChevronLeft className="w-6 h-6 text-white" />
           </button>

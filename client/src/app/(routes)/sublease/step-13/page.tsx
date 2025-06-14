@@ -1,11 +1,14 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
-import { SelectionBox } from '@/components/ui/selection-box/selection-box';
-import { useFormStore } from '@/components/store/formStore';
+import { SelectionBox } from '@/components/ui/post-form/selection-box';
 import { Button } from '@/components/ui/button';
+import { usePostCreateStore } from '@/stores/post-create.store';
+import { Post, Rules } from '@/lib/types/post.types';
+import { DatePickerButton } from '@/components/ui/date/date-picker';
+import postService from '@/services/post.service';
+import { usePostCreateDate } from '@/hooks/use-post-create-date';
 
 const hours = Array.from({ length: 12 }, (_, i) => i + 1);
 const minutes = ['00', '15', '30', '45'];
@@ -39,78 +42,53 @@ function parseTimeString(timeStr: string | undefined): {
 
 export default function SubleaseStep13() {
   const router = useRouter();
-  const { rules, availability, setField } = useFormStore();
+  const post = usePostCreateStore((state) => state.post);
+  const setPost = usePostCreateStore((state) => state.setPost);
 
-  // Log the current state whenever it changes
-  useEffect(() => {
-    console.log('Current form state:', useFormStore.getState());
-  }, [rules, availability]);
+  const { date: startDate, setDate: setStartDate } =
+    usePostCreateDate('startDate');
+  const { date: endDate, setDate: setEndDate } = usePostCreateDate('endDate');
 
-  const handleRuleChange = (field: keyof typeof rules, value: boolean) => {
-    setField('rules', {
-      ...rules,
-      [field]: value,
+  const { rules, availability } = post;
+
+  const handleRulesChange = (key: keyof Rules, value: boolean) => {
+    setPost({
+      ...post,
+      rules: {
+        ...rules,
+        [key]: value,
+      },
     });
   };
 
   const handleQuietHoursChange = (from: string, to: string) => {
-    setField('rules', {
-      ...rules,
-      quietHours: { from, to },
+    setPost({
+      ...post,
+      rules: {
+        ...rules,
+        quietHours: { from, to },
+      },
     });
   };
 
   const handleCheckTimeChange = (
-    field: 'checkinTime' | 'checkoutTime',
+    key: 'checkinTime' | 'checkoutTime',
     value: string
   ) => {
-    setField('availability', {
-      ...availability,
-      [field]: value,
+    setPost({
+      ...post,
+      availability: {
+        ...availability,
+        [key]: value,
+      },
     });
   };
 
   const handleSubmit = async () => {
-    try {
-      const formData = useFormStore.getState();
-
-      // Add required availability dates if not present
-      const submissionData = {
-        ...formData,
-        availability: {
-          ...formData.availability,
-          startDate:
-            formData.availability?.startDate || new Date().toISOString(),
-          endDate:
-            formData.availability?.endDate ||
-            new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // Default to 30 days from now
-        },
-      };
-
-      const response = await fetch('http://localhost:5000/api/posts/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(submissionData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create post');
-      }
-
-      const data = await response.json();
-      console.log('Post created successfully:', data);
-
-      // Clear the form data after successful submission
-      useFormStore.getState().resetForm();
-
-      // Redirect to success page or home
+    const res = await postService.createPost(post as Partial<Post>);
+    if (res.success) {
+      setPost({});
       router.push('/sublease/success');
-    } catch (error) {
-      console.error('Error creating post:', error);
-      // Handle error (show error message to user)
     }
   };
 
@@ -133,13 +111,13 @@ export default function SubleaseStep13() {
         <div className="flex flex-wrap gap-4">
           <SelectionBox
             active={rules?.noGuest || false}
-            onClick={() => handleRuleChange('noGuest', !rules?.noGuest)}
+            onClick={() => handleRulesChange('noGuest', !rules?.noGuest)}
           >
             No overnight guests
           </SelectionBox>
           <SelectionBox
             active={rules?.noParty || false}
-            onClick={() => handleRuleChange('noParty', !rules?.noParty)}
+            onClick={() => handleRulesChange('noParty', !rules?.noParty)}
           >
             No parties or large gatherings
           </SelectionBox>
@@ -275,28 +253,42 @@ export default function SubleaseStep13() {
         <div className="flex flex-wrap gap-4">
           <SelectionBox
             active={rules?.noSmoking || false}
-            onClick={() => handleRuleChange('noSmoking', !rules?.noSmoking)}
+            onClick={() => handleRulesChange('noSmoking', !rules?.noSmoking)}
           >
             No smoking
           </SelectionBox>
           <SelectionBox
             active={rules?.noDrug || false}
-            onClick={() => handleRuleChange('noDrug', !rules?.noDrug)}
+            onClick={() => handleRulesChange('noDrug', !rules?.noDrug)}
           >
             No recreational drugs
           </SelectionBox>
           <SelectionBox
             active={rules?.noPet || false}
-            onClick={() => handleRuleChange('noPet', !rules?.noPet)}
+            onClick={() => handleRulesChange('noPet', !rules?.noPet)}
           >
             No pets allowed
           </SelectionBox>
         </div>
       </div>
 
-      {/* Check-in/Check-out Times */}
+      {/* Move-in/Move-out */}
       <div className="mb-6">
-        <div className="font-medium text-lg mb-2">Check-in/Check-out Times</div>
+        <div className="font-medium text-lg mb-2">Move-in/Move-out</div>
+        <div className="flex flex-col sm:flex-row justify-between gap-4 w-full mb-4">
+          <DatePickerButton
+            text="Move-in date"
+            date={startDate}
+            setDate={setStartDate}
+            className="flex-grow h-28 border-2 rounded-xl text-lg text-center font-medium border-gray-400"
+          />
+          <DatePickerButton
+            text="Move-out date"
+            date={endDate}
+            setDate={setEndDate}
+            className="flex-grow h-28 border-2 rounded-xl text-lg text-center font-medium border-gray-400"
+          />
+        </div>
         <div className="flex flex-row items-center justify-center gap-4 w-full h-28 pl-5 pr-5 border-2 rounded-xl text-lg text-center font-medium border-gray-400">
           <span>Check-in time</span>
           <select

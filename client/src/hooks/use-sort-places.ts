@@ -1,4 +1,4 @@
-import { useSortStore } from '@/lib/stores/sort.store';
+import { useSortStore } from '@/stores/sort.store';
 import { useEffect, useState } from 'react';
 
 export const useSortPlaces = () => {

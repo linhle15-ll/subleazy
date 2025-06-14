@@ -1,8 +1,8 @@
 'use client';
 
-import { useFilterStore } from '@/lib/stores/filter.store';
+import { useFilterStore } from '@/stores/filter.store';
 import { HouseType, PlaceType } from '@/lib/types/enums';
-import { cn } from '@/lib/cn-utils';
+import { cn } from '@/lib/utils/cn';
 import { Popover, PopoverContent, PopoverTrigger } from '../commons/popover';
 import { Button } from '../button';
 import {
@@ -42,7 +42,8 @@ import {
   HouseInfo,
   Rules,
 } from '@/lib/types/post.types';
-import { DatePickerFilterButton } from '../date/date-picker';
+import { DatePickerButton } from '../date/date-picker';
+import { useFilterDate } from '@/hooks/use-filter-date';
 
 const FilterButton = ({
   text,
@@ -100,6 +101,9 @@ const InputField = ({
 export function FilterMenu({ isLandingPage }: { isLandingPage: boolean }) {
   const filters = useFilterStore((state) => state.filters);
   const setFilters = useFilterStore((state) => state.setFilters);
+
+  const { date: startDate, setDate: setStartDate } = useFilterDate('startDate');
+  const { date: endDate, setDate: setEndDate } = useFilterDate('endDate');
 
   const handlePriceChange = (key: 'minPrice' | 'maxPrice', value: number) => {
     setFilters({
@@ -259,8 +263,18 @@ export function FilterMenu({ isLandingPage }: { isLandingPage: boolean }) {
           <div className="flex flex-col border-b border-gray-300 pb-2">
             <span className="font-medium text-left">Availability</span>
             <div className="flex flex-wrap justify-around gap-2 pb-2 pt-1">
-              <DatePickerFilterButton text="Check in" field="startDate" />
-              <DatePickerFilterButton text="Check out" field="endDate" />
+              <DatePickerButton
+                text="Check-in"
+                date={startDate}
+                setDate={setStartDate}
+                className="rounded-2xl border-2 text-xs font-normal"
+              />
+              <DatePickerButton
+                text="Check-out"
+                date={endDate}
+                setDate={setEndDate}
+                className="rounded-2xl border-2 text-xs font-normal"
+              />
             </div>
           </div>
 

@@ -1,4 +1,4 @@
-import { useFilterStore } from '@/lib/stores/filter.store';
+import { useFilterStore } from '@/stores/filter.store';
 import { useEffect, useState } from 'react';
 
 export const useFilterLocation = () => {

@@ -1,44 +1,34 @@
 'use client';
 
-import { useEffect } from 'react';
-import { PlusCircle, MinusCircle } from 'lucide-react';
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
-import ProgressBar from '@/components/ui/progress-bar/progress-bar';
-import { useFormStore } from '@/components/store/formStore';
+import { ProgressBar } from '@/components/ui/post-form/progress-bar';
+import { usePostCreateStore } from '@/stores/post-create.store';
+import { BedroomInfo } from '@/lib/types/post.types';
+import { NumberButton } from '@/components/ui/post-form/number-button';
 
 export default function SubleaseStep6() {
-  const { bedroomInfo, setField } = useFormStore();
+  const post = usePostCreateStore((state) => state.post);
+  const setPost = usePostCreateStore((state) => state.setPost);
 
-  // Log the current state whenever it changes
-  useEffect(() => {
-    console.log('Current form state:', useFormStore.getState());
-  }, [bedroomInfo]);
+  const { maxGuests, bedrooms, beds, lock } = post.bedroomInfo ?? {};
 
-  const handleGuestsChange = (newValue: number) => {
-    setField('bedroomInfo', {
-      ...bedroomInfo,
-      maxGuests: newValue,
-    });
-  };
-
-  const handleBedroomsChange = (newValue: number) => {
-    setField('bedroomInfo', {
-      ...bedroomInfo,
-      bedrooms: newValue,
-    });
-  };
-
-  const handleBedsChange = (newValue: number) => {
-    setField('bedroomInfo', {
-      ...bedroomInfo,
-      beds: newValue,
+  const handleChange = (key: keyof BedroomInfo, value: number) => {
+    setPost({
+      ...post,
+      bedroomInfo: {
+        ...post.bedroomInfo,
+        [key]: value,
+      },
     });
   };
 
   const handleLockChange = (value: string) => {
-    setField('bedroomInfo', {
-      ...bedroomInfo,
-      lock: value === 'yes',
+    setPost({
+      ...post,
+      bedroomInfo: {
+        ...post.bedroomInfo,
+        lock: value === 'yes',
+      },
     });
   };
 
@@ -54,103 +44,24 @@ export default function SubleaseStep6() {
       {/* Bedroom info */}
       <div className="pl-14 pr-14">
         <div className="divide-y divide-gray-200">
-          {/* Max guests */}
-          <div className="form-des-inc-button">
-            <span>Max guests number</span>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                aria-label="Decrease guests"
-                onClick={() => {
-                  const newValue = Math.max(
-                    1,
-                    (bedroomInfo?.maxGuests || 1) - 1
-                  );
-                  handleGuestsChange(newValue);
-                }}
-                className="disabled:opacity-50"
-                disabled={(bedroomInfo?.maxGuests || 1) <= 1}
-              >
-                <MinusCircle className="w-7 h-7 text-gray-400 hover:text-primaryOrange" />
-              </button>
-              <span className="w-8 text-center">
-                {bedroomInfo?.maxGuests || 1}
-              </span>
-              <button
-                type="button"
-                aria-label="Increase guests"
-                onClick={() => {
-                  const newValue = (bedroomInfo?.maxGuests || 1) + 1;
-                  handleGuestsChange(newValue);
-                }}
-              >
-                <PlusCircle className="w-7 h-7 text-primaryOrange" />
-              </button>
-            </div>
-          </div>
-          {/* Bedrooms */}
-          <div className="form-des-inc-button">
-            <span>Bedrooms</span>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                aria-label="Decrease bedrooms"
-                onClick={() => {
-                  const newValue = Math.max(
-                    0,
-                    (bedroomInfo?.bedrooms || 0) - 1
-                  );
-                  handleBedroomsChange(newValue);
-                }}
-                className="disabled:opacity-50"
-                disabled={(bedroomInfo?.bedrooms || 0) <= 0}
-              >
-                <MinusCircle className="w-7 h-7 text-gray-400 hover:text-primaryOrange" />
-              </button>
-              <span className="w-8 text-center">
-                {bedroomInfo?.bedrooms || 0}
-              </span>
-              <button
-                type="button"
-                aria-label="Increase bedrooms"
-                onClick={() => {
-                  const newValue = (bedroomInfo?.bedrooms || 0) + 1;
-                  handleBedroomsChange(newValue);
-                }}
-              >
-                <PlusCircle className="w-7 h-7 text-primaryOrange" />
-              </button>
-            </div>
-          </div>
-          {/* Beds */}
-          <div className="form-des-inc-button">
-            <span>Beds</span>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                aria-label="Decrease beds"
-                onClick={() => {
-                  const newValue = Math.max(0, (bedroomInfo?.beds || 0) - 1);
-                  handleBedsChange(newValue);
-                }}
-                className="disabled:opacity-50"
-                disabled={(bedroomInfo?.beds || 0) <= 0}
-              >
-                <MinusCircle className="w-7 h-7 text-gray-400 hover:text-primaryOrange" />
-              </button>
-              <span className="w-8 text-center">{bedroomInfo?.beds || 0}</span>
-              <button
-                type="button"
-                aria-label="Increase beds"
-                onClick={() => {
-                  const newValue = (bedroomInfo?.beds || 0) + 1;
-                  handleBedsChange(newValue);
-                }}
-              >
-                <PlusCircle className="w-7 h-7 text-primaryOrange" />
-              </button>
-            </div>
-          </div>
+          <NumberButton
+            text="Max guests number"
+            data={maxGuests}
+            minValue={1}
+            onChange={(value) => handleChange('maxGuests', value)}
+          />
+          <NumberButton
+            text="Bedrooms"
+            data={bedrooms}
+            minValue={1}
+            onChange={(value) => handleChange('bedrooms', value)}
+          />
+          <NumberButton
+            text="Beds"
+            data={beds}
+            minValue={0}
+            onChange={(value) => handleChange('beds', value)}
+          />
         </div>
       </div>
 
@@ -166,7 +77,7 @@ export default function SubleaseStep6() {
               type="radio"
               name="hasLock"
               value="yes"
-              checked={bedroomInfo?.lock || false}
+              checked={lock || false}
               onChange={() => handleLockChange('yes')}
               className="accent-primaryOrange w-5 h-5 border-2 border-gray-200"
             />
@@ -177,7 +88,7 @@ export default function SubleaseStep6() {
               type="radio"
               name="hasLock"
               value="no"
-              checked={!bedroomInfo?.lock}
+              checked={!lock}
               onChange={() => handleLockChange('no')}
               className="accent-primaryOrange w-5 h-5 border-2 border-gray-200"
             />

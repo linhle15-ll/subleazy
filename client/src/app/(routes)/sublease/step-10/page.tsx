@@ -1,15 +1,32 @@
 'use client';
 
-import { useRef, useState } from 'react';
-// import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import ContentMediaFolder from '@/public/content-media-folder.png';
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
-import ProgressBar from '@/components/ui/progress-bar/progress-bar';
+import { ProgressBar } from '@/components/ui/post-form/progress-bar';
+import { usePostCreateStore } from '@/stores/post-create.store';
 
 export default function SubleaseStep10() {
   const [photos, setPhotos] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const post = usePostCreateStore((state) => state.post);
+  const setPost = usePostCreateStore((state) => state.setPost);
+
+  useEffect(() => {
+    setPost({
+      ...post,
+      media: [
+        'https://cdn.discordapp.com/attachments/888258860727562271/953957803616264242/meo-toat-mo-hoi-khong-biet-noi-gi.png?ex=684df2b0&is=684ca130&hm=ad0929ad7dc3eb1b9ef7485075eff11854a2c471d7bc345634db5681c09e124e&',
+        'link',
+        'link',
+        'link',
+        'link',
+      ],
+    });
+    // TODO: remove this part and set up cloudinary for photos
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {

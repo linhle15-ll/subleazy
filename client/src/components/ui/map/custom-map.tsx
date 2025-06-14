@@ -1,4 +1,4 @@
-import { useSortStore } from '@/lib/stores/sort.store';
+import { useSortStore } from '@/stores/sort.store';
 import { Post } from '@/lib/types/post.types';
 import {
   AdvancedMarker,

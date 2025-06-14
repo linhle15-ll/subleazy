@@ -1,4 +1,4 @@
-import { useFilterStore } from '@/lib/stores/filter.store';
+import { useFilterStore } from '@/stores/filter.store';
 import { PostRequestBody } from '@/lib/types/post.types';
 import { decodeQuery } from '@/lib/utils/search-query';
 import postService from '@/services/post.service';

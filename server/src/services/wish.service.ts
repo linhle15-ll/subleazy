@@ -3,8 +3,7 @@ import { Wish } from '../types/wish.types';
 
 const wishService = {
   createWish: async (data: Wish) => {
-    const wish = await wishModel.create({ user: data.user, post: data.post });
-
+    const wish = await wishModel.create(data);
     return wish;
   },
 };

@@ -81,7 +81,7 @@ export function DropdownHeader() {
 
           <DropdownMenuItem>
             <House />
-            <a href="/home">Home</a>
+            <a href="/">Home</a>
           </DropdownMenuItem>
 
           <DropdownMenuItem>
