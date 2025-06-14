@@ -1,70 +1,63 @@
 'use client';
 
-import { useEffect } from 'react';
-import { US_CITIES, USCity } from '@/lib/utils/us-cities';
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
-import ProgressBar from '@/components/ui/progress-bar/progress-bar';
+import { ProgressBar } from '@/components/ui/post-form/progress-bar';
 import { PlaceAutocomplete } from '@/components/ui/map/place-autocomplete';
-import { useFormStore } from '@/components/store/formStore';
+import { usePostCreateStore } from '@/stores/post-create.store';
 
 export default function SubleaseStep4() {
-  const { setField, setPartial, city, address, suites, state, zip, lat, long } =
-    useFormStore();
+  const post = usePostCreateStore((state) => state.post);
+  const setPost = usePostCreateStore((state) => state.setPost);
 
-  // Log the current state whenever it changes
-  useEffect(() => {
-    console.log('Current form state:', useFormStore.getState());
-  }, [city, address, suites, state, zip, lat, long]);
-
-  const handleCityChange = (city: USCity) => {
-    setField('city', city);
+  const handleChange = (
+    key: 'city' | 'state' | 'zip' | 'suites',
+    value: string
+  ) => {
+    setPost({
+      ...post,
+      [key]: value,
+    });
   };
 
   const handleAddressChange = (place: google.maps.places.Place | null) => {
-    if (place) {
-      const location = place.location;
-      let cityName = '';
-      let stateCode = '';
-      let zipCode = '';
+    if (!place) return;
 
-      // Extract address components
-      place.addressComponents?.forEach((component) => {
-        const types = component.types;
-        if (types.includes('locality')) {
-          cityName = component.longText || '';
-        } else if (types.includes('administrative_area_level_1')) {
-          stateCode = component.shortText || '';
-        } else if (types.includes('postal_code')) {
-          zipCode = component.longText || '';
-        }
-      });
+    const lat = place.location?.lat();
+    const long = place.location?.lng();
+    let address = '';
+    let city = '';
+    let state = '';
+    let zip = '';
 
-      // Update all fields at once
-      setPartial({
-        address: place.formattedAddress || '',
-        city: cityName,
-        state: stateCode,
-        zip: zipCode,
-        lat: location ? location.lat() : null,
-        long: location ? location.lng() : null,
+    for (const component of place.addressComponents || []) {
+      if (component.types.includes('street_number')) {
+        address += component.longText + ' ';
+      } else if (component.types.includes('route')) {
+        address += component.shortText;
+      } else if (
+        component.types.includes('neighborhood') ||
+        component.types.includes('locality')
+      ) {
+        city += component.longText;
+      } else if (component.types.includes('administrative_area_level_1')) {
+        state += component.shortText;
+      } else if (component.types.includes('postal_code')) {
+        zip += component.longText;
+      }
+    }
+
+    if (lat && long && address && city && state && zip) {
+      setPost({
+        ...post,
+        lat,
+        long,
+        address,
+        suites: '',
+        city,
+        state,
+        zip,
       });
     }
-  };
-
-  const handleAptChange = (apt: string) => {
-    setField('suites', apt);
-  };
-
-  const handleTownChange = (town: string) => {
-    setField('city', town);
-  };
-
-  const handleStateChange = (state: string) => {
-    setField('state', state);
-  };
-
-  const handleZipChange = (zip: string) => {
-    setField('zip', zip);
   };
 
   return (
@@ -86,19 +79,6 @@ export default function SubleaseStep4() {
           a reservation
         </div>
         <div className="flex flex-col gap-4">
-          <select
-            className="text-field"
-            value={city}
-            onChange={(e) => handleCityChange(e.target.value as USCity)}
-            title="Select a city"
-          >
-            <option value="">Select a city</option>
-            {US_CITIES.map((city) => (
-              <option key={city} value={city}>
-                {city}
-              </option>
-            ))}
-          </select>
           <PlaceAutocomplete
             onPlaceSelect={handleAddressChange}
             className="text-field w-full"
@@ -106,26 +86,26 @@ export default function SubleaseStep4() {
           <input
             className="text-field"
             placeholder="Apt, suite, unit (if applicable)"
-            value={suites || ''}
-            onChange={(e) => handleAptChange(e.target.value)}
+            value={post.suites || ''}
+            onChange={(e) => handleChange('suites', e.target.value)}
           />
           <input
             className="text-field"
             placeholder="City / Town"
-            value={city || ''}
-            onChange={(e) => handleTownChange(e.target.value)}
+            value={post.city || ''}
+            onChange={(e) => handleChange('city', e.target.value)}
           />
           <input
             className="text-field"
             placeholder="State / Territory"
-            value={state || ''}
-            onChange={(e) => handleStateChange(e.target.value)}
+            value={post.state || ''}
+            onChange={(e) => handleChange('state', e.target.value)}
           />
           <input
             className="text-field"
             placeholder="ZIP code"
-            value={zip || ''}
-            onChange={(e) => handleZipChange(e.target.value)}
+            value={post.zip || ''}
+            onChange={(e) => handleChange('zip', e.target.value)}
           />
         </div>
       </div>
