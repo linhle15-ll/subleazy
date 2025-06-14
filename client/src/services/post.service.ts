@@ -4,7 +4,9 @@ import { AxiosError } from 'axios';
 import api from './api';
 
 const postService = {
-  createPost: async (submissionData: Partial<Post>): Promise<Result<Post>> => {
+  createPost: async (
+    submissionData: Partial<PostRequestBody>
+  ): Promise<Result<Post>> => {
     try {
       const response = await api.post('/posts/create', submissionData);
       return {
