@@ -6,7 +6,7 @@ import { ProgressBar } from '@/components/ui/post-form/progress-bar';
 import { SelectionBox } from '@/components/ui/post-form/selection-box';
 import { HouseType, PlaceType } from '@/lib/types/enums';
 import { usePostCreateStore } from '@/stores/post-create.store';
-import { HouseInfo } from '@/lib/types/post.types';
+import { usePostSetters } from '@/hooks/use-post-setters';
 
 const placeOptions = [
   { label: 'House', value: HouseType.HOUSE, icon: Home },
@@ -22,18 +22,8 @@ const typeOptions = [
 export default function SubleaseStep3() {
   const post = usePostCreateStore((state) => state.post);
   const setPost = usePostCreateStore((state) => state.setPost);
-
+  const { setHouseInfo } = usePostSetters(setPost);
   const { houseType, placeType } = post.houseInfo ?? {};
-
-  const handleSelect = (key: keyof HouseInfo, value: HouseType | PlaceType) => {
-    setPost({
-      ...post,
-      houseInfo: {
-        ...post.houseInfo,
-        [key]: value,
-      },
-    });
-  };
 
   return (
     <div className="form-border flex flex-col gap-6 relative mb-15">
@@ -59,7 +49,7 @@ export default function SubleaseStep3() {
               <SelectionBox
                 key={opt.value}
                 active={active}
-                onClick={() => handleSelect('houseType', opt.value)}
+                onClick={() => setHouseInfo('houseType', opt.value)}
               >
                 <Icon
                   className={`w-9 h-9 ${active ? 'text-primaryOrange' : 'text-gray-500'}`}
@@ -83,7 +73,7 @@ export default function SubleaseStep3() {
               <SelectionBox
                 key={opt.value}
                 active={active}
-                onClick={() => handleSelect('placeType', opt.value)}
+                onClick={() => setHouseInfo('placeType', opt.value)}
               >
                 {opt.label}
               </SelectionBox>

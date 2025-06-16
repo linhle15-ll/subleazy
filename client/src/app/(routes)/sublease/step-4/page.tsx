@@ -4,20 +4,12 @@ import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
 import { ProgressBar } from '@/components/ui/post-form/progress-bar';
 import { PlaceAutocomplete } from '@/components/ui/map/place-autocomplete';
 import { usePostCreateStore } from '@/stores/post-create.store';
+import { usePostSetters } from '@/hooks/use-post-setters';
 
 export default function SubleaseStep4() {
   const post = usePostCreateStore((state) => state.post);
   const setPost = usePostCreateStore((state) => state.setPost);
-
-  const handleChange = (
-    key: 'city' | 'state' | 'zip' | 'suites',
-    value: string
-  ) => {
-    setPost({
-      ...post,
-      [key]: value,
-    });
-  };
+  const { setAddress } = usePostSetters(setPost);
 
   const handleAddressChange = (place: google.maps.places.Place | null) => {
     if (!place) return;
@@ -87,25 +79,25 @@ export default function SubleaseStep4() {
             className="text-field"
             placeholder="Apt, suite, unit (if applicable)"
             value={post.suites || ''}
-            onChange={(e) => handleChange('suites', e.target.value)}
+            onChange={(e) => setAddress('suites', e.target.value)}
           />
           <input
             className="text-field"
             placeholder="City / Town"
             value={post.city || ''}
-            onChange={(e) => handleChange('city', e.target.value)}
+            onChange={(e) => setAddress('city', e.target.value)}
           />
           <input
             className="text-field"
             placeholder="State / Territory"
             value={post.state || ''}
-            onChange={(e) => handleChange('state', e.target.value)}
+            onChange={(e) => setAddress('state', e.target.value)}
           />
           <input
             className="text-field"
             placeholder="ZIP code"
             value={post.zip || ''}
-            onChange={(e) => handleChange('zip', e.target.value)}
+            onChange={(e) => setAddress('zip', e.target.value)}
           />
         </div>
       </div>

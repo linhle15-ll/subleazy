@@ -5,10 +5,10 @@ import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
 import { SelectionBox } from '@/components/ui/post-form/selection-box';
 import { Button } from '@/components/ui/button';
 import { usePostCreateStore } from '@/stores/post-create.store';
-import { Post, Rules } from '@/lib/types/post.types';
+import { Post } from '@/lib/types/post.types';
 import { DatePickerButton } from '@/components/ui/date/date-picker';
 import postService from '@/services/post.service';
-import { usePostCreateDate } from '@/hooks/use-post-create-date';
+import { usePostSetters } from '@/hooks/use-post-setters';
 
 const hours = Array.from({ length: 12 }, (_, i) => i + 1);
 const minutes = ['00', '15', '30', '45'];
@@ -44,45 +44,9 @@ export default function SubleaseStep13() {
   const router = useRouter();
   const post = usePostCreateStore((state) => state.post);
   const setPost = usePostCreateStore((state) => state.setPost);
-
-  const { date: startDate, setDate: setStartDate } =
-    usePostCreateDate('startDate');
-  const { date: endDate, setDate: setEndDate } = usePostCreateDate('endDate');
-
+  const { setRules, setQuietHours, setDate, setCheckTime } =
+    usePostSetters(setPost);
   const { rules, availability } = post;
-
-  const handleRulesChange = (key: keyof Rules, value: boolean) => {
-    setPost({
-      ...post,
-      rules: {
-        ...rules,
-        [key]: value,
-      },
-    });
-  };
-
-  const handleQuietHoursChange = (from: string, to: string) => {
-    setPost({
-      ...post,
-      rules: {
-        ...rules,
-        quietHours: { from, to },
-      },
-    });
-  };
-
-  const handleCheckTimeChange = (
-    key: 'checkinTime' | 'checkoutTime',
-    value: string
-  ) => {
-    setPost({
-      ...post,
-      availability: {
-        ...availability,
-        [key]: value,
-      },
-    });
-  };
 
   const handleSubmit = async () => {
     const res = await postService.createPost(post as Partial<Post>);
@@ -111,13 +75,13 @@ export default function SubleaseStep13() {
         <div className="flex flex-wrap gap-4">
           <SelectionBox
             active={rules?.noGuest || false}
-            onClick={() => handleRulesChange('noGuest', !rules?.noGuest)}
+            onClick={() => setRules('noGuest')}
           >
             No overnight guests
           </SelectionBox>
           <SelectionBox
             active={rules?.noParty || false}
-            onClick={() => handleRulesChange('noParty', !rules?.noParty)}
+            onClick={() => setRules('noParty')}
           >
             No parties or large gatherings
           </SelectionBox>
@@ -135,7 +99,7 @@ export default function SubleaseStep13() {
             onChange={(e) => {
               const hour = Number(e.target.value);
               const { minute, ampm } = parseTimeString(rules?.quietHours?.from);
-              handleQuietHoursChange(
+              setQuietHours(
                 formatTimeString(hour, minute, ampm),
                 rules?.quietHours?.to || '07:00 AM'
               );
@@ -155,7 +119,7 @@ export default function SubleaseStep13() {
             onChange={(e) => {
               const { hour, ampm } = parseTimeString(rules?.quietHours?.from);
               const minute = e.target.value;
-              handleQuietHoursChange(
+              setQuietHours(
                 formatTimeString(hour, minute, ampm),
                 rules?.quietHours?.to || '07:00 AM'
               );
@@ -173,7 +137,7 @@ export default function SubleaseStep13() {
             value={parseTimeString(rules?.quietHours?.from).ampm}
             onChange={(e) => {
               const { hour, minute } = parseTimeString(rules?.quietHours?.from);
-              handleQuietHoursChange(
+              setQuietHours(
                 formatTimeString(hour, minute, e.target.value),
                 rules?.quietHours?.to || '07:00 AM'
               );
@@ -193,7 +157,7 @@ export default function SubleaseStep13() {
             onChange={(e) => {
               const hour = Number(e.target.value);
               const { minute, ampm } = parseTimeString(rules?.quietHours?.to);
-              handleQuietHoursChange(
+              setQuietHours(
                 rules?.quietHours?.from || '10:00 PM',
                 formatTimeString(hour, minute, ampm)
               );
@@ -213,7 +177,7 @@ export default function SubleaseStep13() {
             onChange={(e) => {
               const { hour, ampm } = parseTimeString(rules?.quietHours?.to);
               const minute = e.target.value;
-              handleQuietHoursChange(
+              setQuietHours(
                 rules?.quietHours?.from || '10:00 PM',
                 formatTimeString(hour, minute, ampm)
               );
@@ -231,7 +195,7 @@ export default function SubleaseStep13() {
             value={parseTimeString(rules?.quietHours?.to).ampm}
             onChange={(e) => {
               const { hour, minute } = parseTimeString(rules?.quietHours?.to);
-              handleQuietHoursChange(
+              setQuietHours(
                 rules?.quietHours?.from || '10:00 PM',
                 formatTimeString(hour, minute, e.target.value)
               );
@@ -253,19 +217,19 @@ export default function SubleaseStep13() {
         <div className="flex flex-wrap gap-4">
           <SelectionBox
             active={rules?.noSmoking || false}
-            onClick={() => handleRulesChange('noSmoking', !rules?.noSmoking)}
+            onClick={() => setRules('noSmoking')}
           >
             No smoking
           </SelectionBox>
           <SelectionBox
             active={rules?.noDrug || false}
-            onClick={() => handleRulesChange('noDrug', !rules?.noDrug)}
+            onClick={() => setRules('noDrug')}
           >
             No recreational drugs
           </SelectionBox>
           <SelectionBox
             active={rules?.noPet || false}
-            onClick={() => handleRulesChange('noPet', !rules?.noPet)}
+            onClick={() => setRules('noPet')}
           >
             No pets allowed
           </SelectionBox>
@@ -278,14 +242,14 @@ export default function SubleaseStep13() {
         <div className="flex flex-col sm:flex-row justify-between gap-4 w-full mb-4">
           <DatePickerButton
             text="Move-in date"
-            date={startDate}
-            setDate={setStartDate}
+            date={availability?.startDate as Date}
+            setDate={(date) => setDate('startDate', date)}
             className="flex-grow h-28 border-2 rounded-xl text-lg text-center font-medium border-gray-400"
           />
           <DatePickerButton
             text="Move-out date"
-            date={endDate}
-            setDate={setEndDate}
+            date={availability?.endDate as Date}
+            setDate={(date) => setDate('endDate', date)}
             className="flex-grow h-28 border-2 rounded-xl text-lg text-center font-medium border-gray-400"
           />
         </div>
@@ -299,10 +263,7 @@ export default function SubleaseStep13() {
               const { minute, ampm } = parseTimeString(
                 availability?.checkinTime
               );
-              handleCheckTimeChange(
-                'checkinTime',
-                formatTimeString(hour, minute, ampm)
-              );
+              setCheckTime('checkinTime', formatTimeString(hour, minute, ampm));
             }}
             className="form-dropdown-box"
           >
@@ -319,10 +280,7 @@ export default function SubleaseStep13() {
             onChange={(e) => {
               const { hour, ampm } = parseTimeString(availability?.checkinTime);
               const minute = e.target.value;
-              handleCheckTimeChange(
-                'checkinTime',
-                formatTimeString(hour, minute, ampm)
-              );
+              setCheckTime('checkinTime', formatTimeString(hour, minute, ampm));
             }}
             className="form-dropdown-box"
           >
@@ -339,7 +297,7 @@ export default function SubleaseStep13() {
               const { hour, minute } = parseTimeString(
                 availability?.checkinTime
               );
-              handleCheckTimeChange(
+              setCheckTime(
                 'checkinTime',
                 formatTimeString(hour, minute, e.target.value)
               );
@@ -361,7 +319,7 @@ export default function SubleaseStep13() {
               const { minute, ampm } = parseTimeString(
                 availability?.checkoutTime
               );
-              handleCheckTimeChange(
+              setCheckTime(
                 'checkoutTime',
                 formatTimeString(hour, minute, ampm)
               );
@@ -383,7 +341,7 @@ export default function SubleaseStep13() {
                 availability?.checkoutTime
               );
               const minute = e.target.value;
-              handleCheckTimeChange(
+              setCheckTime(
                 'checkoutTime',
                 formatTimeString(hour, minute, ampm)
               );
@@ -403,7 +361,7 @@ export default function SubleaseStep13() {
               const { hour, minute } = parseTimeString(
                 availability?.checkoutTime
               );
-              handleCheckTimeChange(
+              setCheckTime(
                 'checkoutTime',
                 formatTimeString(hour, minute, e.target.value)
               );

@@ -3,34 +3,14 @@
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
 import { ProgressBar } from '@/components/ui/post-form/progress-bar';
 import { usePostCreateStore } from '@/stores/post-create.store';
-import { BedroomInfo } from '@/lib/types/post.types';
 import { NumberButton } from '@/components/ui/post-form/number-button';
+import { usePostSetters } from '@/hooks/use-post-setters';
 
 export default function SubleaseStep6() {
   const post = usePostCreateStore((state) => state.post);
   const setPost = usePostCreateStore((state) => state.setPost);
-
+  const { setBedroomInfo } = usePostSetters(setPost);
   const { maxGuests, bedrooms, beds, lock } = post.bedroomInfo ?? {};
-
-  const handleChange = (key: keyof BedroomInfo, value: number) => {
-    setPost({
-      ...post,
-      bedroomInfo: {
-        ...post.bedroomInfo,
-        [key]: value,
-      },
-    });
-  };
-
-  const handleLockChange = (value: string) => {
-    setPost({
-      ...post,
-      bedroomInfo: {
-        ...post.bedroomInfo,
-        lock: value === 'yes',
-      },
-    });
-  };
 
   return (
     <div className="form-border flex flex-col gap-6 relative mb-15">
@@ -48,19 +28,19 @@ export default function SubleaseStep6() {
             text="Max guests number"
             data={maxGuests}
             minValue={1}
-            onChange={(value) => handleChange('maxGuests', value)}
+            onChange={(value) => setBedroomInfo('maxGuests', value)}
           />
           <NumberButton
             text="Bedrooms"
             data={bedrooms}
             minValue={1}
-            onChange={(value) => handleChange('bedrooms', value)}
+            onChange={(value) => setBedroomInfo('bedrooms', value)}
           />
           <NumberButton
             text="Beds"
             data={beds}
             minValue={0}
-            onChange={(value) => handleChange('beds', value)}
+            onChange={(value) => setBedroomInfo('beds', value)}
           />
         </div>
       </div>
@@ -78,7 +58,7 @@ export default function SubleaseStep6() {
               name="hasLock"
               value="yes"
               checked={lock || false}
-              onChange={() => handleLockChange('yes')}
+              onChange={() => setBedroomInfo('lock', true)}
               className="accent-primaryOrange w-5 h-5 border-2 border-gray-200"
             />
             Yes
@@ -89,7 +69,7 @@ export default function SubleaseStep6() {
               name="hasLock"
               value="no"
               checked={!lock}
-              onChange={() => handleLockChange('no')}
+              onChange={() => setBedroomInfo('lock', false)}
               className="accent-primaryOrange w-5 h-5 border-2 border-gray-200"
             />
             No

@@ -2,11 +2,13 @@
 
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
 import { ProgressBar } from '@/components/ui/post-form/progress-bar';
+import { usePostSetters } from '@/hooks/use-post-setters';
 import { usePostCreateStore } from '@/stores/post-create.store';
 
 export default function SubleaseStep12() {
   const post = usePostCreateStore((state) => state.post);
   const setPost = usePostCreateStore((state) => state.setPost);
+  const { setPrice } = usePostSetters(setPost);
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -15,11 +17,7 @@ export default function SubleaseStep12() {
     if (/^\d+$/.test(value)) {
       const num = parseInt(value, 10);
       const price = num < 0 ? 0 : num;
-
-      setPost({
-        ...post,
-        price,
-      });
+      setPrice('price', price);
     }
   };
 
