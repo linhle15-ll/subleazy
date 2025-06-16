@@ -8,7 +8,6 @@ interface UserStore {
 
   accessToken: string | null;
   setAccessToken: (token: string) => void;
-
   clearAccessToken: () => void;
 }
 
@@ -22,7 +21,7 @@ export const useUserStore = create<UserStore>()(
 
           accessToken: null,
           setAccessToken: (token) => set({ accessToken: token }),
-          clearAccessToken: () => set({ accessToken: '' }),
+          clearAccessToken: () => set({ accessToken: null }),
         }),
         {
           name: 'user-store',

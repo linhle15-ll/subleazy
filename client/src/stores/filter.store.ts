@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { PostRequestBody } from '../types/post.types';
-import { DeepPartial } from '../types/common.types';
+import { PostRequestBody } from '@/lib/types/post.types';
+import { DeepPartial } from '@/lib/types/common.types';
 
 interface FilterStore {
   filters: DeepPartial<PostRequestBody> | Partial<PostRequestBody>;

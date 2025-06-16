@@ -1,11 +1,11 @@
-// personal page
 'use client';
+
 import React from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import userService from '@/services/user.service';
 import Loading from '@/components/ui/commons/loading';
-import { usePosts } from '@/hooks/use-get-posts.hook';
+import { usePosts } from '@/hooks/use-posts';
 import { PostingGrid } from '@/components/ui/posting/posting-grid';
 
 import Image from 'next/image';
@@ -21,7 +21,7 @@ export default function ProfilePage() {
     error,
   } = useQuery({
     queryKey: ['user', userId],
-    queryFn: () => userService.getUserById(userId!),
+    queryFn: () => userService.getUser(userId!),
     enabled: !!userId,
   });
 

@@ -10,7 +10,7 @@ interface ProgressBarProps {
   }[];
 }
 
-export default function ProgressBar({
+export function ProgressBar({
   currentStep,
   totalSteps,
   buttons = [],

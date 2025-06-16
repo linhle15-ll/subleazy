@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import houseService from '../services/house.service';
 import postService from '../services/post.service';
 import { PostRequestBody } from '../types/post.types';
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import { validatePostData } from '../utils/validators';
 import { parseGoogleMapPlaces } from '../utils/parsers';
 import { getAuthRequest, getPostAuthorId } from '../utils/common.utils';
@@ -63,21 +63,27 @@ const postController = {
 
   getPost: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // Test when auth middleware is merged
-      // const authReq = getAuthRequest(req);
-      // req.user = new Types.ObjectId(authReq.user.id);
+      const authReq = getAuthRequest(req);
 
-      const { postId } = req.params;
-      const post = await postService.getPost(postId);
+      const postId = req.params.postId;
+      if (!postId || !mongoose.isValidObjectId(postId)) {
+        res.status(400).json({ error: 'Invalid post ID' });
+        return;
+      }
 
+      const post = await postService.getPostWithAuthor(postId);
       if (!post) {
         res.status(404).json({ error: 'Post not found' });
         return;
       }
 
-      // if (post.status === 'pending' && !post.author.equals(userId)) {
-      //   res.status(403).json({ error: 'Unauthorized to view this post' });
-      // }
+      if (
+        post.status === PostStatus.PENDING &&
+        getPostAuthorId(post) !== authReq.user.id
+      ) {
+        res.status(403).json({ error: 'Unauthorized to view this post' });
+        return;
+      }
 
       res.status(200).json(post);
     } catch (error) {
@@ -87,13 +93,10 @@ const postController = {
 
   editPost: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // Uncomment when auth middleware is merged
-      // const authReq = getAuthRequest(req);
-      // const updates: Partial<PostRequestBody> = authReq.body;
-      // updates.author = new Types.ObjectId(authReq.user.id);
+      const authReq = getAuthRequest(req);
+      const updates: Partial<PostRequestBody> = authReq.body;
 
-      const { postId } = req.params; //authReq.params;
-      const updates: Partial<PostRequestBody> = req.body; // authReq.body;
+      const postId = authReq.params.postId;
       const existingPost = await postService.getPost(postId);
 
       if (!existingPost) {
@@ -101,10 +104,13 @@ const postController = {
         return;
       }
 
-      // if (existingPost.author.toString() !== authReq.user.id || existingPost.status === 'closed') {
-      //   res.status(403).json({ error: 'Unauthorized to edit this post' });
-      //   return;
-      // }
+      if (
+        getPostAuthorId(existingPost) !== authReq.user.id ||
+        existingPost.status === PostStatus.CLOSED
+      ) {
+        res.status(403).json({ error: 'Unauthorized to edit this post' });
+        return;
+      }
 
       const allowedFields = [
         'title',
@@ -136,7 +142,6 @@ const postController = {
       }
 
       const editedPost = await postService.updatePost(postId, filteredData);
-
       if (!editedPost) {
         res.status(404).json({ error: 'Post not found' });
         return;
@@ -167,11 +172,9 @@ const postController = {
   getPostsByUserId: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const authReq = getAuthRequest(req);
-      const reqUserId = authReq.user.id;
 
       // find in the posts collection user's posts by id as an author
-      const userId = authReq.params.id;
-
+      const userId = authReq.params.userId;
       if (!userId || !mongoose.isValidObjectId(userId)) {
         res.status(400).json({ error: 'Invalid user ID' });
         return;
@@ -181,7 +184,7 @@ const postController = {
 
       const filteredPosts = posts.filter((post) => {
         if (post.status !== PostStatus.PENDING) return true;
-        return userId === reqUserId;
+        return userId === authReq.user.id;
       });
 
       res.status(200).json(filteredPosts);
@@ -198,38 +201,6 @@ const postController = {
       );
 
       res.status(200).json(filteredPosts);
-    } catch (error) {
-      next(error);
-    }
-  },
-
-  getPostById: async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const authReq = getAuthRequest(req);
-      const reqUserId = authReq.user.id;
-
-      const postId = req.params.id;
-
-      if (!postId || !mongoose.isValidObjectId(postId)) {
-        res.status(400).json({ error: 'Invalid post ID' });
-        return;
-      }
-
-      const post = await postService.getPostById(postId);
-
-      if (!post) {
-        res.status(404).json({ error: 'Post not found' });
-        return;
-      }
-
-      const authorId = getPostAuthorId(post);
-
-      if (post.status === PostStatus.PENDING && authorId !== reqUserId) {
-        res.status(403).json({ error: 'Unauthorized to view this post' });
-        return;
-      }
-
-      res.status(200).json(post);
     } catch (error) {
       next(error);
     }
