@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { PostRequestBody } from '../types/post.types';
-import { DeepPartial } from '../types/common.types';
+import { PostRequestBody } from '../lib/types/post.types';
+import { DeepPartial } from '../lib/types/common.types';
 
 export type StepKeys =
   | 'description'
@@ -19,14 +19,16 @@ export type StepKeys =
 interface PostEditorStore {
   step: StepKeys;
   setStep: (key: StepKeys) => void;
-  post: DeepPartial<PostRequestBody>;
-  setPost: (post: DeepPartial<PostRequestBody>) => void;
+  post: Partial<PostRequestBody> | DeepPartial<PostRequestBody>;
+  setPost: (
+    post: Partial<PostRequestBody> | DeepPartial<PostRequestBody>
+  ) => void;
 }
 
-export const usePostEditorStore = create<PostEditorStore>((set) => ({
+export const usePostEditorStore = create<PostEditorStore>()((set) => ({
   step: 'description',
   setStep: (step) => set({ step }),
-  post: {} as DeepPartial<PostRequestBody>,
+  post: {} as Partial<PostRequestBody> | DeepPartial<PostRequestBody>,
   setPost: (post) =>
     set((state) => ({
       post: {

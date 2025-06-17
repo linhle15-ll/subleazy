@@ -53,6 +53,7 @@ body {
   .form-heading-number-orange {
     @apply items-center justify-center border-primaryOrange text-2xl font-bold text-primaryOrange;
   }
+
   .form-h1 {
     @apply text-2xl font-medium;
   }

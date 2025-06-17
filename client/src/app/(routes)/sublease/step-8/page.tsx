@@ -1,10 +1,12 @@
 'use client';
+
 import { User, Users, UserPlus } from 'lucide-react';
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
-import ProgressBar from '@/components/ui/progress-bar/progress-bar';
-import { SelectionBox } from '@/components/ui/selection-box/selection-box';
-import { useFormStore } from '@/components/store/formStore';
+import { ProgressBar } from '@/components/ui/post-form/progress-bar';
+import { SelectionBox } from '@/components/ui/post-form/selection-box';
 import { WhoElse } from '@/lib/types/enums';
+import { usePostCreateStore } from '@/stores/post-create.store';
+import { usePostSetters } from '@/hooks/use-post-setters';
 
 const options = [
   { label: 'Me', value: WhoElse.ME, icon: User },
@@ -14,15 +16,9 @@ const options = [
 ];
 
 export default function SubleaseStep8() {
-  const { whoElse, setField } = useFormStore();
-
-  const handleSelection = (value: WhoElse) => {
-    const currentSelection = whoElse || [];
-    const newSelection = currentSelection.includes(value)
-      ? currentSelection.filter((item) => item !== value)
-      : [...currentSelection, value];
-    setField('whoElse', newSelection);
-  };
+  const post = usePostCreateStore((state) => state.post);
+  const setPost = usePostCreateStore((state) => state.setPost);
+  const { setWhoElse } = usePostSetters(setPost);
 
   return (
     <div className="form-border flex flex-col gap-6 relative mb-15">
@@ -43,12 +39,12 @@ export default function SubleaseStep8() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           {options.map((opt) => {
             const Icon = opt.icon;
-            const active = whoElse?.includes(opt.value) || false;
+            const active = post.whoElse?.includes(opt.value) || false;
             return (
               <SelectionBox
                 key={opt.value}
                 active={active}
-                onClick={() => handleSelection(opt.value)}
+                onClick={() => setWhoElse(opt.value)}
               >
                 <Icon
                   className={`w-8 h-8 ${active ? 'text-primaryOrange' : 'text-gray-500'}`}

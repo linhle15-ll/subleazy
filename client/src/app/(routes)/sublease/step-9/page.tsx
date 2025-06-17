@@ -1,4 +1,5 @@
 'use client';
+
 import {
   Wifi,
   Utensils,
@@ -8,34 +9,24 @@ import {
   LucideIcon,
 } from 'lucide-react';
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
-import ProgressBar from '@/components/ui/progress-bar/progress-bar';
-import { SelectionBox } from '@/components/ui/selection-box/selection-box';
-import { useFormStore } from '@/components/store/formStore';
+import { ProgressBar } from '@/components/ui/post-form/progress-bar';
+import { SelectionBox } from '@/components/ui/post-form/selection-box';
+import { Amenities } from '@/lib/types/post.types';
+import { usePostCreateStore } from '@/stores/post-create.store';
+import { usePostSetters } from '@/hooks/use-post-setters';
 
-type AmenityKey =
-  | 'wifi'
-  | 'kitchen'
-  | 'laundry'
-  | 'parking'
-  | 'airConditioning';
-
-const amenities: { label: string; value: AmenityKey; icon: LucideIcon }[] = [
-  { label: 'Wifi', value: 'wifi', icon: Wifi },
-  { label: 'Kitchen', value: 'kitchen', icon: Utensils },
-  { label: 'Laundry', value: 'laundry', icon: WashingMachine },
-  { label: 'Parking', value: 'parking', icon: ParkingCircle },
-  { label: 'Air conditioning', value: 'airConditioning', icon: Snowflake },
+const options: { label: string; key: keyof Amenities; icon: LucideIcon }[] = [
+  { label: 'Wifi', key: 'wifi', icon: Wifi },
+  { label: 'Kitchen', key: 'kitchen', icon: Utensils },
+  { label: 'Laundry', key: 'laundry', icon: WashingMachine },
+  { label: 'Parking', key: 'parking', icon: ParkingCircle },
+  { label: 'Air conditioning', key: 'airConditioning', icon: Snowflake },
 ];
 
 export default function SubleaseStep9() {
-  const { amenities: selectedAmenities, setField } = useFormStore();
-
-  const toggle = (value: AmenityKey) => {
-    setField('amenities', {
-      ...selectedAmenities,
-      [value]: !selectedAmenities?.[value],
-    });
-  };
+  const post = usePostCreateStore((state) => state.post);
+  const setPost = usePostCreateStore((state) => state.setPost);
+  const { setAmenities } = usePostSetters(setPost);
 
   return (
     <div className="form-border flex flex-col gap-6 relative mb-15">
@@ -55,22 +46,19 @@ export default function SubleaseStep9() {
         <div className="mb-9">
           <div className="form-h2">Available amenities</div>
           <div className="flex flex-wrap gap-4">
-            {amenities.map((item) => {
-              const Icon = item.icon;
-              const active = selectedAmenities?.[item.value] || false;
+            {options.map((opt) => {
+              const Icon = opt.icon;
+              const active = post.amenities?.[opt.key] || false;
               return (
                 <SelectionBox
-                  key={item.value}
+                  key={opt.key}
                   active={active}
-                  onClick={() => {
-                    toggle(item.value);
-                    console.log('selected amenities: ', selectedAmenities);
-                  }}
+                  onClick={() => setAmenities(opt.key)}
                 >
                   <Icon
                     className={`w-8 h-8 ${active ? 'text-primaryOrange' : 'text-gray-500'}`}
                   />
-                  {item.label}
+                  {opt.label}
                 </SelectionBox>
               );
             })}
