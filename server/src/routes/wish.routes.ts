@@ -9,5 +9,6 @@ const router = Router();
 
 // router.post('/create', authMiddleware, wishController.createWish);
 router.post('/create', wishController.createWish);
+router.get('/getByUserId/:id', wishController.getWishListByUserId);
 
 export default router;

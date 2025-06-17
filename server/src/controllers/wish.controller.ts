@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from 'express';
 import wishService from '../services/wish.service';
 import { Wish } from '../types/wish.types';
 import Post from '../models/post.model';
+import mongoose from 'mongoose';
+
 // import { getAuthRequest } from '../utils/commonUtils';
 
 const wishController = {
@@ -29,6 +31,31 @@ const wishController = {
 
       const wish = await wishService.createWish(data);
       res.status(201).json(wish);
+    } catch (error) {
+      next(error);
+    }
+  },
+  getWishListByUserId: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = req.params.id;
+
+      if (!userId || !mongoose.isValidObjectId(userId)) {
+        res.status(400).json({ error: 'Invalid user ID' });
+        return;
+      }
+
+      const wishList = await wishService.getWishListByUserId(userId);
+
+      if (!wishList || (Array.isArray(wishList) && wishList.length === 0)) {
+        res.status(200).json([]);
+        return;
+      }
+
+      res.status(200).json(wishList);
     } catch (error) {
       next(error);
     }

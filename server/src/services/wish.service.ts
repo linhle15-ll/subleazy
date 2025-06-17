@@ -7,6 +7,14 @@ const wishService = {
 
     return wish;
   },
+
+  getWishListByUserId: async (userId: string) => {
+    const wishes = await wishModel
+      .find({ user: userId })
+      .populate('post')
+      .populate('user');
+    return wishes;
+  },
 };
 
 export default wishService;
