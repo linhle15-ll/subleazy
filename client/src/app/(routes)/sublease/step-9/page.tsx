@@ -13,6 +13,7 @@ import { ProgressBar } from '@/components/ui/post-form/progress-bar';
 import { SelectionBox } from '@/components/ui/post-form/selection-box';
 import { Amenities } from '@/lib/types/post.types';
 import { usePostCreateStore } from '@/stores/post-create.store';
+import { usePostSetters } from '@/hooks/use-post-setters';
 
 const options: { label: string; key: keyof Amenities; icon: LucideIcon }[] = [
   { label: 'Wifi', key: 'wifi', icon: Wifi },
@@ -25,16 +26,7 @@ const options: { label: string; key: keyof Amenities; icon: LucideIcon }[] = [
 export default function SubleaseStep9() {
   const post = usePostCreateStore((state) => state.post);
   const setPost = usePostCreateStore((state) => state.setPost);
-
-  const handleSelect = (key: keyof Amenities) => {
-    setPost({
-      ...post,
-      amenities: {
-        ...post.amenities,
-        [key]: !post.amenities?.[key],
-      },
-    });
-  };
+  const { setAmenities } = usePostSetters(setPost);
 
   return (
     <div className="form-border flex flex-col gap-6 relative mb-15">
@@ -61,7 +53,7 @@ export default function SubleaseStep9() {
                 <SelectionBox
                   key={opt.key}
                   active={active}
-                  onClick={() => handleSelect(opt.key)}
+                  onClick={() => setAmenities(opt.key)}
                 >
                   <Icon
                     className={`w-8 h-8 ${active ? 'text-primaryOrange' : 'text-gray-500'}`}

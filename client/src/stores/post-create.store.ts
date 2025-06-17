@@ -5,11 +5,19 @@ import { create } from 'zustand';
 interface PostCreateStore {
   post: Partial<PostRequestBody> | DeepPartial<PostRequestBody>;
   setPost: (
-    post: Partial<PostRequestBody> | DeepPartial<PostRequestBody>
+    update:
+      | Partial<PostRequestBody>
+      | DeepPartial<PostRequestBody>
+      | ((
+          prev: Partial<PostRequestBody> | DeepPartial<PostRequestBody>
+        ) => Partial<PostRequestBody> | DeepPartial<PostRequestBody>)
   ) => void;
 }
 
-export const usePostCreateStore = create<PostCreateStore>((set) => ({
+export const usePostCreateStore = create<PostCreateStore>()((set) => ({
   post: {},
-  setPost: (post) => set({ post }),
+  setPost: (update) =>
+    set((prev) => ({
+      post: typeof update === 'function' ? update(prev.post) : update,
+    })),
 }));

@@ -5,11 +5,19 @@ import { DeepPartial } from '@/lib/types/common.types';
 interface FilterStore {
   filters: DeepPartial<PostRequestBody> | Partial<PostRequestBody>;
   setFilters: (
-    filters: DeepPartial<PostRequestBody> | Partial<PostRequestBody>
+    update:
+      | DeepPartial<PostRequestBody>
+      | Partial<PostRequestBody>
+      | ((
+          prev: DeepPartial<PostRequestBody> | Partial<PostRequestBody>
+        ) => DeepPartial<PostRequestBody> | Partial<PostRequestBody>)
   ) => void;
 }
 
-export const useFilterStore = create<FilterStore>((set) => ({
+export const useFilterStore = create<FilterStore>()((set) => ({
   filters: {},
-  setFilters: (filters) => set({ filters }),
+  setFilters: (update) =>
+    set((prev) => ({
+      filters: typeof update === 'function' ? update(prev.filters) : update,
+    })),
 }));

@@ -6,6 +6,7 @@ import { ProgressBar } from '@/components/ui/post-form/progress-bar';
 import { SelectionBox } from '@/components/ui/post-form/selection-box';
 import { WhoElse } from '@/lib/types/enums';
 import { usePostCreateStore } from '@/stores/post-create.store';
+import { usePostSetters } from '@/hooks/use-post-setters';
 
 const options = [
   { label: 'Me', value: WhoElse.ME, icon: User },
@@ -17,18 +18,7 @@ const options = [
 export default function SubleaseStep8() {
   const post = usePostCreateStore((state) => state.post);
   const setPost = usePostCreateStore((state) => state.setPost);
-
-  const handleSelect = (value: WhoElse) => {
-    const curValues = post.whoElse || [];
-    const newValues = curValues.includes(value)
-      ? curValues.filter((item) => item !== value)
-      : [...curValues, value];
-
-    setPost({
-      ...post,
-      whoElse: newValues,
-    });
-  };
+  const { setWhoElse } = usePostSetters(setPost);
 
   return (
     <div className="form-border flex flex-col gap-6 relative mb-15">
@@ -54,7 +44,7 @@ export default function SubleaseStep8() {
               <SelectionBox
                 key={opt.value}
                 active={active}
-                onClick={() => handleSelect(opt.value)}
+                onClick={() => setWhoElse(opt.value)}
               >
                 <Icon
                   className={`w-8 h-8 ${active ? 'text-primaryOrange' : 'text-gray-500'}`}

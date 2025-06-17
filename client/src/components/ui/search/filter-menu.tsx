@@ -35,15 +35,10 @@ import {
   Wifi,
 } from 'lucide-react';
 import React from 'react';
-import {
-  Amenities,
-  BathroomInfo,
-  Convenience,
-  HouseInfo,
-  Rules,
-} from '@/lib/types/post.types';
+import { BathroomInfo, HouseInfo, Rules } from '@/lib/types/post.types';
 import { DatePickerButton } from '../date/date-picker';
 import { useFilterDate } from '@/hooks/use-filter-date';
+import { usePostSetters } from '@/hooks/use-post-setters';
 
 const FilterButton = ({
   text,
@@ -101,16 +96,16 @@ const InputField = ({
 export function FilterMenu({ isLandingPage }: { isLandingPage: boolean }) {
   const filters = useFilterStore((state) => state.filters);
   const setFilters = useFilterStore((state) => state.setFilters);
-
+  const {
+    setPrice,
+    setHouseInfo,
+    setBedroomInfo,
+    setBathroomInfo,
+    setAmenities,
+    setConvenience,
+  } = usePostSetters(setFilters);
   const { date: startDate, setDate: setStartDate } = useFilterDate('startDate');
   const { date: endDate, setDate: setEndDate } = useFilterDate('endDate');
-
-  const handlePriceChange = (key: 'minPrice' | 'maxPrice', value: number) => {
-    setFilters({
-      ...filters,
-      [key]: value,
-    });
-  };
 
   const selectPrice = (key: 'minPrice' | 'maxPrice', value: number) => {
     const curPrice = Math.round(value);
@@ -140,64 +135,24 @@ export function FilterMenu({ isLandingPage }: { isLandingPage: boolean }) {
       });
       return;
     }
-    setFilters({
-      ...filters,
-      [key]: curPrice,
-    });
+    setPrice(key, curPrice);
   };
 
   const selectHouseInfo = (
     key: keyof HouseInfo,
     value: HouseType | PlaceType
   ) => {
-    setFilters({
-      ...filters,
-      houseInfo: {
-        ...filters.houseInfo,
-        [key]: value == filters.houseInfo?.[key] ? undefined : value,
-      },
-    });
+    const setVal = value == filters.houseInfo?.[key] ? undefined : value;
+    setHouseInfo(key, setVal);
   };
 
   const selectBedroomInfo = (key: 'maxGuests' | 'bedrooms', value: number) => {
     if (value < 0 || value > 50) return;
-    setFilters({
-      ...filters,
-      bedroomInfo: {
-        ...filters.bedroomInfo,
-        [key]: Math.round(value),
-      },
-    });
+    setBedroomInfo(key, Math.round(value));
   };
 
   const selectBathroomInfo = (key: keyof BathroomInfo) => {
-    setFilters({
-      ...filters,
-      bathroomInfo: {
-        ...filters.bathroomInfo,
-        [key]: filters.bathroomInfo?.[key] ? 0 : 1,
-      },
-    });
-  };
-
-  const selectAmenities = (key: keyof Amenities) => {
-    setFilters({
-      ...filters,
-      amenities: {
-        ...filters.amenities,
-        [key]: !filters.amenities?.[key],
-      },
-    });
-  };
-
-  const selectConvenience = (key: keyof Convenience) => {
-    setFilters({
-      ...filters,
-      convenience: {
-        ...filters.convenience,
-        [key]: !filters.convenience?.[key],
-      },
-    });
+    setBathroomInfo(key, filters.bathroomInfo?.[key] ? 0 : 1);
   };
 
   const selectRules = (key: keyof Rules, value: boolean) => {
@@ -243,18 +198,14 @@ export function FilterMenu({ isLandingPage }: { isLandingPage: boolean }) {
                 name="Minimum"
                 value={filters.minPrice?.toString() || ''}
                 placeholder="$0"
-                onChange={(e) =>
-                  handlePriceChange('minPrice', e.target.valueAsNumber)
-                }
+                onChange={(e) => setPrice('minPrice', e.target.valueAsNumber)}
                 onBlur={() => selectPrice('minPrice', filters.minPrice!)}
               />
               <InputField
                 name="Maximum"
                 value={filters.maxPrice?.toString() || ''}
                 placeholder="$4500+"
-                onChange={(e) =>
-                  handlePriceChange('maxPrice', e.target.valueAsNumber)
-                }
+                onChange={(e) => setPrice('maxPrice', e.target.valueAsNumber)}
                 onBlur={() => selectPrice('maxPrice', filters.maxPrice!)}
               />
             </div>
@@ -366,49 +317,49 @@ export function FilterMenu({ isLandingPage }: { isLandingPage: boolean }) {
                 text="Wifi"
                 icon={Wifi}
                 selected={filters.amenities?.wifi === true}
-                onClick={() => selectAmenities('wifi')}
+                onClick={() => setAmenities('wifi')}
               />
               <FilterButton
                 text="Kitchen"
                 icon={CookingPot}
                 selected={filters.amenities?.kitchen === true}
-                onClick={() => selectAmenities('kitchen')}
+                onClick={() => setAmenities('kitchen')}
               />
               <FilterButton
                 text="Laundry"
                 icon={WashingMachine}
                 selected={filters.amenities?.laundry === true}
-                onClick={() => selectAmenities('laundry')}
+                onClick={() => setAmenities('laundry')}
               />
               <FilterButton
                 text="Parking"
                 icon={CircleParking}
                 selected={filters.amenities?.parking === true}
-                onClick={() => selectAmenities('parking')}
+                onClick={() => setAmenities('parking')}
               />
               <FilterButton
                 text="Air conditioner"
                 icon={ThermometerSnowflake}
                 selected={filters.amenities?.airConditioning === true}
-                onClick={() => selectAmenities('airConditioning')}
+                onClick={() => setAmenities('airConditioning')}
               />
               <FilterButton
                 text="Near public transportation"
                 icon={TramFront}
                 selected={filters.convenience?.publicTransport === true}
-                onClick={() => selectConvenience('publicTransport')}
+                onClick={() => setConvenience('publicTransport')}
               />
               <FilterButton
                 text="Near supermarket"
                 icon={Store}
                 selected={filters.convenience?.supermarket === true}
-                onClick={() => selectConvenience('supermarket')}
+                onClick={() => setConvenience('supermarket')}
               />
               <FilterButton
                 text="Disability friendly"
                 icon={Accessibility}
                 selected={filters.convenience?.disabilityFriendly === true}
-                onClick={() => selectConvenience('disabilityFriendly')}
+                onClick={() => setConvenience('disabilityFriendly')}
               />
             </div>
           </div>
