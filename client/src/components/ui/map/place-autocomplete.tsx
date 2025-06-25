@@ -50,16 +50,16 @@ export function PlaceAutocomplete({
         value={inputValue}
         onChange={handleChange}
         onKeyDown={(e) => {
-          if (!suggestions.length) return;
+          if (!suggestions?.length) return;
 
           if (e.key === 'ArrowDown') {
             e.preventDefault();
-            setActiveIndex((prevIndex) => (prevIndex + 1) % suggestions.length);
+            setActiveIndex((prevIndex) => (prevIndex + 1) % suggestions?.length);
           } else if (e.key === 'ArrowUp') {
             e.preventDefault();
             setActiveIndex(
               (prevIndex) =>
-                (prevIndex - 1 + suggestions.length) % suggestions.length
+                (prevIndex - 1 + suggestions?.length) % suggestions?.length
             );
           } else if (e.key === 'Enter') {
             e.preventDefault();
@@ -71,7 +71,7 @@ export function PlaceAutocomplete({
         className={className}
         placeholder="Search for a place"
       />
-      {suggestions.length > 0 && showSuggestions && (
+      {suggestions?.length > 0 && showSuggestions && (
         <ul className="absolute w-full border rounded-md bg-white shadow-md z-50">
           {suggestions.map((suggestion, index) => (
             <li

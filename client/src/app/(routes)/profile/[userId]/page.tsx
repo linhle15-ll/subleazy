@@ -30,7 +30,7 @@ export default function ProfilePage() {
   const user = result.data!;
 
   return (
-    <div className="max-w-full mx-auto px-20 py-15">
+    <div className="max-w-full mx-auto px-25 py-15">
       <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
         {/* Avatar */}
         <div className="flex-shrink-0">

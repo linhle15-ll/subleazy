@@ -13,7 +13,7 @@ export const useSearch = () => {
   const query = searchParams.get('q');
 
   useEffect(() => {
-    if (query && Object.values(filters).length === 0)
+    if (query && Object.values(filters)?.length === 0)
       setFilters(decodeQuery(query));
   }, []);
 
@@ -21,7 +21,7 @@ export const useSearch = () => {
   const { data, isFetching } = useQuery({
     queryKey: ['search', query],
     queryFn: () => postService.searchPosts(filters as Partial<PostRequestBody>),
-    enabled: Object.values(filters).length > 0,
+    enabled: Object.values(filters)?.length > 0,
   });
 
   return { result: data, isFetching };

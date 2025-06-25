@@ -1,5 +1,5 @@
 export function checkPasswordStrength(password: string) {
-  const isLongEnough = password.length >= 8;
+  const isLongEnough = password?.length >= 8;
   const hasLowerCase = /[a-z]/.test(password);
   const hasUpperCase = /[a-z]/.test(password);
   const hasNumber = /[0-9]/.test(password);

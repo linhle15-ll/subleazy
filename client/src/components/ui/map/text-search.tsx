@@ -26,7 +26,7 @@ export function TextSearch({
   };
 
   useEffect(() => {
-    if (!places || places.length === 0) return;
+    if (!places || places?.length === 0) return;
 
     onPlacesSelect(places);
   }, [places]);
@@ -41,7 +41,7 @@ export function TextSearch({
         if (e.key === 'Enter') {
           e.preventDefault();
 
-          if (queries.length < 5) triggerSearch();
+          if (queries?.length < 5) triggerSearch();
         }
       }}
     />
