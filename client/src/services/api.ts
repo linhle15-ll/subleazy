@@ -1,9 +1,9 @@
 import axios, { AxiosError } from 'axios';
-import { useUserStore } from '@/lib/stores/user.store';
-import { useRouter } from 'next/navigation';
+import { useUserStore } from '@/stores/user.store';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
+  withCredentials: true,
 });
 
 api.interceptors.request.use(
@@ -34,7 +34,6 @@ type FailedQueueItem = {
 
 let failedQueue: FailedQueueItem[] = [];
 let isRefreshing = false;
-const router = useRouter();
 
 const processQueue = (
   error: AxiosError | null,
@@ -55,6 +54,7 @@ api.interceptors.response.use(
 
   async (error) => {
     const originalRequest = error.config;
+
     if (
       error.response &&
       error.response.status === 401 &&
@@ -73,7 +73,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const res = await api.post('/auth/refresh');
+        const res = await api.post('/auth/refresh', {});
         const newAccessToken = res.data.accessToken;
 
         useUserStore.getState().setAccessToken(newAccessToken);
@@ -82,7 +82,7 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
         return api(originalRequest);
-      } catch (err: unknown) {
+      } catch (err) {
         const axiosError = err as AxiosError;
         processQueue(axiosError, null);
 
@@ -90,7 +90,9 @@ api.interceptors.response.use(
         useUserStore.getState().setAccessToken('');
         await api.post('/auth/signout');
 
-        router.push('/sign-in');
+        if (typeof window !== 'undefined') {
+          window.location.href = '/sign-in';
+        }
 
         return Promise.reject(axiosError);
       } finally {
