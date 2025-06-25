@@ -2,10 +2,11 @@
 
 import { Home, Building } from 'lucide-react';
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
-import ProgressBar from '@/components/ui/progress-bar/progress-bar';
-import { SelectionBox } from '@/components/ui/selection-box/selection-box';
-import { useFormStore } from '@/components/store/formStore';
+import { ProgressBar } from '@/components/ui/post-form/progress-bar';
+import { SelectionBox } from '@/components/ui/post-form/selection-box';
 import { HouseType, PlaceType } from '@/lib/types/enums';
+import { usePostCreateStore } from '@/stores/post-create.store';
+import { usePostSetters } from '@/hooks/use-post-setters';
 
 const placeOptions = [
   { label: 'House', value: HouseType.HOUSE, icon: Home },
@@ -19,21 +20,10 @@ const typeOptions = [
 ];
 
 export default function SubleaseStep3() {
-  const { houseInfo, setField } = useFormStore();
-  
-  const handlePlaceSelect = (value: HouseType) => {
-    setField('houseInfo', {
-      ...houseInfo,
-      houseType: value,
-    });
-  };
-
-  const handleTypeSelect = (value: PlaceType) => {
-    setField('houseInfo', {
-      ...houseInfo,
-      placeType: value,
-    });
-  };
+  const post = usePostCreateStore((state) => state.post);
+  const setPost = usePostCreateStore((state) => state.setPost);
+  const { setHouseInfo } = usePostSetters(setPost);
+  const { houseType, placeType } = post.houseInfo ?? {};
 
   return (
     <div className="form-border flex flex-col gap-6 relative mb-15">
@@ -54,12 +44,12 @@ export default function SubleaseStep3() {
         <div className="flex flex-wrap gap-6">
           {placeOptions.map((opt) => {
             const Icon = opt.icon;
-            const active = houseInfo.houseType === opt.value;
+            const active = houseType === opt.value;
             return (
               <SelectionBox
                 key={opt.value}
                 active={active}
-                onClick={() => handlePlaceSelect(opt.value)}
+                onClick={() => setHouseInfo('houseType', opt.value)}
               >
                 <Icon
                   className={`w-9 h-9 ${active ? 'text-primaryOrange' : 'text-gray-500'}`}
@@ -78,12 +68,12 @@ export default function SubleaseStep3() {
         </div>
         <div className="flex flex-wrap gap-6">
           {typeOptions.map((opt) => {
-            const active = houseInfo.placeType === opt.value;
+            const active = placeType === opt.value;
             return (
               <SelectionBox
                 key={opt.value}
                 active={active}
-                onClick={() => handleTypeSelect(opt.value)}
+                onClick={() => setHouseInfo('placeType', opt.value)}
               >
                 {opt.label}
               </SelectionBox>

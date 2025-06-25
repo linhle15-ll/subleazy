@@ -1,19 +1,17 @@
 import { NextFunction, Request, Response } from 'express';
 import userService from '../services/user.service';
-import { User } from '../types/user.types';
 import mongoose from 'mongoose';
 
 const userController = {
-  getUserById: async (req: Request, res: Response, next: NextFunction) => {
+  getUser: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = req.params.id;
+      const userId = req.params.userId;
       if (!userId || !mongoose.isValidObjectId(userId)) {
         res.status(400).json({ error: 'Invalid user ID' });
         return;
       }
 
-      const user: User | null = await userService.getUserById(userId);
-
+      const user = await userService.getUserById(userId);
       if (!user) {
         res.status(404).json({ error: 'User not found' });
         return;

@@ -1,16 +1,17 @@
 import { Router } from 'express';
 import postController from '../controllers/post.controller';
-// import { authenticate } from "../middleware/authMiddleware";
+import { authenticate } from '../middleware/auth.middleware';
 
 const router = Router();
 
-// TODO: Use auth middleware after jwt token is implemented
-// router.use(authenticate);
+router.get('/', postController.getAllPosts);
+
+router.use(authenticate);
 
 router.post('/create', postController.createPost);
+router.get('/:postId', postController.getPost);
+router.put('/edit/:postId', postController.editPost);
 router.post('/search', postController.searchPosts);
-router.get('/getByUserId/:id', postController.getPostsByUserId);
-router.get('/', postController.getAllPosts);
-router.get('/:id', postController.getPostById);
+router.get('/getByUserId/:userId', postController.getPostsByUserId);
 
 export default router;

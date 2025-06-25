@@ -1,7 +1,8 @@
 'use client';
 
 import { useAddressSuggestions } from '@/hooks/use-address-suggestions';
-import { cn } from '@/lib/cn-utils';
+import { useDebounce } from '@/hooks/use-debounce';
+import { cn } from '@/lib/utils/cn';
 import { useMapsLibrary } from '@vis.gl/react-google-maps';
 import { useEffect, useState } from 'react';
 
@@ -14,7 +15,8 @@ export function PlaceAutocomplete({
 }) {
   const placesLib = useMapsLibrary('places');
   const [inputValue, setInputValue] = useState('');
-  const { suggestions, resetSession } = useAddressSuggestions(inputValue);
+  const debouncedInput = useDebounce(inputValue, 300);
+  const { suggestions, resetSession } = useAddressSuggestions(debouncedInput);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
 

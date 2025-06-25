@@ -1,14 +1,14 @@
 'use client';
+
 import React, { useState } from 'react';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
-import { AxiosError } from 'axios';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   checkPasswordStrength,
   validateConfirmPassword,
 } from '@/lib/utils/auth-validator';
-import { useUserStore } from '@/lib/stores/user.store';
-import api from '@/services/api';
+import { useUserStore } from '@/stores/user.store';
+import authService from '@/services/auth.service';
 
 export default function AuthForm() {
   const pathname = usePathname();
@@ -63,27 +63,20 @@ export default function AuthForm() {
       return;
     }
 
-    try {
-      const url = isSignUp ? 'auth/signup' : 'auth/signin';
-      const res = await api.post(url, authForm);
+    if (isSignUp) {
+      const res = await authService.signup(authForm);
+      if (res.success) router.push('/sign-in');
+      else setError(res.error || 'An error occurred. Please try again.');
+    } else {
+      const res = await authService.signin(authForm);
+      if (res.success) {
+        setAccessToken(res.data!.accessToken);
+        setUser(res.data!.user);
 
-      const data = res.data;
-      if (!isSignUp) {
-        setAccessToken(data.accessToken);
-        setUser(data.user);
-
-        router.push('/home');
+        router.push('/');
       } else {
-        router.push('/sign-in');
+        setError(res.error || 'An error occurred. Please try again.');
       }
-    } catch (error: unknown) {
-      const axiosError = error as AxiosError<{ error: string }>;
-
-      const message =
-        axiosError.response?.data?.error ||
-        'An error occurred. Please try again.';
-
-      setError(message);
     }
   };
 

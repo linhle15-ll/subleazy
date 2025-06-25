@@ -34,7 +34,7 @@ export default function Header() {
                 </li>
 
                 <li>
-                  <a className="navbar-text" href="/home">
+                  <a className="navbar-text" href="/">
                     Home
                   </a>
                 </li>

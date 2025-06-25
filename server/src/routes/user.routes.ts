@@ -1,8 +1,10 @@
 import { Router } from 'express';
 import userController from '../controllers/user.controller';
-// authentication middleware
+import { authenticate } from '../middleware/auth.middleware';
 
 const router = Router();
 
-router.get('/:id', userController.getUserById);
+router.use(authenticate);
+
+router.get('/:userId', userController.getUser);
 export default router;
