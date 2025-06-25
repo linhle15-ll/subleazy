@@ -331,7 +331,7 @@ export default function PostingPage() {
                 );
               })}
             </div>
-            {transformedPost.amenities.length > 8 && (
+            {transformedPost?.amenities?.length > 8 && (
               <button
                 onClick={() => setShowAllAmenities(!showAllAmenities)}
                 className="mt-4 text-primaryOrange hover:text-orange-600 font-medium"

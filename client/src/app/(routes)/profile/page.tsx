@@ -43,7 +43,7 @@ export default function ProfilePage() {
   if (error || !user) return <div className="text-red-500">User not found</div>;
 
   return (
-    <div className="max-w-full mx-auto px-20 py-15">
+    <div className="max-w-full mx-auto px-25 py-15">
       <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
         {/* Avatar */}
         <div className="flex-shrink-0">

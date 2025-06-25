@@ -17,13 +17,13 @@ export default function SearchPage() {
   const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
-    if (!result || !result.data || result.data.length === 0) return;
+    if (!result || !result.data || result?.data?.length === 0) return;
 
     const postsData = result.data;
     const avgLat =
-      postsData.reduce((acc, post) => acc + post.lat, 0) / postsData.length;
+      postsData.reduce((acc, post) => acc + post.lat, 0) / postsData?.length;
     const avgLng =
-      postsData.reduce((acc, post) => acc + post.long, 0) / postsData.length;
+      postsData.reduce((acc, post) => acc + post.long, 0) / postsData?.length;
 
     setCenter({ lat: avgLat, lng: avgLng });
     setPosts(postsData);
@@ -37,7 +37,7 @@ export default function SearchPage() {
         posts={posts}
         className="h-[500px] w-[70vw] m-auto p-4"
       />
-      {posts.length == 0 ? (
+      {posts?.length == 0 ? (
         <div className="flex items-center justify-center h-[500px] text-xl">
           No posts found
         </div>
