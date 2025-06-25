@@ -16,24 +16,26 @@ export type StepKeys =
   | 'price'
   | 'rules';
 
-interface PostEditorStore {
+interface PostEditStore {
   step: StepKeys;
   setStep: (key: StepKeys) => void;
   post: Partial<PostRequestBody> | DeepPartial<PostRequestBody>;
   setPost: (
-    post: Partial<PostRequestBody> | DeepPartial<PostRequestBody>
+    update:
+      | Partial<PostRequestBody>
+      | DeepPartial<PostRequestBody>
+      | ((
+          prev: Partial<PostRequestBody> | DeepPartial<PostRequestBody>
+        ) => Partial<PostRequestBody> | DeepPartial<PostRequestBody>)
   ) => void;
 }
 
-export const usePostEditorStore = create<PostEditorStore>()((set) => ({
+export const usePostEditStore = create<PostEditStore>()((set) => ({
   step: 'description',
   setStep: (step) => set({ step }),
-  post: {} as Partial<PostRequestBody> | DeepPartial<PostRequestBody>,
-  setPost: (post) =>
-    set((state) => ({
-      post: {
-        ...state.post,
-        ...post,
-      },
+  post: {},
+  setPost: (update) =>
+    set((prev) => ({
+      post: typeof update === 'function' ? update(prev.post) : update,
     })),
 }));

@@ -1,8 +1,8 @@
 'use client';
 
-import { SelectionBox } from '@/components/ui/selection-box/selection-box';
-import { usePostEditorStore } from '@/lib/stores/post.editor.store';
-import { Rules } from '@/lib/types/post.types';
+import { SelectionBox } from '@/components/ui/post-form/selection-box';
+import { usePostEditStore } from '@/stores/post-edit.store';
+import { usePostSetters } from '@/hooks/use-post-setters';
 
 const hours = Array.from({ length: 12 }, (_, i) => i + 1);
 const minutes = ['00', '15', '30', '45'];
@@ -35,29 +35,10 @@ function parseTimeString(timeStr: string | undefined): {
 }
 
 export default function SubleaseFormRules() {
-  const { post, setPost} = usePostEditorStore();
-  const rules = usePostEditorStore((state) => state.post.rules)
-
-  const handleRuleChange = (field: keyof Rules, value: boolean) => {
-    setPost({
-        rules: {
-            ...post.rules,
-            [field]: value,
-        }
-    })
-  };
-
-  const handleQuietHoursChange = (from: string, to: string) => {
-    setPost({
-        rules:{
-            ...post.rules,
-            quietHours: {
-                from,
-                to
-            }
-        }
-    })
-  };
+  const post = usePostEditStore((state) => state.post);
+  const setPost = usePostEditStore((state) => state.setPost);
+  const { setRules, setQuietHours } = usePostSetters(setPost);
+  const rules = post.rules;
 
   return (
     <div className="flex flex-col gap-6 relative mb-15 mr-8">
@@ -73,14 +54,14 @@ export default function SubleaseFormRules() {
         <div className="flex flex-wrap gap-4">
           <SelectionBox
             active={rules?.noGuest || false}
-            onClick={() => handleRuleChange('noGuest', !rules?.noGuest)}
+            onClick={() => setRules('noGuest')}
             className={`text-base ml-10 ${rules?.noGuest ? 'font-medium' : 'font-normal'}`}
           >
             No overnight guests
           </SelectionBox>
           <SelectionBox
             active={rules?.noParty || false}
-            onClick={() => handleRuleChange('noParty', !rules?.noParty)}
+            onClick={() => setRules('noParty')}
             className={`text-base ml-10 ${rules?.noParty ? 'font-medium' : 'font-normal'}`}
           >
             No parties or large gatherings
@@ -91,7 +72,7 @@ export default function SubleaseFormRules() {
       {/* Quiet Hours */}
       <div className="mb-6">
         <div className="font-medium text-lg mb-2">Quiet Hours</div>
-        <div className="flex flex-row items-center justify-center gap-4 w-full h-28 pl-5 pr-5 border-2 rounded-xl text-lg text-center font-medium border-gray-400 ">
+        <div className="flex flex-row items-center justify-center gap-4 w-full h-28 pl-5 pr-5 border-2 rounded-xl text-lg text-center font-medium border-gray-400">
           <span>From</span>
           <select
             aria-label="Quiet hours from hour"
@@ -99,7 +80,7 @@ export default function SubleaseFormRules() {
             onChange={(e) => {
               const hour = Number(e.target.value);
               const { minute, ampm } = parseTimeString(rules?.quietHours?.from);
-              handleQuietHoursChange(
+              setQuietHours(
                 formatTimeString(hour, minute, ampm),
                 rules?.quietHours?.to || '07:00 AM'
               );
@@ -119,7 +100,7 @@ export default function SubleaseFormRules() {
             onChange={(e) => {
               const { hour, ampm } = parseTimeString(rules?.quietHours?.from);
               const minute = e.target.value;
-              handleQuietHoursChange(
+              setQuietHours(
                 formatTimeString(hour, minute, ampm),
                 rules?.quietHours?.to || '07:00 AM'
               );
@@ -137,7 +118,7 @@ export default function SubleaseFormRules() {
             value={parseTimeString(rules?.quietHours?.from).ampm}
             onChange={(e) => {
               const { hour, minute } = parseTimeString(rules?.quietHours?.from);
-              handleQuietHoursChange(
+              setQuietHours(
                 formatTimeString(hour, minute, e.target.value),
                 rules?.quietHours?.to || '07:00 AM'
               );
@@ -157,7 +138,7 @@ export default function SubleaseFormRules() {
             onChange={(e) => {
               const hour = Number(e.target.value);
               const { minute, ampm } = parseTimeString(rules?.quietHours?.to);
-              handleQuietHoursChange(
+              setQuietHours(
                 rules?.quietHours?.from || '10:00 PM',
                 formatTimeString(hour, minute, ampm)
               );
@@ -177,7 +158,7 @@ export default function SubleaseFormRules() {
             onChange={(e) => {
               const { hour, ampm } = parseTimeString(rules?.quietHours?.to);
               const minute = e.target.value;
-              handleQuietHoursChange(
+              setQuietHours(
                 rules?.quietHours?.from || '10:00 PM',
                 formatTimeString(hour, minute, ampm)
               );
@@ -195,7 +176,7 @@ export default function SubleaseFormRules() {
             value={parseTimeString(rules?.quietHours?.to).ampm}
             onChange={(e) => {
               const { hour, minute } = parseTimeString(rules?.quietHours?.to);
-              handleQuietHoursChange(
+              setQuietHours(
                 rules?.quietHours?.from || '10:00 PM',
                 formatTimeString(hour, minute, e.target.value)
               );
@@ -217,28 +198,27 @@ export default function SubleaseFormRules() {
         <div className="flex flex-wrap gap-4">
           <SelectionBox
             active={rules?.noSmoking || false}
-            onClick={() => handleRuleChange('noSmoking', !rules?.noSmoking)}
+            onClick={() => setRules('noSmoking')}
             className={`text-base ml-10 ${rules?.noSmoking ? 'font-medium' : 'font-normal'}`}
           >
             No smoking
           </SelectionBox>
           <SelectionBox
             active={rules?.noDrug || false}
-            onClick={() => handleRuleChange('noDrug', !rules?.noDrug)}
+            onClick={() => setRules('noDrug')}
             className={`text-base ml-10 ${rules?.noDrug ? 'font-medium' : 'font-normal'}`}
           >
             No recreational drugs
           </SelectionBox>
           <SelectionBox
             active={rules?.noPet || false}
-            onClick={() => handleRuleChange('noPet', !rules?.noPet)}
+            onClick={() => setRules('noPet')}
             className={`text-base ml-10 ${rules?.noPet ? 'font-medium' : 'font-normal'}`}
           >
             No pets allowed
           </SelectionBox>
         </div>
       </div>
-
     </div>
   );
 }

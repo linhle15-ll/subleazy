@@ -3,47 +3,46 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { CircleArrowLeft } from 'lucide-react';
-import { usePostEditorStore } from '@/lib/stores/post.editor.store';
 import PostEditorSidebar from '@/components/ui/post-editor/sidebar';
 import PostEditorEditPanel from '@/components/ui/post-editor/edit-panel';
 import Loading from '@/components/ui/commons/loading';
 import postService from '@/services/post.service';
 import { Post } from '@/lib/types/post.types';
+import { usePostEditStore } from '@/stores/post-edit.store';
 
 export default function PostEditorPage() {
-  const { post, setPost } = usePostEditorStore();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const params = useParams();
   const postId = params.postId as string;
   const router = useRouter();
+  const { post, setPost } = usePostEditStore();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    try {
-      const fetchPost = postService.getPostById(postId);
-      fetchPost.then((result) => {
-        setPost(result.data as Post);
-      });
-    } catch {
-      // router.push('/404');
-    } finally {
+    const fetchPost = async () => {
+      setLoading(true);
+      setError(null);
+
+      const res = await postService.getPost(postId);
+
+      if (res.success && res.data) {
+        setPost(res.data as Post);
+      } else {
+        setError(res.error || 'Failed to fetch post');
+      }
+
       setLoading(false);
-    }
+    };
+    fetchPost();
   }, [postId, setPost]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
 
-    try {
-      const editPost = await postService.editPost(postId, post as Post);
-      if (editPost.success) {
-        router.push('/posts/edit/success');
-      }
-    } catch (error) {
-      setError(error as any);
-    } finally {
-      setLoading(false);
+    const res = await postService.editPost(postId, post as Partial<Post>);
+    if (res.success) {
+      setPost({});
+      router.push('/posts/edit/success');
     }
   };
 
@@ -71,13 +70,15 @@ export default function PostEditorPage() {
             <div className="h-[calc(100vh-20rem)] overflow-y-auto">
               <PostEditorEditPanel />
             </div>
-            <div className="flex self-end justify-end mt-6">
+            <div className="flex items-center justify-end mt-6 space-x-12">
               {error && (
                 <p className="text-sm text-red-500 whitespace-pre-wrap">
                   {error}
                 </p>
               )}
-              <button className="btn-primary text-base">Save</button>
+              <button type="submit" className="btn-primary text-base">
+                Save
+              </button>
             </div>
           </div>
         </div>

@@ -1,26 +1,15 @@
 'use client';
 
-import { Calendar } from 'lucide-react';
-import { DatePickerPostEditor } from '@/components/ui/date/date-picker';
+import { DatePickerButton } from '@/components/ui/date/date-picker';
+import { usePostEditStore } from '@/stores/post-edit.store';
+import { usePostSetters } from '@/hooks/use-post-setters';
 
-const SubleaseDateInputField = ({
-  icon: Icon,
-  label,
-  children,
-}: {
-  icon: React.ElementType;
-  label: string;
-  children?: React.ReactNode;
-}) => (
-  <div className="input-field sm:border-r-0">
-    <div className="flex flex-row gap-2">
-      <Icon />
-      <span className="font-medium text-left">{label}</span>
-    </div>
-    {children}
-  </div>
-);
-export default function SubleaseFormTime() {
+export default function SubleaseFormAvailability() {
+  const post = usePostEditStore((state) => state.post);
+  const setPost = usePostEditStore((state) => state.setPost);
+  const { setDate } = usePostSetters(setPost);
+  const availability = post.availability;
+
   return (
     <div className="flex flex-col gap-6 relative mb-15">
       <div className="form-h1">Availability</div>
@@ -29,15 +18,20 @@ export default function SubleaseFormTime() {
         and electricity.
       </div>
       <div className="flex justify-stretch">
-      {/* Check-in */}
-      <SubleaseDateInputField icon={Calendar} label="Start Date">
-        <DatePickerPostEditor field="startDate" />
-      </SubleaseDateInputField>
-
-      {/* Check-out */}
-      <SubleaseDateInputField icon={Calendar} label="End Date">
-        <DatePickerPostEditor field="endDate" />
-      </SubleaseDateInputField>
+        <div className="flex flex-col sm:flex-row justify-between gap-4 w-full mb-4">
+          <DatePickerButton
+            text="Move-in date"
+            date={availability?.startDate as Date}
+            setDate={(date) => setDate('startDate', date)}
+            className="flex-grow h-28 border-2 rounded-xl text-lg text-center font-medium border-gray-400"
+          />
+          <DatePickerButton
+            text="Move-out date"
+            date={availability?.endDate as Date}
+            setDate={(date) => setDate('endDate', date)}
+            className="flex-grow h-28 border-2 rounded-xl text-lg text-center font-medium border-gray-400"
+          />
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import { StepKeys } from '@/lib/stores/post.editor.store';
+import { StepKeys } from '@/stores/post-edit.store';
 
 export type CardProps = {
   key: StepKeys;

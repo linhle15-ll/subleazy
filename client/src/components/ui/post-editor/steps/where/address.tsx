@@ -1,9 +1,9 @@
 'use client';
 
-import { usePostEditorStore } from '@/lib/stores/post.editor.store';
+import { usePostEditStore } from '@/stores/post-edit.store';
 
 export default function SubleaseFormAddress() {
-  const { post } = usePostEditorStore();
+  const { post } = usePostEditStore();
   const { city, address, suites, state, zip } = post;
 
   return (

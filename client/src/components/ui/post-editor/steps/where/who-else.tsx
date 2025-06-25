@@ -1,9 +1,10 @@
 'use client';
 
 import { User, Users, UserPlus } from 'lucide-react';
-import { SelectionBox } from '@/components/ui/selection-box/selection-box';
+import { SelectionBox } from '@/components/ui/post-form/selection-box';
 import { WhoElse } from '@/lib/types/enums';
-import { usePostEditorStore } from '@/lib/stores/post.editor.store';
+import { usePostEditStore } from '@/stores/post-edit.store';
+import { usePostSetters } from '@/hooks/use-post-setters';
 
 const options = [
   { label: 'Me', value: WhoElse.ME, icon: User },
@@ -13,18 +14,9 @@ const options = [
 ];
 
 export default function SubleaseFormWhoElse() {
-  const { setPost } = usePostEditorStore();
-  const whoElse = usePostEditorStore((state) => state.post.whoElse);
-
-  const handleSelection = (value: WhoElse) => {
-    const currentSelection = whoElse || [];
-    const newSelection = currentSelection.includes(value)
-      ? currentSelection.filter((item) => item !== value)
-      : [...currentSelection, value];
-    setPost({
-      whoElse: newSelection,
-    });
-  };
+  const post = usePostEditStore((state) => state.post);
+  const setPost = usePostEditStore((state) => state.setPost);
+  const { setWhoElse } = usePostSetters(setPost);
 
   return (
     <div className="flex flex-col gap-6 relative mb-15 mr-8">
@@ -37,12 +29,12 @@ export default function SubleaseFormWhoElse() {
       <div className="flex flex-wrap gap-6">
         {options.map((opt) => {
           const Icon = opt.icon;
-          const active = whoElse?.includes(opt.value) || false;
+          const active = post.whoElse?.includes(opt.value) || false;
           return (
             <SelectionBox
               key={opt.value}
               active={active}
-              onClick={() => handleSelection(opt.value)}
+              onClick={() => setWhoElse(opt.value)}
               className={`text-base ml-10 ${active ? 'font-medium' : 'font-normal'}`}
             >
               <Icon

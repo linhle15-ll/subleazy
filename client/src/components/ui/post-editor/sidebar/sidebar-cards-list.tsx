@@ -1,6 +1,6 @@
 'use client';
 
-import { usePostEditorStore } from '@/lib/stores/post.editor.store';
+import { usePostEditStore } from '@/stores/post-edit.store';
 import {
   CardProps,
   SidebarCardDouble,
@@ -12,9 +12,9 @@ type TabProps = {
 };
 
 export default function PostEditorSidebarCardsList({ tab }: TabProps) {
-  const { post } = usePostEditorStore();
-  const step = usePostEditorStore((state) => state.step);
-  const setStep = usePostEditorStore((state) => state.setStep);
+  const { post } = usePostEditStore();
+  const step = usePostEditStore((state) => state.step);
+  const setStep = usePostEditStore((state) => state.setStep);
 
   const stepsWhere: CardProps[] = [
     {
@@ -87,7 +87,7 @@ export default function PostEditorSidebarCardsList({ tab }: TabProps) {
 
   const stepsWhenHow: CardProps[] = [
     {
-      key: 'time',
+      key: 'availability',
       layout: 'double',
       items: [
         {
@@ -107,7 +107,7 @@ export default function PostEditorSidebarCardsList({ tab }: TabProps) {
       ],
     },
     {
-      key: 'availability',
+      key: 'time',
       layout: 'double',
       items: [
         {

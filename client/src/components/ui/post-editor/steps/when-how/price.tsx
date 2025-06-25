@@ -1,20 +1,20 @@
 'use client';
 
-// import Link from 'next/link';
-import { usePostEditorStore } from '@/lib/stores/post.editor.store';
+import { usePostEditStore } from '@/stores/post-edit.store';
+import { usePostSetters } from '@/hooks/use-post-setters';
 
 export default function SubleaseFormPrice() {
-  const { post, setPost } = usePostEditorStore();
-  const price = usePostEditorStore((state) => state.post.price);
+  const post = usePostEditStore((state) => state.post);
+  const setPost = usePostEditStore((state) => state.setPost);
+  const { setPrice } = usePostSetters(setPost);
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     // Only allow numbers
-    if (value === '' || /^\d+$/.test(value)) {
-      setPost({
-        ...post,
-        price: value === '' ? 0 : parseInt(value, 10),
-      });
+    if (/^\d+$/.test(value)) {
+      const num = parseInt(value, 10);
+      const price = num < 0 ? 0 : num;
+      setPrice('price', price);
     }
   };
 
@@ -35,7 +35,7 @@ export default function SubleaseFormPrice() {
             inputMode="numeric"
             pattern="[0-9]*"
             className="w-32 text-5xl font-medium text-center border-none outline-none bg-transparent focus:ring-0"
-            value={price || ''}
+            value={post.price || ''}
             onChange={handlePriceChange}
             maxLength={6}
             aria-label="Price per month"

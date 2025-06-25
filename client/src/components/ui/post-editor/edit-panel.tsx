@@ -1,4 +1,4 @@
-import { usePostEditorStore } from '@/lib/stores/post.editor.store';
+import { usePostEditStore } from '@/stores/post-edit.store';
 import SubleaseFormDescription from './steps/where/title-description';
 import SubleaseFormPhotos from './steps/where/photos';
 import SubleaseFormPlaceType from './steps/where/place-type';
@@ -7,13 +7,13 @@ import SubleaseFormBathroom from './steps/where/bathroom';
 import SubleaseFormWhoElse from './steps/where/who-else';
 import SubleaseFormAmenities from './steps/where/amenities';
 import SubleaseFormAddress from './steps/where/address';
-import SubleaseFormAvailability from "./steps/when-how/check-in-out";
-import SubleaseFormTime from "./steps/when-how/availability";
+import SubleaseFormTime from './steps/when-how/check-in-out';
+import SubleaseFormAvailability from './steps/when-how/availability';
 import SubleaseFormPrice from './steps/when-how/price';
-import SubleaseFormRules from "./steps/when-how/rules";
+import SubleaseFormRules from './steps/when-how/rules';
 
 export default function PostEditorEditPanel() {
-  const { step } = usePostEditorStore();
+  const { step } = usePostEditStore();
 
   switch (step) {
     case 'description':
@@ -33,13 +33,13 @@ export default function PostEditorEditPanel() {
     case 'address':
       return <SubleaseFormAddress />;
     case 'availability':
-      return (<SubleaseFormAvailability />);
+      return <SubleaseFormAvailability />;
     case 'time':
-      return (<SubleaseFormTime />);
+      return <SubleaseFormTime />;
     case 'price':
       return <SubleaseFormPrice />;
     case 'rules':
-      return (<SubleaseFormRules />);
+      return <SubleaseFormRules />;
     default:
       return null;
   }

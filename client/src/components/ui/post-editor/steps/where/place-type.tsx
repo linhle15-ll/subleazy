@@ -1,8 +1,9 @@
 'use client';
 
 import { Home, Building } from 'lucide-react';
-import { SelectionBox } from '@/components/ui/selection-box/selection-box';
-import { usePostEditorStore } from '@/lib/stores/post.editor.store';
+import { SelectionBox } from '@/components/ui/post-form/selection-box';
+import { usePostEditStore } from '@/stores/post-edit.store';
+import { usePostSetters } from '@/hooks/use-post-setters';
 import { HouseType, PlaceType } from '@/lib/types/enums';
 
 const placeOptions = [
@@ -17,26 +18,10 @@ const typeOptions = [
 ];
 
 export default function SubleaseFormPlaceType() {
-  const { post, setPost } = usePostEditorStore();
-  const houseInfo = usePostEditorStore((state) => state.post.houseInfo);
-
-  const handlePlaceSelect = (value: HouseType) => {
-    setPost({
-      houseInfo: {
-        ...post.houseInfo,
-        houseType: value,
-      },
-    });
-  };
-
-  const handleTypeSelect = (value: PlaceType) => {
-    setPost({
-      houseInfo: {
-        ...post.houseInfo,
-        placeType: value,
-      },
-    });
-  };
+  const post = usePostEditStore((state) => state.post);
+  const setPost = usePostEditStore((state) => state.setPost);
+  const { setHouseInfo } = usePostSetters(setPost);
+  const { houseType, placeType } = post.houseInfo ?? {};
 
   return (
     <div className="flex flex-col gap-6 relative mb-15 mr-8">
@@ -52,12 +37,12 @@ export default function SubleaseFormPlaceType() {
         <div className="flex gap-6">
           {placeOptions.map((opt) => {
             const Icon = opt.icon;
-            const active = houseInfo?.houseType === opt.value;
+            const active = houseType === opt.value;
             return (
               <SelectionBox
                 key={opt.value}
                 active={active}
-                onClick={() => handlePlaceSelect(opt.value)}
+                onClick={() => setHouseInfo('houseType', opt.value)}
                 className={`text-base ml-10 ${active ? 'font-medium' : 'font-normal'}`}
               >
                 <Icon
@@ -77,12 +62,12 @@ export default function SubleaseFormPlaceType() {
         </div>
         <div className="flex gap-4">
           {typeOptions.map((opt) => {
-            const active = houseInfo?.placeType === opt.value;
+            const active = placeType === opt.value;
             return (
               <SelectionBox
                 key={opt.value}
                 active={active}
-                onClick={() => handleTypeSelect(opt.value)}
+                onClick={() => setHouseInfo('placeType', opt.value)}
                 className={`text-base ml-10 ${active ? 'font-medium' : 'font-normal'}`}
               >
                 {opt.label}

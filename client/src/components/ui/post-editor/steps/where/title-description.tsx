@@ -1,15 +1,17 @@
 'use client';
 
 // import Link from 'next/link';
-import { usePostEditorStore } from '@/lib/stores/post.editor.store';
+import { usePostEditStore } from '@/stores/post-edit.store';
+import { usePostSetters } from '@/hooks/use-post-setters';
 
 const TITLE_MAX = 50;
-const DESC_MAX = 500;
+const DESC_MAX = 1500;
 
 export default function SubleaseFormDescription() {
-  const { post, setPost } = usePostEditorStore();
-  const title = usePostEditorStore((state) => state.post.title);
-  const description = usePostEditorStore((state) => state.post.description);
+  const post = usePostEditStore((state) => state.post);
+  const setPost = usePostEditStore((state) => state.setPost);
+  const { setTitleDescription } = usePostSetters(setPost);
+  const { title, description } = post;
 
   return (
     <div className="flex flex-col gap-6 relative mb-15 mr-8">
@@ -28,7 +30,7 @@ export default function SubleaseFormDescription() {
           className="text-field w-full sm:border-r sm:items-start"
           maxLength={TITLE_MAX}
           value={title || ''}
-          onChange={(e) => setPost({ ...post, title: e.target.value })}
+          onChange={(e) => setTitleDescription('title', e.target.value)}
           required
         />
         <div className="text-xs text-gray-400 mt-1">
@@ -46,7 +48,7 @@ export default function SubleaseFormDescription() {
           className="text-field w-full min-h-[120px] sm:pr-4 sm:border-r sm:items-start"
           maxLength={DESC_MAX}
           value={description || ''}
-          onChange={(e) => setPost({ ...post, description: e.target.value })}
+          onChange={(e) => setTitleDescription('description', e.target.value)}
           required
         />
         <div className="text-xs text-gray-400 mt-1">
