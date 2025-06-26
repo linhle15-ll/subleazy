@@ -1,41 +1,59 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
+// import Link from 'next/link';
 import Image from 'next/image';
 import ContentMediaFolder from '@/public/content-media-folder.png';
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
-import { ProgressBar } from '@/components/ui/post-form/progress-bar';
-import { usePostCreateStore } from '@/stores/post-create.store';
+import ProgressBar from '@/components/ui/progress-bar/progress-bar';
+import { uploadToCloudinary } from '@/lib/utils/cloudinary';
+import { toast } from 'sonner';
+import { useFormStore } from '@/components/store/formStore';
 
 export default function SubleaseStep10() {
   const [photos, setPhotos] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { media, setField } = useFormStore();
 
-  const post = usePostCreateStore((state) => state.post);
-  const setPost = usePostCreateStore((state) => state.setPost);
-
+  // Reset media field when component mounts
   useEffect(() => {
-    setPost({
-      ...post,
-      media: [
-        'https://cdn.discordapp.com/attachments/888258860727562271/953957803616264242/meo-toat-mo-hoi-khong-biet-noi-gi.png?ex=684df2b0&is=684ca130&hm=ad0929ad7dc3eb1b9ef7485075eff11854a2c471d7bc345634db5681c09e124e&',
-        'link',
-        'link',
-        'link',
-        'link',
-      ],
-    });
-    // TODO: remove this part and set up cloudinary for photos
+    setField('media', []);
   }, []);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setPhotos(Array.from(e.target.files));
+      const newPhotos = Array.from(e.target.files);
+      setPhotos(newPhotos);
+
+      // Upload photos to Cloudinary
+      setIsUploading(true);
+      try {
+        const uploadPromises = newPhotos.map((photo) =>
+          uploadToCloudinary(photo)
+        );
+        const urls = await Promise.all(uploadPromises);
+
+        // Update form store with new URLs
+        setField('media', urls);
+
+        toast.success('Photos uploaded successfully!');
+      } catch (error) {
+        console.error('Error uploading photos:', error);
+        toast.error('Failed to upload photos. Please try again.');
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
 
   const openFilePicker = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleRemovePhoto = (indexToRemove: number) => {
+    const updatedMedia = media.filter((_, index) => index !== indexToRemove);
+    setField('media', updatedMedia);
   };
 
   return (
@@ -61,24 +79,64 @@ export default function SubleaseStep10() {
           ref={fileInputRef}
           className="hidden"
           onChange={handleFileChange}
+          aria-label="Upload photos"
         />
         <button
           type="button"
           className="btn-primary px-6 py-2 mb-4 mt-8"
           onClick={openFilePicker}
+          disabled={isUploading}
         >
-          Add your photos
+          {isUploading ? 'Uploading...' : 'Add your photos'}
         </button>
+
+        {/* Show uploaded photos */}
+        {media.length > 0 && (
+          <div className="grid grid-cols-3 gap-4 p-4 w-full">
+            {media.map((url, index) => (
+              <div key={index} className="relative aspect-square group">
+                <Image
+                  src={url}
+                  alt={`Uploaded photo ${index + 1}`}
+                  fill
+                  className="object-cover rounded-lg"
+                />
+                <button
+                  onClick={() => handleRemovePhoto(index)}
+                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  aria-label="Remove photo"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Placeholder illustration */}
-        <div className="flex flex-col items-center justify-center">
-          <Image
-            src={ContentMediaFolder}
-            alt="Upload illustration"
-            width={120}
-            height={120}
-          />
-        </div>
-        {/* Show selected file names (optional) */}
+        {media.length === 0 && (
+          <div className="flex flex-col items-center justify-center">
+            <Image
+              src={ContentMediaFolder}
+              alt="Upload illustration"
+              width={120}
+              height={120}
+            />
+          </div>
+        )}
+
+        {/* Show selected file names */}
         {photos.length > 0 && (
           <div className="mt-4 text-sm text-gray-600">
             {photos.length} photo{photos.length > 1 ? 's' : ''} selected

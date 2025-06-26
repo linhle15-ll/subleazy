@@ -19,7 +19,6 @@
     "@vis.gl/react-google-maps": "^1.5.2",
     "axios": "^1.9.0",
     "class-variance-authority": "^0.7.1",
-    "cloudinary": "^2.6.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "lucide": "^0.487.0",

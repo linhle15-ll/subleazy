@@ -4,9 +4,7 @@ import { AxiosError } from 'axios';
 import api from './api';
 
 const postService = {
-  createPost: async (
-    submissionData: Partial<PostRequestBody>
-  ): Promise<Result<Post>> => {
+  createPost: async (submissionData: any): Promise<Result<Post>> => {
     try {
       const response = await api.post('/posts/create', submissionData);
       return {
@@ -23,9 +21,14 @@ const postService = {
     }
   },
 
-  getPost: async (id: string): Promise<Result<Post>> => {
+  searchPosts: async (
+    filter: Partial<PostRequestBody>
+  ): Promise<Result<Post[]>> => {
     try {
-      const response = await api.post('http://localhost:5001/api/posts/search', filter);
+      const response = await api.post(
+        'http://localhost:5001/api/posts/search',
+        filter
+      );
       return {
         success: true,
         data: response.data,
@@ -84,7 +87,9 @@ const postService = {
     } catch (error) {
       return {
         success: false,
-        error: (error as AxiosError<{ error: string }>).response?.data.error,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        error:
+          (error as any).response?.data?.error || 'Failed to fetch post by ID',
       };
     }
   },
