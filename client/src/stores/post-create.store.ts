@@ -12,6 +12,7 @@ interface PostCreateStore {
           prev: Partial<PostRequestBody> | DeepPartial<PostRequestBody>
         ) => Partial<PostRequestBody> | DeepPartial<PostRequestBody>)
   ) => void;
+  reset: () => void;
 }
 
 export const usePostCreateStore = create<PostCreateStore>()((set) => ({
@@ -20,4 +21,8 @@ export const usePostCreateStore = create<PostCreateStore>()((set) => ({
     set((prev) => ({
       post: typeof update === 'function' ? update(prev.post) : update,
     })),
+  reset: () =>
+    set({
+      post: {},
+    }),
 }));
