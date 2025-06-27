@@ -1,3 +1,5 @@
+'use client';
+
 import { Post } from '@/lib/types/post.types';
 import {
   AdvancedMarker,
@@ -25,8 +27,8 @@ export function PriceMarker({ post }: { post: Post }) {
         </div>
       </AdvancedMarker>
       {infoShown && (
-        <InfoWindow anchor={marker}>
-          <div className="bg-white border shadow-md">{post.title}</div>
+        <InfoWindow anchor={marker} headerDisabled={true}>
+          <div className="bg-white font-medium">{post.title}</div>
         </InfoWindow>
       )}
     </>

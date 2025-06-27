@@ -30,6 +30,9 @@ export const useFilterLocation = () => {
           ...filters,
           lat,
           long,
+          city: undefined,
+          state: undefined,
+          zip: undefined,
         });
         if (lat && long) return;
       } else if (
@@ -42,12 +45,19 @@ export const useFilterLocation = () => {
           ...filters,
           state: component.shortText ? component.shortText : undefined,
           city: city ? city : undefined,
+          zip: undefined,
+          lat: undefined,
+          long: undefined,
         });
         return;
       } else if (component.types.includes('postal_code')) {
         setFilters({
           ...filters,
           zip: component.longText ? component.longText : undefined,
+          city: undefined,
+          state: undefined,
+          lat: undefined,
+          long: undefined,
         });
         return;
       }
