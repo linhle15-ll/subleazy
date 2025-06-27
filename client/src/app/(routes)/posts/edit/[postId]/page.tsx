@@ -26,12 +26,12 @@ export default function PostEditorPage() {
       const res = await postService.getPost(postId);
 
       if (res.success && res.data) {
-        setPost(res.data as Post);
+        setPost(res.data);
+        setLoading(false);
       } else {
         setError(res.error || 'Failed to fetch post');
+        setLoading(false);
       }
-
-      setLoading(false);
     };
     fetchPost();
   }, [postId, setPost]);
