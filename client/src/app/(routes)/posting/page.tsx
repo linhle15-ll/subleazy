@@ -45,6 +45,8 @@ export default function PostingPage() {
     enabled: !!postId,
   });
 
+  console.log('Fetched post:', post);
+
   // Transform post data to match the UI structure
   const postData = post?.data;
 
@@ -63,7 +65,7 @@ export default function PostingPage() {
     );
   }
 
-  if (error || !post) {
+  if (error || !post || post.success === false) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="text-center">
@@ -118,10 +120,14 @@ export default function PostingPage() {
           ? (postData.author as { profileImage?: string }).profileImage
           : undefined,
     },
-    images: postData?.media.map((url, index) => ({
-      url,
-      alt: `Image ${index + 1}`,
-    })),
+    images: postData?.media.map((url: string, index: number) => {
+      const isVideo = url.match(/\.(mp4|mov|webm)$/i);
+      return {
+        url,
+        alt: `Media ${index + 1}`,
+        type: isVideo ? 'video' : 'image',
+      };
+    }),
     description: postData?.description,
     amenities: [
       {
@@ -244,20 +250,34 @@ export default function PostingPage() {
 
       {/* Image Gallery */}
       <div className="grid grid-cols-4 gap-2 mb-8 rounded-xl overflow-hidden">
-        {transformedPost.images?.map((image, index) => (
-          <div
-            key={index}
-            className={`relative ${index === 0 ? 'col-span-2 row-span-2' : ''} group cursor-pointer overflow-hidden`}
-          >
-            <Image
-              src={image.url}
-              alt={image.alt}
-              width={800}
-              height={600}
-              className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
-            />
-          </div>
-        ))}
+        {transformedPost.images?.map(
+          (
+            media: { url: string; alt: string; type: string },
+            index: number
+          ) => (
+            <div
+              key={index}
+              className={`relative ${index === 0 ? 'col-span-2 row-span-2' : ''} group cursor-pointer overflow-hidden`}
+            >
+              {media.type === 'video' ? (
+                <video
+                  src={media.url}
+                  controls
+                  className="object-cover w-full h-full"
+                  style={{ maxHeight: index === 0 ? 600 : 300 }}
+                />
+              ) : (
+                <Image
+                  src={media.url}
+                  alt={media.alt}
+                  width={800}
+                  height={600}
+                  className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
+                />
+              )}
+            </div>
+          )
+        )}
       </div>
 
       {/* Main Content */}

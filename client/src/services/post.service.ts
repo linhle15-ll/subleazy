@@ -4,9 +4,14 @@ import { AxiosError } from 'axios';
 import api from './api';
 
 const postService = {
-  createPost: async (submissionData: any): Promise<Result<Post>> => {
+  createPost: async (
+    submissionData: Partial<PostRequestBody>
+  ): Promise<Result<Post>> => {
     try {
-      const response = await api.post('/posts/create', submissionData);
+      const response = await api.post(
+        'http://localhost:5001/api/posts/create',
+        submissionData
+      );
       return {
         success: true,
         data: response.data,
@@ -21,14 +26,9 @@ const postService = {
     }
   },
 
-  searchPosts: async (
-    filter: Partial<PostRequestBody>
-  ): Promise<Result<Post[]>> => {
+  getPost: async (id: string): Promise<Result<Post>> => {
     try {
-      const response = await api.post(
-        'http://localhost:5001/api/posts/search',
-        filter
-      );
+      const response = await api.get(`http://localhost:5001/api/posts/${id}`);
       return {
         success: true,
         data: response.data,
@@ -47,7 +47,10 @@ const postService = {
     filter: Partial<PostRequestBody>
   ): Promise<Result<Post[]>> => {
     try {
-      const response = await api.post('/posts/search', filter);
+      const response = await api.post(
+        'http://localhost:5001/api/posts/search',
+        filter
+      );
       return {
         success: true,
         data: response.data,
@@ -79,7 +82,9 @@ const postService = {
 
   getPostsByUserId: async (id: string): Promise<Result<Post[]>> => {
     try {
-      const response = await api.get(`http://localhost:5001/api/posts/${id}`);
+      const response = await api.get(
+        `http://localhost:5001/api/posts/getByUserId/${id}`
+      );
       return {
         success: true,
         data: response.data,
@@ -87,9 +92,7 @@ const postService = {
     } catch (error) {
       return {
         success: false,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        error:
-          (error as any).response?.data?.error || 'Failed to fetch post by ID',
+        error: (error as AxiosError<{ error: string }>).response?.data.error,
       };
     }
   },

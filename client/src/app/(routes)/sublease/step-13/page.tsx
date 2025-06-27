@@ -5,10 +5,8 @@ import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
 import { SelectionBox } from '@/components/ui/post-form/selection-box';
 import { Button } from '@/components/ui/button';
 import { usePostCreateStore } from '@/stores/post-create.store';
-import { Post } from '@/lib/types/post.types';
-import { DatePickerButton } from '@/components/ui/date/date-picker';
-import postService from '@/services/post.service';
 import { usePostSetters } from '@/hooks/use-post-setters';
+import { DatePickerButton } from '@/components/ui/date/date-picker';
 
 const hours = Array.from({ length: 12 }, (_, i) => i + 1);
 const minutes = ['00', '15', '30', '45'];
@@ -49,45 +47,10 @@ export default function SubleaseStep13() {
   const { rules, availability } = post;
 
   const handleSubmit = async () => {
-    try {
-      const formData = useFormStore.getState();
-
-      // Add required availability dates if not present
-      const submissionData = {
-        ...formData,
-        availability: {
-          ...formData.availability,
-          startDate:
-            formData.availability?.startDate || new Date().toISOString(),
-          endDate:
-            formData.availability?.endDate ||
-            new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // Default to 30 days from now
-        },
-      };
-
-      const response = await fetch('http://localhost:5001/api/posts/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(submissionData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create post');
-      }
-
-      const data = await response.json();
-      console.log('Post created successfully:', data);
-
-      // Clear the form data after successful submission
-      useFormStore.getState().resetForm();
-
-      // Redirect to success page or home
-      router.push('/sublease/success');
-    }
-  };
+    console.log('Submitting post:', post);
+    const res = await postService.createPost(post as Partial<Post>);
+    // ...
+  }
 
   return (
     <div className="form-border flex flex-col gap-6 relative mb-15">
@@ -429,9 +392,9 @@ export default function SubleaseStep13() {
           </Button>
           <Button
             className="w-40 btn-primary text-center rounded-xl"
-            onClick={handleSubmit}
+            onClick={() => router.push('/sublease/review')}
           >
-            Review and post
+            Review and Post
           </Button>
         </div>
       </div>

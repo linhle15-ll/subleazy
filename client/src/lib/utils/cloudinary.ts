@@ -6,9 +6,14 @@ export const uploadToCloudinary = async (file: File): Promise<string> => {
     process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || ''
   );
 
+  // Determine if file is video or image
+  const isVideo = file.type.startsWith('video/');
+  const resourceType = isVideo ? 'video' : 'image';
+  const cloudName = 'dutej4ftp';
+
   try {
     const response = await fetch(
-      `https://api.cloudinary.com/v1_1/dutej4ftp/image/upload`,
+      `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
       {
         method: 'POST',
         body: formData,
