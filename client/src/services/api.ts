@@ -58,11 +58,7 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (
-      error.response &&
-      error.response.status === 401 &&
-      !originalRequest._retry
-    ) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       if (isRefreshing) {
         return new Promise(function (resolve, reject) {
@@ -76,7 +72,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const res = await api.post('/auth/refresh', {});
+        const res = await api.post('/auth/refresh');
         const newAccessToken = res.data.accessToken;
 
         useUserStore.getState().setAccessToken(newAccessToken);
@@ -105,6 +101,7 @@ api.interceptors.response.use(
         isRefreshing = false;
       }
     }
+
     return Promise.reject(error);
   }
 );
