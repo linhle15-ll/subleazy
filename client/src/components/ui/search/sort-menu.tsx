@@ -1,3 +1,5 @@
+'use client';
+
 import { ArrowDownWideNarrow, Filter, Trash2, X } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '../commons/popover';
 import { TextSearch } from '../map/text-search';

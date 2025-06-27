@@ -1,15 +1,10 @@
 import { Post } from '../types/post.types';
 
-export function normalize(val: number, min: number, max: number) {
+function normalize(val: number, min: number, max: number) {
   return max === min ? 1 : (val - min) / (max - min);
 }
 
-export function distanceDiff(
-  lat1: number,
-  lng1: number,
-  lat2: number,
-  lng2: number
-) {
+function distanceDiff(lat1: number, lng1: number, lat2: number, lng2: number) {
   return Math.abs(lat1 - lat2) + Math.abs(lng1 - lng2);
 }
 
