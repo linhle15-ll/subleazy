@@ -8,9 +8,14 @@ import { useState } from 'react';
 interface PostingGridProps {
   isVertical?: boolean;
   posts?: Post[];
+  className?: string;
 }
 
-export function PostingGrid({ isVertical, posts }: PostingGridProps) {
+export function PostingGrid({
+  isVertical,
+  posts,
+  className,
+}: PostingGridProps) {
   const router = useRouter();
 
   const [isFavorite, setIsFavorite] = useState(false);
@@ -28,7 +33,7 @@ export function PostingGrid({ isVertical, posts }: PostingGridProps) {
 
   return (
     <div
-      className={`grid gap-11 ${isVertical ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : 'grid-cols-1  lg:grid-cols-2'}`}
+      className={`grid gap-11 ${className ? className : isVertical ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : 'grid-cols-1  lg:grid-cols-2'}`}
     >
       {Array.isArray(posts) &&
         posts?.map((post) => (
