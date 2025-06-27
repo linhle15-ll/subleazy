@@ -1,5 +1,8 @@
 import axios, { AxiosError } from 'axios';
 import { useUserStore } from '@/stores/user.store';
+import { useFilterStore } from '@/stores/filter.store';
+import { useSortStore } from '@/stores/sort.store';
+import { usePostCreateStore } from '@/stores/post-create.store';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -86,8 +89,11 @@ api.interceptors.response.use(
         const axiosError = err as AxiosError;
         processQueue(axiosError, null);
 
-        useUserStore.getState().setUser(null);
-        useUserStore.getState().setAccessToken('');
+        useUserStore.getState().reset();
+        useFilterStore.getState().reset();
+        useSortStore.getState().reset();
+        usePostCreateStore.getState().reset();
+
         await api.post('/auth/signout');
 
         if (typeof window !== 'undefined') {

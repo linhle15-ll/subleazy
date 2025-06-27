@@ -36,6 +36,7 @@ interface SortStore {
       query: string;
     }[]
   ) => void;
+  reset: () => void;
 }
 
 export const useSortStore = create<SortStore>((set) => ({
@@ -61,4 +62,11 @@ export const useSortStore = create<SortStore>((set) => ({
       query: string;
     }[]
   ) => set({ places }),
+  reset: () =>
+    set({
+      center: {},
+      price: false,
+      queries: [],
+      places: [],
+    }),
 }));
