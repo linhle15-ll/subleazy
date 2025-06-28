@@ -438,10 +438,6 @@ export default function PostingPage() {
                 {transformedPost.price}
                 <span className="font-normal">/ month</span>
               </div>
-              <div className="flex items-center gap-1">
-                <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                <span className="text-sm">{transformedPost.rating}</span>
-              </div>
             </div>
 
             {/* Availability */}

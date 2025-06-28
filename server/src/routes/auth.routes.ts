@@ -9,3 +9,4 @@ router.post('/refresh', authController.handleRefreshToken);
 router.post('/signout', authController.handleSignOut);
 
 export default router;
+

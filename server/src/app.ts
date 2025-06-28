@@ -18,8 +18,19 @@ app.use(express.json());
 app.use(cookieParser());
 
 // CORS config
-app.use(cors());
-app.options(/(.*)/, cors());
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  })
+);
+app.options(
+  /(.*)/,
+  cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  })
+);
 
 // Connect to MongoDB
 db();

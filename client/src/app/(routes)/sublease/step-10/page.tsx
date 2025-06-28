@@ -218,7 +218,7 @@ export default function SubleaseStep10() {
             disabled={isUploading}
             className="btn-primary px-6 py-2 disabled:opacity-50"
           >
-            {isUploading ? 'Uploading...' : 'Upload to Cloudinary'}
+            {isUploading ? 'Uploading...' : 'Upload'}
           </button>
         </div>
       )}
