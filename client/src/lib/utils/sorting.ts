@@ -43,8 +43,12 @@ export function scoreAndSortPosts(
   let maxPrice = -Infinity;
 
   if (price) {
-    minPrice = Math.min(...posts.map((post) => post.price));
-    maxPrice = Math.max(...posts.map((post) => post.price));
+    minPrice = Math.min(
+      ...posts.map((post) => post.price / post.bedroomInfo.maxGuests)
+    );
+    maxPrice = Math.max(
+      ...posts.map((post) => post.price / post.bedroomInfo.maxGuests)
+    );
   }
 
   // Calculate score for each post based on their minimum distance to each query
@@ -57,7 +61,14 @@ export function scoreAndSortPosts(
       score += 1 - normalizedScore;
     }
 
-    if (price) score += 1 - normalize(posts[index].price, minPrice, maxPrice);
+    if (price)
+      score +=
+        1 -
+        normalize(
+          posts[index].price / posts[index].bedroomInfo.maxGuests,
+          minPrice,
+          maxPrice
+        );
 
     return { index, score };
   });
