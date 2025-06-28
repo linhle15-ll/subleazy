@@ -99,7 +99,6 @@ export default function PostingPage() {
     title: postData?.title,
     address: `${postData?.city}, ${postData?.state} ${postData?.zip}`,
     price: `$${postData?.price}`,
-    rating: 5.0, // TODO: Add rating to post model
     author: {
       firstName:
         typeof postData?.author === 'object' &&
@@ -224,10 +223,6 @@ export default function PostingPage() {
         <div>
           <h1 className="text-2xl font-medium mb-2">{transformedPost.title}</h1>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1">
-              <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-              <span className="text-sm">{transformedPost.rating}</span>
-            </div>
             <div className="flex items-center gap-1">
               <MapPin className="w-4 h-4 text-gray-400" />
               <span className="text-sm">{transformedPost.address}</span>

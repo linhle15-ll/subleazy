@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { usePostCreateStore } from '@/stores/post-create.store';
 import postService from '@/services/post.service';
 import { Post } from '@/lib/types/post.types';
+import { Play } from 'lucide-react';
 
 export default function SubleaseReview() {
   const router = useRouter();
@@ -56,21 +57,111 @@ export default function SubleaseReview() {
     }
   };
 
+  // Helper to check if a URL is a video
+  const isVideo = (url: string) => {
+    return url.match(/\.(mp4|mov|webm|avi|mkv)$/i);
+  };
+
+  // Helper to convert field names to user-friendly display names
+  const getDisplayName = (fieldName: string): string => {
+    const displayNames: Record<string, string> = {
+      // General fields
+      title: 'Title',
+      description: 'Description',
+      address: 'Address',
+      city: 'City',
+      state: 'State',
+      zip: 'Zip Code',
+      price: 'Price',
+      minPrice: 'Minimum Price',
+      maxPrice: 'Maximum Price',
+
+      // House info
+      houseType: 'House Type',
+      placeType: 'Place Type',
+
+      // Bedroom info
+      bedrooms: 'Bedrooms',
+      beds: 'Beds',
+      maxGuests: 'Maximum Guests',
+      lock: 'Bedroom Lock',
+
+      // Bathroom info
+      privateAttached: 'Private Attached',
+      privateAccessible: 'Private Accessible',
+      shared: 'Shared',
+
+      // Availability
+      startDate: 'Move-in Date',
+      endDate: 'Move-out Date',
+      checkinTime: 'Check-in Time',
+      checkoutTime: 'Check-out Time',
+
+      // Amenities
+      wifi: 'Wi-Fi',
+      kitchen: 'Kitchen',
+      laundry: 'Laundry',
+      parking: 'Parking',
+      airConditioning: 'Air Conditioning',
+
+      // Convenience
+      publicTransport: 'Public Transport',
+      supermarket: 'Supermarket',
+      disabilityFriendly: 'Disability Friendly',
+
+      // Rules
+      noGuest: 'No Guests',
+      noParty: 'No Parties',
+      noSmoking: 'No Smoking',
+      noDrug: 'No Drugs',
+      noPet: 'No Pets',
+      quietHours: 'Quiet Hours',
+    };
+
+    return displayNames[fieldName] || fieldName;
+  };
+
+  // Helper to format enum values for display
+  const formatEnumValue = (value: string | undefined): string => {
+    if (!value) return '-';
+
+    // Handle common enum formatting
+    const formatted = value
+      .replace(/([A-Z])/g, ' $1') // Add space before capital letters
+      .replace(/^./, (str) => str.toUpperCase()) // Capitalize first letter
+      .trim();
+
+    return formatted;
+  };
+
   // Helper to render media
   const renderMedia = (media?: (string | undefined)[]) =>
     Array.isArray(media) && media.length > 0
-      ? media
-          .filter(Boolean)
-          .map((url, i) =>
-            url ? (
-              <img
-                key={i}
-                src={url}
-                alt={`media-${i}`}
-                className="inline-block w-16 h-16 object-cover rounded mr-2"
-              />
-            ) : null
-          )
+      ? media.filter(Boolean).map((url, i) =>
+          url ? (
+            <div key={i} className="inline-block relative mr-2">
+              {isVideo(url) ? (
+                <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center relative overflow-hidden">
+                  <video
+                    src={url}
+                    className="w-full h-full object-cover"
+                    muted
+                    preload="metadata"
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+                    <Play className="w-6 h-6 text-white fill-white" />
+                  </div>
+                </div>
+              ) : (
+                <img
+                  src={url}
+                  alt={`media-${i}`}
+                  className="w-16 h-16 object-cover rounded"
+                />
+              )}
+            </div>
+          ) : null
+        )
       : '-';
 
   return (
@@ -102,55 +193,63 @@ export default function SubleaseReview() {
             <tbody>
               {notEmpty(post.title) && (
                 <tr>
-                  <th className="p-2 font-medium">Title</th>
+                  <th className="p-2 font-medium">{getDisplayName('title')}</th>
                   <td className="p-2">{post.title}</td>
                 </tr>
               )}
               {notEmpty(post.description) && (
                 <tr>
-                  <th className="p-2 font-medium">Description</th>
+                  <th className="p-2 font-medium">
+                    {getDisplayName('description')}
+                  </th>
                   <td className="p-2">{post.description}</td>
                 </tr>
               )}
               {notEmpty(post.address) && (
                 <tr>
-                  <th className="p-2 font-medium">Address</th>
+                  <th className="p-2 font-medium">
+                    {getDisplayName('address')}
+                  </th>
                   <td className="p-2">{post.address}</td>
                 </tr>
               )}
               {notEmpty(post.city) && (
                 <tr>
-                  <th className="p-2 font-medium">City</th>
+                  <th className="p-2 font-medium">{getDisplayName('city')}</th>
                   <td className="p-2">{post.city}</td>
                 </tr>
               )}
               {notEmpty(post.state) && (
                 <tr>
-                  <th className="p-2 font-medium">State</th>
+                  <th className="p-2 font-medium">{getDisplayName('state')}</th>
                   <td className="p-2">{post.state}</td>
                 </tr>
               )}
               {notEmpty(post.zip) && (
                 <tr>
-                  <th className="p-2 font-medium">Zip</th>
+                  <th className="p-2 font-medium">{getDisplayName('zip')}</th>
                   <td className="p-2">{post.zip}</td>
                 </tr>
               )}
               {notEmpty(post.price) && (
                 <tr>
-                  <th className="p-2 font-medium">Price</th>
+                  <th className="p-2 font-medium">{getDisplayName('price')}</th>
                   <td className="p-2">${post.price}</td>
                 </tr>
               )}
               {notEmpty(post.minPrice) && (
                 <tr>
-                  <th className="p-2 font-medium">Min Price</th>
+                  <th className="p-2 font-medium">
+                    {getDisplayName('minPrice')}
+                  </th>
                   <td className="p-2">${post.minPrice}</td>
                 </tr>
               )}
               {notEmpty(post.maxPrice) && (
                 <tr>
-                  <th className="p-2 font-medium">Max Price</th>
+                  <th className="p-2 font-medium">
+                    {getDisplayName('maxPrice')}
+                  </th>
                   <td className="p-2">${post.maxPrice}</td>
                 </tr>
               )}
@@ -167,14 +266,22 @@ export default function SubleaseReview() {
             <tbody>
               {notEmpty(post.houseInfo?.houseType) && (
                 <tr>
-                  <th className="p-2 font-medium">House Type</th>
-                  <td className="p-2">{post.houseInfo?.houseType}</td>
+                  <th className="p-2 font-medium">
+                    {getDisplayName('houseType')}
+                  </th>
+                  <td className="p-2">
+                    {formatEnumValue(post.houseInfo?.houseType)}
+                  </td>
                 </tr>
               )}
               {notEmpty(post.houseInfo?.placeType) && (
                 <tr>
-                  <th className="p-2 font-medium">Place Type</th>
-                  <td className="p-2">{post.houseInfo?.placeType}</td>
+                  <th className="p-2 font-medium">
+                    {getDisplayName('placeType')}
+                  </th>
+                  <td className="p-2">
+                    {formatEnumValue(post.houseInfo?.placeType)}
+                  </td>
                 </tr>
               )}
             </tbody>
@@ -190,25 +297,29 @@ export default function SubleaseReview() {
             <tbody>
               {notEmpty(post.bedroomInfo?.bedrooms) && (
                 <tr>
-                  <th className="p-2 font-medium">Bedrooms</th>
+                  <th className="p-2 font-medium">
+                    {getDisplayName('bedrooms')}
+                  </th>
                   <td className="p-2">{post.bedroomInfo?.bedrooms}</td>
                 </tr>
               )}
               {notEmpty(post.bedroomInfo?.beds) && (
                 <tr>
-                  <th className="p-2 font-medium">Beds</th>
+                  <th className="p-2 font-medium">{getDisplayName('beds')}</th>
                   <td className="p-2">{post.bedroomInfo?.beds}</td>
                 </tr>
               )}
               {notEmpty(post.bedroomInfo?.maxGuests) && (
                 <tr>
-                  <th className="p-2 font-medium">Max Guests</th>
+                  <th className="p-2 font-medium">
+                    {getDisplayName('maxGuests')}
+                  </th>
                   <td className="p-2">{post.bedroomInfo?.maxGuests}</td>
                 </tr>
               )}
               {post.bedroomInfo?.lock !== undefined && (
                 <tr>
-                  <th className="p-2 font-medium">Bedroom Lock</th>
+                  <th className="p-2 font-medium">{getDisplayName('lock')}</th>
                   <td className="p-2">{renderBool(post.bedroomInfo?.lock)}</td>
                 </tr>
               )}
@@ -225,13 +336,17 @@ export default function SubleaseReview() {
             <tbody>
               {notEmpty(post.bathroomInfo?.privateAttached) && (
                 <tr>
-                  <th className="p-2 font-medium">Private Attached</th>
+                  <th className="p-2 font-medium">
+                    {getDisplayName('privateAttached')}
+                  </th>
                   <td className="p-2">{post.bathroomInfo?.privateAttached}</td>
                 </tr>
               )}
               {notEmpty(post.bathroomInfo?.privateAccessible) && (
                 <tr>
-                  <th className="p-2 font-medium">Private Accessible</th>
+                  <th className="p-2 font-medium">
+                    {getDisplayName('privateAccessible')}
+                  </th>
                   <td className="p-2">
                     {post.bathroomInfo?.privateAccessible}
                   </td>
@@ -239,7 +354,9 @@ export default function SubleaseReview() {
               )}
               {notEmpty(post.bathroomInfo?.shared) && (
                 <tr>
-                  <th className="p-2 font-medium">Shared</th>
+                  <th className="p-2 font-medium">
+                    {getDisplayName('shared')}
+                  </th>
                   <td className="p-2">{post.bathroomInfo?.shared}</td>
                 </tr>
               )}
@@ -263,7 +380,7 @@ export default function SubleaseReview() {
           <div>
             {Object.entries(post.amenities || {})
               .filter(([, v]) => v)
-              .map(([k]) => k)
+              .map(([k]) => getDisplayName(k))
               .join(', ') || '-'}
           </div>
         </div>
@@ -276,7 +393,7 @@ export default function SubleaseReview() {
           <div>
             {Object.entries(post.convenience || {})
               .filter(([, v]) => v)
-              .map(([k]) => k)
+              .map(([k]) => getDisplayName(k))
               .join(', ') || '-'}
           </div>
         </div>
@@ -289,13 +406,14 @@ export default function SubleaseReview() {
           <div>
             {Object.entries(post.rules || {})
               .filter(([, v]) => typeof v === 'boolean' && v)
-              .map(([k]) => k)
+              .map(([k]) => getDisplayName(k))
               .join(', ') || '-'}
           </div>
           {post.rules?.quietHours &&
             (post.rules.quietHours.from || post.rules.quietHours.to) && (
               <div className="mt-2 text-sm text-gray-600">
-                Quiet Hours: {post.rules.quietHours.from || '-'} to{' '}
+                {getDisplayName('quietHours')}:{' '}
+                {post.rules.quietHours.from || '-'} to{' '}
                 {post.rules.quietHours.to || '-'}
               </div>
             )}
@@ -310,7 +428,9 @@ export default function SubleaseReview() {
             <tbody>
               {notEmpty(post.availability?.startDate) && (
                 <tr>
-                  <th className="p-2 font-medium">Move-in Date</th>
+                  <th className="p-2 font-medium">
+                    {getDisplayName('startDate')}
+                  </th>
                   <td className="p-2">
                     {renderDate(post.availability?.startDate)}
                   </td>
@@ -318,7 +438,9 @@ export default function SubleaseReview() {
               )}
               {notEmpty(post.availability?.endDate) && (
                 <tr>
-                  <th className="p-2 font-medium">Move-out Date</th>
+                  <th className="p-2 font-medium">
+                    {getDisplayName('endDate')}
+                  </th>
                   <td className="p-2">
                     {renderDate(post.availability?.endDate)}
                   </td>
@@ -326,13 +448,17 @@ export default function SubleaseReview() {
               )}
               {notEmpty(post.availability?.checkinTime) && (
                 <tr>
-                  <th className="p-2 font-medium">Check-in Time</th>
+                  <th className="p-2 font-medium">
+                    {getDisplayName('checkinTime')}
+                  </th>
                   <td className="p-2">{post.availability?.checkinTime}</td>
                 </tr>
               )}
               {notEmpty(post.availability?.checkoutTime) && (
                 <tr>
-                  <th className="p-2 font-medium">Check-out Time</th>
+                  <th className="p-2 font-medium">
+                    {getDisplayName('checkoutTime')}
+                  </th>
                   <td className="p-2">{post.availability?.checkoutTime}</td>
                 </tr>
               )}
