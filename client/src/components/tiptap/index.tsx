@@ -1,7 +1,4 @@
 'use client'
-// --- Styles ---
-import "@/components/tiptap/simple-editor.scss"
-
 import React, { useCallback } from 'react'
 // --- Tiptap Core ---
 import { EditorContent, useEditor, EditorContext } from '@tiptap/react'

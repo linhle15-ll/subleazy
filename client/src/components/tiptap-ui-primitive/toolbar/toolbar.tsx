@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { Separator } from "@/components/tiptap-ui-primitive/separator"
-import "@/components/tiptap-ui-primitive/toolbar/toolbar.scss"
+import "@/components/tiptap-ui-primitive/toolbar/toolbar.module.css"
 
 type BaseProps = React.HTMLAttributes<HTMLDivElement>
 
