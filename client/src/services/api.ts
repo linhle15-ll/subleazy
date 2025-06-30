@@ -1,8 +1,5 @@
 import axios, { AxiosError } from 'axios';
 import { useUserStore } from '@/stores/user.store';
-import { useFilterStore } from '@/stores/filter.store';
-import { useSortStore } from '@/stores/sort.store';
-import { usePostCreateStore } from '@/stores/post-create.store';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -52,13 +49,24 @@ const processQueue = (
   failedQueue = [];
 };
 
+const excludedPaths = [
+  '/auth/signin',
+  '/auth/signup',
+  '/auth/refresh',
+  '/auth/signout',
+];
+
 api.interceptors.response.use(
   (response) => response,
 
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !excludedPaths.some((path) => originalRequest.url?.includes(path))
+    ) {
       originalRequest._retry = true;
       if (isRefreshing) {
         return new Promise(function (resolve, reject) {
@@ -86,9 +94,6 @@ api.interceptors.response.use(
         processQueue(axiosError, null);
 
         useUserStore.getState().reset();
-        useFilterStore.getState().reset();
-        useSortStore.getState().reset();
-        usePostCreateStore.getState().reset();
 
         await api.post('/auth/signout');
 

@@ -12,7 +12,6 @@ interface FilterStore {
           prev: DeepPartial<PostRequestBody> | Partial<PostRequestBody>
         ) => DeepPartial<PostRequestBody> | Partial<PostRequestBody>)
   ) => void;
-  reset: () => void;
 }
 
 export const useFilterStore = create<FilterStore>()((set) => ({
@@ -21,5 +20,4 @@ export const useFilterStore = create<FilterStore>()((set) => ({
     set((prev) => ({
       filters: typeof update === 'function' ? update(prev.filters) : update,
     })),
-  reset: () => set({ filters: {} }),
 }));
