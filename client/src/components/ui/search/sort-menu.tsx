@@ -1,4 +1,6 @@
-import { ArrowDownWideNarrow, Filter, Trash2 } from 'lucide-react';
+'use client';
+
+import { ArrowDownWideNarrow, Filter, Trash2, X } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '../commons/popover';
 import { TextSearch } from '../map/text-search';
 import { useSortPlaces } from '@/hooks/use-sort-places';
@@ -12,10 +14,12 @@ const SortButton = ({
   text,
   selected,
   onClick,
+  onRemove,
 }: {
   text: string;
   selected: boolean;
   onClick: () => void;
+  onRemove?: () => void;
 }) => {
   return (
     <Button
@@ -26,6 +30,16 @@ const SortButton = ({
       onClick={onClick}
     >
       {text}
+      {onRemove && (
+        <span
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
+        >
+          <X />
+        </span>
+      )}
     </Button>
   );
 };
@@ -42,12 +56,21 @@ export function SortMenu({
   const queries = useSortStore((state) => state.queries);
   const setQueries = useSortStore((state) => state.setQueries);
   const places = useSortStore((state) => state.places);
+  const setSortPlaces = useSortStore((state) => state.setPlaces);
+  const releaseColor = useSortStore((state) => state.releaseColor);
   const setPlaces = useSortPlaces();
 
   const selectQuery = (index: number) => {
     setQueries(
       queries.map((q, i) => (index === i ? { ...q, selected: !q.selected } : q))
     );
+  };
+
+  const removeQuery = (index: number) => {
+    const query = queries[index];
+    setQueries(queries.filter((q) => q.query !== query.query));
+    setSortPlaces(places.filter((p) => p.query !== query.query));
+    releaseColor(query.query);
   };
 
   const handleSort = () => {
@@ -82,7 +105,7 @@ export function SortMenu({
             location
           </span>
           <TextSearch onPlacesSelect={setPlaces} />
-          <div>
+          <div className="flex flex-wrap gap-2">
             <SortButton
               text="Price"
               selected={price}
@@ -94,6 +117,7 @@ export function SortMenu({
                 text={q.query}
                 selected={q.selected}
                 onClick={() => selectQuery(i)}
+                onRemove={() => removeQuery(i)}
               />
             ))}
           </div>

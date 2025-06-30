@@ -1,15 +1,17 @@
+'use client';
+
 import { useSortStore } from '@/stores/sort.store';
 import { Post } from '@/lib/types/post.types';
 import {
-  AdvancedMarker,
   Map,
   MapCameraChangedEvent,
   MapCameraProps,
 } from '@vis.gl/react-google-maps';
 import { ElementType, useEffect, useState } from 'react';
+import { TextSearchPlaceMarker } from './text-search-place-marker';
 
-export function CustomMap({
-  marker: Marker,
+export function SearchMap({
+  marker: PostingMarker,
   posts,
   className,
 }: {
@@ -45,15 +47,13 @@ export function CustomMap({
         {...cameraProps}
         onCameraChanged={handleCameraChange}
         className={className}
+        reuseMaps={true}
       >
         {posts.map((post, index) => (
-          <Marker key={index} post={post} />
+          <PostingMarker key={index} post={post} />
         ))}
         {places.map((place, index) => (
-          <AdvancedMarker
-            position={{ lat: place.lat, lng: place.lng }}
-            key={index}
-          />
+          <TextSearchPlaceMarker key={index} place={place} />
         ))}
       </Map>
     )
