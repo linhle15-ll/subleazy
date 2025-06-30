@@ -1,6 +1,6 @@
 
 // --- Styles ---
-import "@/components/tiptap/simple-editor.scss"
+import "@/components/tiptap/simple-editor.module.css"
 
 // --- UI Primitives ---
 import { Button } from "@/components/tiptap-ui-primitive/button"

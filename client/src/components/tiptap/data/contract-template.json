@@ -4,13 +4,13 @@
     {
       "type": "heading",
       "attrs": {
-        "textAlign": null,
+        "textAlign": "center",
         "level": 1
       },
       "content": [
         {
           "type": "text",
-          "text": "Getting started"
+          "text": "Sublease Agreement"
         }
       ]
     },
