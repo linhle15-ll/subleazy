@@ -23,3 +23,10 @@ export const parseGoogleMapPlaces = (places: any[]) => {
 
   return result;
 };
+
+export const isNearby = (lat: number, long: number, places: Place[]) => {
+  const r = 0.01446; // 1 mile
+  return places.some(
+    (place) => (place.lat - lat) ** 2 + (place.long - long) ** 2 <= r ** 2
+  );
+};

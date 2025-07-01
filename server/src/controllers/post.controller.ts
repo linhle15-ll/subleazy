@@ -4,7 +4,7 @@ import postService from '../services/post.service';
 import { PostRequestBody } from '../types/post.types';
 import mongoose, { Types } from 'mongoose';
 import { validatePostData } from '../utils/validators';
-import { parseGoogleMapPlaces } from '../utils/parsers';
+import { isNearby, parseGoogleMapPlaces } from '../utils/google-places';
 import { getAuthRequest, getPostAuthorId } from '../utils/common.utils';
 import { PostStatus } from '../types/enums';
 
@@ -50,6 +50,28 @@ const postController = {
             publicTransports,
           },
         });
+
+        data.convenience.supermarket = isNearby(
+          data.lat,
+          data.long,
+          supermarkets
+        );
+        data.convenience.publicTransport = isNearby(
+          data.lat,
+          data.long,
+          publicTransports
+        );
+      } else {
+        data.convenience.supermarket = isNearby(
+          data.lat,
+          data.long,
+          house.nearbyAmenities.supermarkets
+        );
+        data.convenience.publicTransport = isNearby(
+          data.lat,
+          data.long,
+          house.nearbyAmenities.publicTransports
+        );
       }
 
       data.house = house._id;
