@@ -26,9 +26,9 @@ export default function SearchPage() {
 
     const postsData = result.data;
     const avgLat =
-      postsData.reduce((acc, post) => acc + post.lat, 0) / postsData?.length;
+      postsData.reduce((acc, post) => acc + post.lat, 0) / postsData.length;
     const avgLng =
-      postsData.reduce((acc, post) => acc + post.long, 0) / postsData?.length;
+      postsData.reduce((acc, post) => acc + post.long, 0) / postsData.length;
 
     setCenter({ lat: avgLat, lng: avgLng });
     setPosts(postsData);

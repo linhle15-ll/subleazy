@@ -22,6 +22,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/components/tiptap/index.tsx", "src/components/tiptap/context.tsx", "src/components/tiptap/tiptap-hooks/use-user.tsx", "src/components/tiptap/tiptap-hooks/use-thread.jsx", "src/components/tiptap/tiptap-components/thread-list.jsx", "src/components/tiptap/tiptap-components/thread-list-item.jsx", "src/components/tiptap/tiptap-components/thread-composer.jsx", "src/components/tiptap/tiptap-components/thread-card.jsx", "src/components/tiptap/tiptap-components/comment-card.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }
