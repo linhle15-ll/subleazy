@@ -25,7 +25,7 @@ export function CustomMap({
   });
 
   useEffect(() => {
-    if (posts?.length == 0 || !center.lat || !center.lng) return;
+    if (posts.length == 0 || !center.lat || !center.lng) return;
 
     const { lat, lng } = center;
 

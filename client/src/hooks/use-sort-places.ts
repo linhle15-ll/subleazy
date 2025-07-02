@@ -9,7 +9,7 @@ export const useSortPlaces = () => {
   const [places, setPlaces] = useState<google.maps.places.Place[]>([]);
 
   useEffect(() => {
-    if (!places || places?.length === 0) return;
+    if (!places || places.length === 0) return;
 
     const parsedPlaces = places.map((place) => ({
       displayName: place.displayName ?? '',
@@ -17,7 +17,7 @@ export const useSortPlaces = () => {
       lng: place.location!.lng(),
       googleMapsUri: place.googleMapsURI ?? '',
       photo: place.photos?.[0]?.getURI(),
-      query: queries[queries?.length - 1].query,
+      query: queries[queries.length - 1].query,
     }));
 
     setSortPlaces([...sortPlaces, ...parsedPlaces]);

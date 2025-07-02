@@ -80,7 +80,7 @@ export default function LandingPage() {
           </div>
         ) : error ? (
           <div>Error: {error}</div>
-        ) : posts?.length > 0 ? (
+        ) : posts && posts.length > 0 ? (
           <PostingGrid isVertical={true} posts={posts} />
         ) : (
           <div className="font-medium text-2xl text-grey">

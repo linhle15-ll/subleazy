@@ -10,7 +10,7 @@ export const useSearchHandler = () => {
     if (!filters.zip && !filters.state && (!filters.lat || !filters.long))
       return;
 
-    if (Object.values(filters)?.length) {
+    if (Object.values(filters).length) {
       const query = encodeQuery(filters);
       router.push(`/posts/search?q=${query}`);
     }
