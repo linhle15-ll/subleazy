@@ -3,11 +3,6 @@
 /**
  * UploadMedias Component
  *
- * A reusable component for handling media uploads with Cloudinary integration.
- * Supports both new uploads and editing existing media.
- *
- * Usage Examples:
- *
  * 1. For new post creation:
  * ```tsx
  * <UploadMedias
