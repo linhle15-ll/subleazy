@@ -131,10 +131,11 @@ const postService = {
     return posts;
   },
 
-  getPostWithAuthor: async (postId: string) => {
+  getPostWithAuthorAndHouse: async (postId: string) => {
     const post = await postModel
       .findById(postId)
-      .populate('author', 'firstName lastName profileImage');
+      .populate('author', 'firstName lastName profileImage bio')
+      .populate('house');
     return post;
   },
 };

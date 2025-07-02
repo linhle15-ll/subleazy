@@ -93,7 +93,7 @@ const postController = {
         return;
       }
 
-      const post = await postService.getPostWithAuthor(postId);
+      const post = await postService.getPostWithAuthorAndHouse(postId);
       if (!post) {
         res.status(404).json({ error: 'Post not found' });
         return;
