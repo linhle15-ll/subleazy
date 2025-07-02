@@ -81,7 +81,7 @@ export default function SubleaseStep10() {
         {/* Show selected file names (optional) */}
         {photos.length > 0 && (
           <div className="mt-4 text-sm text-gray-600">
-            {photos.length} photo {photos?.length > 1 ? 's' : ''} selected
+            {photos.length} photo {photos.length > 1 ? 's' : ''} selected
           </div>
         )}
       </div>
