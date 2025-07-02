@@ -28,7 +28,6 @@ export default function RootLayout({
         <ReactQueryProvider>
           <MapProvider>
             <Header />
-            {/* TODO: Refactor UI by adding consistent layout to the pages and font + size tot texts */}
             {children}
           </MapProvider>
         </ReactQueryProvider>
