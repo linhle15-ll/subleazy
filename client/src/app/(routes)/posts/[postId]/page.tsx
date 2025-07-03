@@ -4,7 +4,6 @@ import Image from 'next/image';
 import {
   Heart,
   MapPin,
-  Star,
   Wifi,
   Utensils,
   Dog,
@@ -19,56 +18,41 @@ import {
   Train,
   ShoppingCart,
   Accessibility,
+  WashingMachine,
+  Lock,
+  PartyPopper,
+  Cigarette,
+  Cannabis,
 } from 'lucide-react';
 import authorAvatar from '@/public/bannerImg.jpg'; // Placeholder for author avatar
 import Loading from '@/components/ui/commons/loading';
-import { useState, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
 import postService from '@/services/post.service';
+import { useQuery } from '@tanstack/react-query';
+import { useParams, useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { Map, Marker } from '@vis.gl/react-google-maps';
+import { User } from '@/lib/types/user.types';
+import { House } from '@/lib/types/house.types';
 
 export default function PostingPage() {
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [showAllAmenities, setShowAllAmenities] = useState(false);
-  const searchParams = useSearchParams();
+  const { postId } = useParams<{ postId: string }>();
   const router = useRouter();
-  const postId = searchParams.get('id');
+  const [isFavorite, setIsFavorite] = useState(false);
+  // TODO: implement isFavorite/wishlist functionality
 
-  const {
-    data: post,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ['post', postId],
-    queryFn: () => postService.getPost(postId!),
+  const { data: result, isFetching } = useQuery({
+    queryKey: ['transformedData', postId],
+    queryFn: () => postService.getPost(postId),
     enabled: !!postId,
   });
 
-  // Transform post data to match the UI structure
-  const postData = post?.data;
-
-  useEffect(() => {
-    if (!postId) {
-      router.push('/');
-    }
-  }, [postId, router]);
-
-  if (isLoading) {
-    return (
-      <div>
-        {' '}
-        <Loading />{' '}
-      </div>
-    );
-  }
-
-  if (error || !post) {
+  if (isFetching || !result) return <Loading />;
+  if (!result.success)
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="text-center">
           <h2 className="text-2xl font-medium text-gray-900 mb-4">
-            {error ? 'Error loading post' : 'Post not found'}
+            Post could not be found
           </h2>
           <button
             onClick={() => router.push('/')}
@@ -79,134 +63,104 @@ export default function PostingPage() {
         </div>
       </div>
     );
-  }
 
-  function handleAuthorClick() {
-    const author = postData?.author;
-    const authorId =
-      typeof author === 'object' && author !== null && '_id' in author
-        ? (author as { _id: string })._id
-        : typeof author === 'string'
-          ? author
-          : '';
-    router.push(`/profile?id=${authorId}`);
-  }
+  const post = result.data!;
 
-  const transformedPost = {
-    id: postData?._id,
-    title: postData?.title,
-    address: `${postData?.city}, ${postData?.state} ${postData?.zip}`,
-    price: `$${postData?.price}`,
-    rating: 5.0, // TODO: Add rating to post model
-    author: {
-      firstName:
-        typeof postData?.author === 'object' &&
-        postData?.author !== null &&
-        'firstName' in postData.author
-          ? postData.author.firstName
-          : 'Unknown',
-      lastName:
-        typeof postData?.author === 'object' &&
-        postData?.author !== null &&
-        'lastName' in postData.author
-          ? postData.author.lastName
-          : 'Unknown',
-      profileImage:
-        typeof postData?.author === 'object' &&
-        postData?.author !== null &&
-        'profileImage' in postData.author
-          ? (postData.author as { profileImage?: string }).profileImage
-          : undefined,
-    },
-    images: postData?.media.map((url, index) => ({
-      url,
-      alt: `Image ${index + 1}`,
-    })),
-    description: postData?.description,
+  const handleAuthorClick = () => {
+    const authorId = (post.author as User)._id;
+    router.push(`/profile/${authorId}`);
+  };
+
+  const transformedData = {
+    address: `${(post.house as House).address}, ${post.suites ? `${post.suites},` : ''} ${post.city}, ${post.state} ${post.zip}`,
+    author: post.author as User,
     amenities: [
-      {
-        icon: Wifi,
-        label: postData?.amenities.wifi ? 'High-speed internet' : '',
-      },
-      { icon: Utensils, label: postData?.amenities.kitchen ? 'Kitchen' : '' },
-      { icon: Dog, label: postData?.rules.noPet ? 'No pets' : 'Pets allowed' },
-      { icon: Wind, label: postData?.amenities.laundry ? 'Laundry' : '' },
+      { icon: Wifi, label: post.amenities.wifi ? 'Wifi' : '' },
+      { icon: Utensils, label: post.amenities.kitchen ? 'Kitchen' : '' },
+      { icon: WashingMachine, label: post.amenities.laundry ? 'Laundry' : '' },
       {
         icon: Wind,
-        label: postData?.amenities.airConditioning ? 'Air conditioning' : '',
+        label: post.amenities.airConditioning ? 'Air conditioning' : '',
       },
-      {
-        icon: Car,
-        label: postData?.amenities.parking ? 'Parking available' : '',
-      },
+      { icon: Car, label: post.amenities.parking ? 'Parking' : '' },
     ].filter((amenity) => amenity.label),
     convenience: [
       {
         icon: Train,
-        label: postData?.convenience.publicTransport
-          ? 'Near public transport'
-          : '',
+        label: post.convenience.publicTransport ? 'Near public transport' : '',
       },
       {
         icon: ShoppingCart,
-        label: postData?.convenience.supermarket ? 'Near supermarket' : '',
+        label: post.convenience.supermarket ? 'Near supermarket' : '',
       },
       {
         icon: Accessibility,
-        label: postData?.convenience.disabilityFriendly
-          ? 'Disability friendly'
-          : '',
+        label: post.convenience.disabilityFriendly ? 'Disability friendly' : '',
       },
     ].filter((item) => item.label),
     roomInfo: [
       {
         icon: Home,
-        label: `${postData?.houseInfo?.houseType?.charAt(0).toUpperCase() + (postData?.houseInfo?.houseType?.slice(1) ?? '')}`,
+        label: `${post.houseInfo.houseType.charAt(0).toUpperCase() + post.houseInfo.houseType.slice(1)}`,
       },
       {
         icon: Building2,
-        label: `${postData?.houseInfo?.placeType?.charAt(0).toUpperCase() + (postData?.houseInfo?.placeType?.slice(1) ?? '')} living space`,
+        label: `${post.houseInfo.placeType.charAt(0).toUpperCase() + post.houseInfo.placeType.slice(1)} living space`,
       },
       {
         icon: Users,
-        label: `Max ${postData?.bedroomInfo.maxGuests} guest${(postData?.bedroomInfo?.maxGuests ?? 0) > 1 ? 's' : ''}`,
+        label: `Max ${post.bedroomInfo.maxGuests} guest${post.bedroomInfo.maxGuests > 1 ? 's' : ''}`,
       },
       {
         icon: BedDouble,
-        label: `${postData?.bedroomInfo?.beds ?? 0} bed${(postData?.bedroomInfo?.beds ?? 0) > 1 ? 's' : ''}`,
+        label: `${post.bedroomInfo.bedrooms} bedroom${post.bedroomInfo.bedrooms > 1 ? 's' : ''}, ${post.bedroomInfo.beds} bed${post.bedroomInfo.beds > 1 ? 's' : ''}`,
       },
       {
         icon: Bath,
-        label: `${(postData?.bathroomInfo?.privateAttached ?? 0) + (postData?.bathroomInfo?.privateAccessible ?? 0)} private, ${postData?.bathroomInfo?.shared ?? 0} shared bathroom`,
+        label: `${post.bathroomInfo.privateAttached + post.bathroomInfo.privateAccessible} private, ${post.bathroomInfo.shared} shared bathroom`,
+      },
+      {
+        icon: Lock,
+        label: post.bedroomInfo.lock
+          ? 'Room has lock'
+          : 'Room does not have lock',
       },
     ],
     rules: [
       {
         icon: Clock,
-        label: postData?.rules.quietHours
-          ? `Quiet hours: ${postData.rules.quietHours.from} - ${postData.rules.quietHours.to}`
+        label: post.rules.quietHours
+          ? `Quiet hours: ${post.rules.quietHours.from} - ${post.rules.quietHours.to}`
           : 'No quiet hours specified',
       },
       {
         icon: Users,
-        label: postData?.rules.noGuest ? 'No guests allowed' : 'Guests allowed',
+        label: post.rules.noGuest ? 'No guests allowed' : 'Guests allowed',
       },
       {
         icon: Dog,
-        label: postData?.rules.noPet ? 'No pets allowed' : 'Pets allowed',
+        label: post.rules.noPet ? 'No pets allowed' : 'Pets allowed',
+      },
+      {
+        icon: PartyPopper,
+        label: post.rules.noParty ? 'No parties allowed' : 'Parties allowed',
+      },
+      {
+        icon: Cigarette,
+        label: post.rules.noSmoking ? 'No smoking allowed' : 'Smoking allowed',
+      },
+      {
+        icon: Cannabis,
+        label: post.rules.noDrug ? 'No drugs allowed' : 'Drugs allowed',
       },
     ],
     availability: {
-      startDate: new Date(
-        postData?.availability.startDate ?? ''
-      ).toLocaleDateString(),
-      endDate: new Date(
-        postData?.availability.endDate ?? ''
-      ).toLocaleDateString(),
-      checkinTime: postData?.availability.checkinTime,
-      checkoutTime: postData?.availability.checkoutTime,
+      startDate: new Date(post.availability.startDate).toLocaleDateString(),
+      endDate: new Date(post.availability.endDate).toLocaleDateString(),
+      checkinTime: post.availability.checkinTime,
+      checkoutTime: post.availability.checkoutTime,
     },
-    whoElse: postData?.whoElse
+    whoElse: post.whoElse
       .map((item) => item.charAt(0).toUpperCase() + item.slice(1))
       .join(', '),
   };
@@ -216,15 +170,11 @@ export default function PostingPage() {
       {/* Header Section */}
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h1 className="text-2xl font-medium mb-2">{transformedPost.title}</h1>
+          <h1 className="text-2xl font-medium mb-2">{post.title}</h1>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1">
-              <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-              <span className="text-sm">{transformedPost.rating}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <MapPin className="w-4 h-4 text-gray-400" />
-              <span className="text-sm">{transformedPost.address}</span>
+              <MapPin className="w-4 h-4 text-gray-600" />
+              <span className="text-sm">{transformedData.address}</span>
             </div>
           </div>
         </div>
@@ -235,23 +185,21 @@ export default function PostingPage() {
           aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
         >
           <Heart
-            className={`w-6 h-6 ${
-              isFavorite ? 'fill-orange-500 text-orange-500' : 'text-white'
-            }`}
+            className={`w-6 h-6 ${isFavorite && 'fill-orange-500 text-orange-500'}`}
           />
         </button>
       </div>
 
       {/* Image Gallery */}
       <div className="grid grid-cols-4 gap-2 mb-8 rounded-xl overflow-hidden">
-        {transformedPost.images?.map((image, index) => (
+        {post.media.map((image, index) => (
           <div
             key={index}
             className={`relative ${index === 0 ? 'col-span-2 row-span-2' : ''} group cursor-pointer overflow-hidden`}
           >
             <Image
-              src={image.url}
-              alt={image.alt}
+              src={image}
+              alt={`Image ${index + 1}`}
               width={800}
               height={600}
               className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
@@ -271,7 +219,7 @@ export default function PostingPage() {
             onClick={handleAuthorClick}
           >
             <Image
-              src={transformedPost.author.profileImage || authorAvatar}
+              src={transformedData.author.profileImage || authorAvatar}
               alt="Author Avatar"
               className="w-11 h-11 rounded-full"
               width={44}
@@ -280,8 +228,7 @@ export default function PostingPage() {
             <p className="font-medium text-xl">
               Subleased by{' '}
               <span className="text-primaryOrange">
-                {transformedPost.author.firstName}{' '}
-                {transformedPost.author.lastName}
+                {`${transformedData.author.firstName} ${transformedData.author.lastName}`}
               </span>
             </p>
           </button>
@@ -290,7 +237,7 @@ export default function PostingPage() {
           <div className="mb-8">
             <h2 className="text-xl font-medium mb-4">About this place</h2>
             <div className="grid grid-cols-2 gap-4">
-              {transformedPost.roomInfo.map((info, index) => {
+              {transformedData.roomInfo.map((info, index) => {
                 const Icon = info.icon;
                 return (
                   <div key={index} className="flex items-center gap-4">
@@ -305,23 +252,20 @@ export default function PostingPage() {
           {/* Description */}
           <div className="mb-8">
             <h2 className="text-xl font-medium mb-4">Description</h2>
-            <p>{transformedPost.description}</p>
+            <p>{post.description}</p>
           </div>
 
           {/* Who else lives here */}
           <div className="mb-8">
             <h2 className="text-xl font-medium mb-4">Who else lives here</h2>
-            <p>{transformedPost.whoElse}</p>
+            <p>{transformedData.whoElse}</p>
           </div>
 
           {/* What this place offers */}
-          <section className="mb-8">
+          <div className="mb-8">
             <h2 className="text-xl font-medium mb-4">What this place offers</h2>
             <div className="grid grid-cols-2 gap-4">
-              {(showAllAmenities
-                ? transformedPost.amenities
-                : transformedPost.amenities.slice(0, 8)
-              ).map((amenity, index) => {
+              {transformedData.amenities.map((amenity, index) => {
                 const Icon = amenity.icon;
                 return (
                   <div key={index} className="flex items-center gap-4">
@@ -331,25 +275,13 @@ export default function PostingPage() {
                 );
               })}
             </div>
-            {transformedPost.amenities.length > 8 && (
-              <button
-                onClick={() => setShowAllAmenities(!showAllAmenities)}
-                className="mt-4 text-primaryOrange hover:text-orange-600 font-medium"
-              >
-                Show{' '}
-                {showAllAmenities
-                  ? 'fewer'
-                  : `all ${transformedPost.amenities.length}`}{' '}
-                amenities
-              </button>
-            )}
-          </section>
+          </div>
 
           {/* Convenience */}
-          <section className="mb-8">
+          <div className="mb-8">
             <h2 className="text-xl font-medium mb-4">Convenience</h2>
             <div className="grid grid-cols-2 gap-4">
-              {transformedPost.convenience.map((item, index) => {
+              {transformedData.convenience.map((item, index) => {
                 const Icon = item.icon;
                 return (
                   <div key={index} className="flex items-center gap-4">
@@ -359,13 +291,13 @@ export default function PostingPage() {
                 );
               })}
             </div>
-          </section>
+          </div>
 
           {/* House Rules */}
-          <section className="mb-8">
+          <div className="mb-8">
             <h2 className="text-xl font-medium mb-4">House Rules</h2>
             <div className="grid grid-cols-2 gap-4">
-              {transformedPost.rules.map((rule, index) => {
+              {transformedData.rules.map((rule, index) => {
                 const Icon = rule.icon;
                 return (
                   <div key={index} className="flex items-center gap-4">
@@ -375,24 +307,20 @@ export default function PostingPage() {
                 );
               })}
             </div>
-          </section>
+          </div>
 
           {/* Location */}
-          <section className="mb-8">
+          <div className="mb-8">
             <h2 className="text-xl font-medium mb-4">Where you'll be</h2>
-            <div className="mb-4">
-              <div>
-                <h3 className="font-medium text-lg mb-2">
-                  {transformedPost.address}
-                </h3>
-                <p>{transformedPost.description}</p>
-              </div>
+            <div className="mb-4 mb-2 flex gap-1">
+              <MapPin className="w-5 h-5 text-gray-600" />
+              {transformedData.address}
             </div>
             <div className="h-[400px] w-full rounded-lg overflow-hidden">
               <Map
                 defaultCenter={{
-                  lat: postData?.lat || 0,
-                  lng: postData?.long || 0,
+                  lat: post.lat || 0,
+                  lng: post.long || 0,
                 }}
                 defaultZoom={15}
                 gestureHandling={'greedy'}
@@ -401,27 +329,21 @@ export default function PostingPage() {
               >
                 <Marker
                   position={{
-                    lat: postData?.lat || 0,
-                    lng: postData?.long || 0,
+                    lat: post.lat || 0,
+                    lng: post.long || 0,
                   }}
                 />
               </Map>
             </div>
-          </section>
+          </div>
         </div>
 
         {/* Right Column - Booking Card */}
         <div className="lg:col-span-1">
           <div className="sticky top-4 bg-white rounded-lg shadow-lg p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="text-2xl font-semibold">
-                {transformedPost.price}
-                <span className="font-normal">/ month</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                <span className="text-sm">{transformedPost.rating}</span>
-              </div>
+            <div className="text-2xl font-semibold mb-4">
+              ${post.price}
+              <span className="font-normal">/month</span>
             </div>
 
             {/* Availability */}
@@ -435,7 +357,7 @@ export default function PostingPage() {
                   <div>
                     <p className="text-xs text-gray-500">Available from</p>
                     <p className="font-medium">
-                      {transformedPost.availability.startDate}
+                      {transformedData.availability.startDate}
                     </p>
                   </div>
                 </div>
@@ -443,7 +365,7 @@ export default function PostingPage() {
                   <div>
                     <p className="text-xs text-gray-500">Until</p>
                     <p className="font-medium">
-                      {transformedPost.availability.endDate}
+                      {transformedData.availability.endDate}
                     </p>
                   </div>
                 </div>
@@ -451,7 +373,7 @@ export default function PostingPage() {
                   <div>
                     <p className="text-xs text-gray-500">Check-in time</p>
                     <p className="font-medium">
-                      {transformedPost.availability.checkinTime}
+                      {transformedData.availability.checkinTime}
                     </p>
                   </div>
                 </div>
@@ -459,7 +381,7 @@ export default function PostingPage() {
                   <div>
                     <p className="text-xs text-gray-500">Check-out time</p>
                     <p className="font-medium">
-                      {transformedPost.availability.checkoutTime}
+                      {transformedData.availability.checkoutTime}
                     </p>
                   </div>
                 </div>
