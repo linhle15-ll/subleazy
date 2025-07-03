@@ -6,7 +6,6 @@ export interface Place {
   lat: number;
   long: number;
   googleMapsUri: string;
-  photo?: string;
 }
 
 interface NearbyAmenities {

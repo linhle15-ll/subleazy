@@ -16,8 +16,6 @@ export const parseGoogleMapPlaces = (places: any[]) => {
       lat: place.location.latitude,
       long: place.location.longitude,
       googleMapsUri: place.googleMapsUri,
-      photo:
-        place.photos?.length > 0 ? place.photos[0].googleMapsUri : undefined,
     });
   });
 
