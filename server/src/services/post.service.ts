@@ -127,7 +127,7 @@ const postService = {
   },
 
   getAllPosts: async () => {
-    const posts = await postModel.find();
+    const posts = await postModel.find().sort({ createdAt: -1 }).limit(12);
     return posts;
   },
 
