@@ -2,7 +2,7 @@
 
 import { SearchMap } from '@/components/ui/map/search-map';
 import { PriceMarker } from '@/components/ui/map/price-marker';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import { SortMenu } from '@/components/ui/search/sort-menu';
 import { useEffect, useState } from 'react';
 import { useSortStore } from '@/stores/sort.store';
@@ -44,7 +44,14 @@ export default function SearchPage() {
       ) : (
         <div className="w-[90vw] m-auto">
           <div className="w-full flex justify-between py-4">
-            <div className="font-semibold text-3xl">Stays</div>
+            <div>
+              <div className="font-semibold text-3xl">Stays</div>
+              <div className="flex items-center">
+                Add places with
+                <Star className="w-4 h-4 fill-orange-300 stroke-orange-300 mx-1" />
+                to your wishlist to find housemates and get a better price
+              </div>
+            </div>
             <SortMenu posts={posts} setPosts={setPosts} />
           </div>
           <div className="flex gap-8 w-full">
