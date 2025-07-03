@@ -40,9 +40,7 @@ export default function SearchPage() {
       {isFetching || !result ? (
         <Loading />
       ) : posts.length == 0 ? (
-        <div className="flex items-center justify-center h-[500px] text-xl">
-          No posts found
-        </div>
+        <div className="screen-message">No posts found</div>
       ) : (
         <div className="w-[90vw] m-auto">
           <div className="w-full flex justify-between py-4">
