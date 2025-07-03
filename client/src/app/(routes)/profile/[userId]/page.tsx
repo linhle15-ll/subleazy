@@ -23,18 +23,20 @@ export default function ProfilePage() {
 
   const userPosts = usePosts(userId);
 
-  return isFetching || !result ? (
-    <Loading />
-  ) : !result.success ? (
-    <div className="text-red-500 screen-message">User not found</div>
-  ) : (
+  if (isFetching || !result) return <Loading />;
+  if (!result.success)
+    return <div className="text-red-500 screen-message">User not found</div>;
+
+  const user = result.data!;
+
+  return (
     <div className="max-w-full mx-auto px-20 py-15">
       <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
         {/* Avatar */}
         <div className="flex-shrink-0">
           <Image
             // TODO: add default profile image
-            src={result.data!.profileImage || '/default-profile.png'}
+            src={user.profileImage || '/default-profile.png'}
             alt="Profile"
             width={180}
             height={180}
@@ -44,9 +46,9 @@ export default function ProfilePage() {
         {/* Info & Actions */}
         <div className="flex-1 flex flex-col gap-2">
           <h2 className="text-3xl font-medium">
-            {result.data!.firstName} {result.data!.lastName}
+            {user.firstName} {user.lastName}
           </h2>
-          <div>{result.data!.bio}</div>
+          <div>{user.bio}</div>
           <div className="flex gap-4 mt-4">
             {isOwner && (
               <>
@@ -81,7 +83,7 @@ export default function ProfilePage() {
         <div className="flex items-center gap-2 mb-4">
           <span className="text-2xl font-medium text-orange-500">▦</span>
           <span className="text-xl font-medium">
-            {result.data!.firstName}’s places for sublet
+            {user.firstName}’s places for sublet
           </span>
         </div>
         {userPosts.loading ? (

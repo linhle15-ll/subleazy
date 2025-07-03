@@ -57,7 +57,9 @@ export default function SearchPage() {
               <SearchMap
                 marker={PriceMarker}
                 posts={posts}
-                className={'w-1/2 h-[90vh] sticky top-8'}
+                className={
+                  'w-1/2 h-[90vh] sticky top-8 rounded-lg overflow-hidden'
+                }
               />
             )}
           </div>
