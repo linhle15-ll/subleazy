@@ -11,6 +11,7 @@ export function usePosts(userId?: string) {
     const fetchPosts = async () => {
       try {
         setLoading(true);
+
         let result;
 
         if (userId) {
@@ -19,23 +20,20 @@ export function usePosts(userId?: string) {
           result = await postService.getAllPosts();
         }
 
-        if (result.success && result.data) {
-          setPosts(Array.isArray(result.data) ? result.data : []);
+        if (result.success) {
+          setPosts(result.data!);
           setError(null);
         } else {
-          setError(result.error || 'Failed to fetch posts');
           setPosts([]);
+          setError(result.error!);
         }
-      } catch {
-        setError('Failed to fetch posts');
-        setPosts([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchPosts();
-  }, []);
+  }, [userId]);
 
   return { posts, loading, error };
 }
