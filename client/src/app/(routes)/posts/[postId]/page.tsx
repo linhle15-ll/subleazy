@@ -30,9 +30,9 @@ import postService from '@/services/post.service';
 import { useQuery } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Map, Marker } from '@vis.gl/react-google-maps';
 import { User } from '@/lib/types/user.types';
 import { House } from '@/lib/types/house.types';
+import { PostingMap } from '@/components/ui/map/posting-map';
 
 export default function PostingPage() {
   const { postId } = useParams<{ postId: string }>();
@@ -316,25 +316,10 @@ export default function PostingPage() {
               <MapPin className="w-5 h-5 text-gray-600" />
               {transformedData.address}
             </div>
-            <div className="h-[400px] w-full rounded-lg overflow-hidden">
-              <Map
-                defaultCenter={{
-                  lat: post.lat || 0,
-                  lng: post.long || 0,
-                }}
-                defaultZoom={15}
-                gestureHandling={'greedy'}
-                disableDefaultUI={true}
-                mapId="posting-map"
-              >
-                <Marker
-                  position={{
-                    lat: post.lat || 0,
-                    lng: post.long || 0,
-                  }}
-                />
-              </Map>
-            </div>
+            <PostingMap
+              post={post}
+              className="h-[400px] w-full rounded-lg overflow-hidden"
+            />
           </div>
         </div>
 
