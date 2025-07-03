@@ -35,7 +35,7 @@ export const useUserStore = create<UserStore>()(
             accessToken: state.accessToken,
             user: state.user
               ? {
-                  id: state.user._id,
+                  _id: state.user._id,
                   email: state.user.email,
                 }
               : null,
