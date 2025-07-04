@@ -42,7 +42,7 @@ export default function SearchPage() {
       ) : posts.length == 0 ? (
         <div className="screen-message">No posts found</div>
       ) : (
-        <div className="w-[90vw] m-auto">
+        <div className="w-[90vw] m-auto mb-11">
           <div className="w-full flex justify-between py-4">
             <div>
               <div className="font-semibold text-3xl">Stays</div>
