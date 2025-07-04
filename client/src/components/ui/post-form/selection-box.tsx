@@ -18,7 +18,7 @@ export function SelectionBox({
       onClick={onClick}
       className={cn(
         'flex flex-row items-center justify-center gap-4 w-64 h-28 pl-5 pr-5 border-2 rounded-xl text-lg text-center font-medium',
-        'transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-xl',
+        'transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-xl cursor-pointer',
         active
           ? 'border-primaryOrange bg-orange-50 shadow-lg scale-105'
           : 'border-gray-400 bg-white hover:border-primaryOrange hover:bg-orange-50/30',

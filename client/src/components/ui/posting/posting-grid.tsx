@@ -20,10 +20,6 @@ export function PostingGrid({
 
   const [isFavorite, setIsFavorite] = useState(false);
 
-  const handleViewDetails = (id: string) => {
-    router.push(`/posting?id=${id}`);
-  };
-
   const handleToggleFavorite = (id: string) => {
     console.log(id);
 
@@ -40,7 +36,7 @@ export function PostingGrid({
           <PostingCard
             key={post._id}
             post={post}
-            onViewDetails={() => handleViewDetails(post._id!)}
+            onViewDetails={() => router.push(`/posts/${post._id}`)}
             onToggleFavorite={() => handleToggleFavorite(post._id!)}
             isVertical={isVertical}
             isFavorite={isFavorite}
