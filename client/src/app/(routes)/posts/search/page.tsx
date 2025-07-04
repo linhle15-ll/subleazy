@@ -2,7 +2,7 @@
 
 import { SearchMap } from '@/components/ui/map/search-map';
 import { PriceMarker } from '@/components/ui/map/price-marker';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import { SortMenu } from '@/components/ui/search/sort-menu';
 import { useEffect, useState } from 'react';
 import { useSortStore } from '@/stores/sort.store';
@@ -40,13 +40,18 @@ export default function SearchPage() {
       {isFetching || !result ? (
         <Loading />
       ) : posts.length == 0 ? (
-        <div className="flex items-center justify-center h-[500px] text-xl">
-          No posts found
-        </div>
+        <div className="screen-message">No posts found</div>
       ) : (
         <div className="w-[90vw] m-auto">
           <div className="w-full flex justify-between py-4">
-            <div className="font-semibold text-3xl">Stays</div>
+            <div>
+              <div className="font-semibold text-3xl">Stays</div>
+              <div className="flex items-center">
+                Add places with
+                <Star className="w-4 h-4 fill-orange-300 stroke-orange-300 mx-1" />
+                to your wishlist to find housemates and get a better price
+              </div>
+            </div>
             <SortMenu posts={posts} setPosts={setPosts} />
           </div>
           <div className="flex gap-8 w-full">
@@ -59,7 +64,9 @@ export default function SearchPage() {
               <SearchMap
                 marker={PriceMarker}
                 posts={posts}
-                className={'w-1/2 h-[90vh] sticky top-8'}
+                className={
+                  'w-1/2 h-[90vh] sticky top-8 rounded-lg overflow-hidden'
+                }
               />
             )}
           </div>
