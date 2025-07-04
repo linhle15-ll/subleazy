@@ -9,7 +9,7 @@ export const uploadToCloudinary = async (file: File): Promise<string> => {
   // Determine if file is video or image
   const isVideo = file.type.startsWith('video/');
   const resourceType = isVideo ? 'video' : 'image';
-  const cloudName = 'dutej4ftp';
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 
   try {
     const response = await fetch(
