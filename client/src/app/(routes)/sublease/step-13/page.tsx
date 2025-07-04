@@ -46,12 +46,6 @@ export default function SubleaseStep13() {
     usePostSetters(setPost);
   const { rules, availability } = post;
 
-  const handleSubmit = async () => {
-    console.log('Submitting post:', post);
-    const res = await postService.createPost(post as Partial<Post>);
-    // ...
-  }
-
   return (
     <div className="form-border flex flex-col gap-6 relative mb-15">
       <LogoAndExitButton buttonName="Save & Exit" />

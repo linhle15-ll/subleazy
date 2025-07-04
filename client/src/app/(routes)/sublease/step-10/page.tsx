@@ -2,7 +2,7 @@
 
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
 import { ProgressBar } from '@/components/ui/post-form/progress-bar';
-import UploadMedias from '@/components/ui/commons/upload-medias';
+import { UploadMedias } from '@/components/ui/commons/upload-medias';
 import { usePostCreateStore } from '@/stores/post-create.store';
 
 export default function SubleaseStep10() {

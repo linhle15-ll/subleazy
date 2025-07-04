@@ -8,10 +8,7 @@ const postService = {
     submissionData: Partial<PostRequestBody>
   ): Promise<Result<Post>> => {
     try {
-      const response = await api.post(
-        'http://localhost:5001/api/posts/create',
-        submissionData
-      );
+      const response = await api.post('/posts/create', submissionData);
       return {
         success: true,
         data: response.data,
@@ -28,7 +25,7 @@ const postService = {
 
   getPost: async (id: string): Promise<Result<Post>> => {
     try {
-      const response = await api.get(`http://localhost:5001/api/posts/${id}`);
+      const response = await api.get(`/posts/${id}`);
       return {
         success: true,
         data: response.data,
@@ -47,10 +44,7 @@ const postService = {
     filter: Partial<PostRequestBody>
   ): Promise<Result<Post[]>> => {
     try {
-      const response = await api.post(
-        'http://localhost:5001/api/posts/search',
-        filter
-      );
+      const response = await api.post('/posts/search', filter);
       return {
         success: true,
         data: response.data,
@@ -67,7 +61,7 @@ const postService = {
 
   getAllPosts: async (): Promise<Result<Post[]>> => {
     try {
-      const response = await api.get('http://localhost:5001/api/posts/');
+      const response = await api.get('/posts/');
       return {
         success: true,
         data: response.data,
@@ -82,9 +76,7 @@ const postService = {
 
   getPostsByUserId: async (id: string): Promise<Result<Post[]>> => {
     try {
-      const response = await api.get(
-        `http://localhost:5001/api/posts/getByUserId/${id}`
-      );
+      const response = await api.get(`/posts/getByUserId/${id}`);
       return {
         success: true,
         data: response.data,

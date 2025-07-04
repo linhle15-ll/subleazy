@@ -57,7 +57,7 @@ interface UploadMediasProps {
   disabled?: boolean;
 }
 
-export default function UploadMedias({
+export function UploadMedias({
   initialMedia = [],
   onMediaChange,
   maxFiles = 10,
