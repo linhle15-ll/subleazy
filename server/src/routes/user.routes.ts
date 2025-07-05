@@ -7,4 +7,9 @@ const router = Router();
 router.use(authenticate);
 
 router.get('/:userId', userController.getUser);
+
+// Lifestyle
+router.get('/:userId/lifestyle', userController.getLifestyle);
+router.patch('/:userId/lifestyle', userController.createOrUpdateLifestyle);
+
 export default router;
