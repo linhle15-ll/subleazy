@@ -5,10 +5,8 @@ import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
 import { SelectionBox } from '@/components/ui/post-form/selection-box';
 import { Button } from '@/components/ui/button';
 import { usePostCreateStore } from '@/stores/post-create.store';
-import { Post } from '@/lib/types/post.types';
-import { DatePickerButton } from '@/components/ui/date/date-picker';
-import postService from '@/services/post.service';
 import { usePostSetters } from '@/hooks/use-post-setters';
+import { DatePickerButton } from '@/components/ui/date/date-picker';
 
 const hours = Array.from({ length: 12 }, (_, i) => i + 1);
 const minutes = ['00', '15', '30', '45'];
@@ -47,14 +45,6 @@ export default function SubleaseStep13() {
   const { setRules, setQuietHours, setDate, setCheckTime } =
     usePostSetters(setPost);
   const { rules, availability } = post;
-
-  const handleSubmit = async () => {
-    const res = await postService.createPost(post as Partial<Post>);
-    if (res.success) {
-      setPost({});
-      router.push('/sublease/success');
-    }
-  };
 
   return (
     <div className="form-border flex flex-col gap-6 relative mb-15">
@@ -396,9 +386,9 @@ export default function SubleaseStep13() {
           </Button>
           <Button
             className="w-40 btn-primary text-center rounded-xl"
-            onClick={handleSubmit}
+            onClick={() => router.push('/sublease/review')}
           >
-            Review and post
+            Review and Post
           </Button>
         </div>
       </div>

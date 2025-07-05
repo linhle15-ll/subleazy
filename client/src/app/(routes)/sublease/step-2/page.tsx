@@ -76,7 +76,7 @@ function MainContent() {
 
 function SubleaseStep2() {
   return (
-    <div className="form-border flex flex-col gap-6 relative">
+    <div className="form-border flex flex-col gap-6 relative mb-15">
       <LogoAndExitButton buttonName="Exit" />
       <MainContent />
       <ProgressBar

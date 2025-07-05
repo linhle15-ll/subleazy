@@ -72,7 +72,7 @@ export default function LandingPage() {
       </section>
 
       {/* Featured Listings Section */}
-      <section className="px-6 lg:px-12">
+      <section className="px-6 lg:px-12 mb-11">
         {loading ? (
           <div>
             {' '}
