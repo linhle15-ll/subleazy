@@ -18,8 +18,20 @@ app.use(express.json());
 app.use(cookieParser());
 
 // CORS config
-app.use(cors());
-app.options(/(.*)/, cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  })
+);
+
+app.options(
+  /(.*)/,
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  })
+);
 
 // Connect to MongoDB
 db();

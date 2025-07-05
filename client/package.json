@@ -20,7 +20,6 @@
     "@vis.gl/react-google-maps": "^1.5.2",
     "axios": "^1.9.0",
     "class-variance-authority": "^0.7.1",
-    "cloudinary": "^2.6.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "lucide": "^0.487.0",
@@ -46,6 +45,5 @@
     "prettier": "3.5.3",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
-  },
-  "packageManager": "pnpm@10.8.0+sha512.0e82714d1b5b43c74610193cb20734897c1d00de89d0e18420aebc5977fa13d780a9cb05734624e81ebd81cc876cd464794850641c48b9544326b5622ca29971"
+  }
 }

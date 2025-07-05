@@ -7,6 +7,7 @@ import {
   ParkingCircle,
   Snowflake,
   LucideIcon,
+  Accessibility,
 } from 'lucide-react';
 import LogoAndExitButton from '@/components/ui/commons/logo-and-exit-button';
 import { ProgressBar } from '@/components/ui/post-form/progress-bar';
@@ -26,7 +27,7 @@ const options: { label: string; key: keyof Amenities; icon: LucideIcon }[] = [
 export default function SubleaseStep9() {
   const post = usePostCreateStore((state) => state.post);
   const setPost = usePostCreateStore((state) => state.setPost);
-  const { setAmenities } = usePostSetters(setPost);
+  const { setAmenities, setConvenience } = usePostSetters(setPost);
 
   return (
     <div className="form-border flex flex-col gap-6 relative mb-15">
@@ -37,32 +38,44 @@ export default function SubleaseStep9() {
         <div className="form-heading-number-orange">2</div>
         <div className="form-h1">Make your place stand out: Amenities</div>
       </div>
+      <div className="form-h2 mb-8">Tell us what your place has to offer</div>
 
-      {/* Amenities section */}
-      <div className="mb-8">
-        <div className="form-h2 mb-8">Tell us what your place has to offer</div>
+      {/* Amenities */}
+      <div className="mb-6">
+        <div className="form-h2">Available amenities</div>
+        <div className="flex flex-wrap gap-4">
+          {options.map((opt) => {
+            const Icon = opt.icon;
+            const active = post.amenities?.[opt.key] || false;
+            return (
+              <SelectionBox
+                key={opt.key}
+                active={active}
+                onClick={() => setAmenities(opt.key)}
+              >
+                <Icon
+                  className={`w-8 h-8 ${active ? 'text-primaryOrange' : 'text-gray-500'}`}
+                />
+                {opt.label}
+              </SelectionBox>
+            );
+          })}
+        </div>
+      </div>
 
-        {/* Amenities */}
-        <div className="mb-9">
-          <div className="form-h2">Available amenities</div>
-          <div className="flex flex-wrap gap-4">
-            {options.map((opt) => {
-              const Icon = opt.icon;
-              const active = post.amenities?.[opt.key] || false;
-              return (
-                <SelectionBox
-                  key={opt.key}
-                  active={active}
-                  onClick={() => setAmenities(opt.key)}
-                >
-                  <Icon
-                    className={`w-8 h-8 ${active ? 'text-primaryOrange' : 'text-gray-500'}`}
-                  />
-                  {opt.label}
-                </SelectionBox>
-              );
-            })}
-          </div>
+      {/* Convenience */}
+      <div className="mb-6">
+        <div className="form-h2">Convenience</div>
+        <div className="flex flex-wrap gap-4">
+          <SelectionBox
+            active={post.convenience?.disabilityFriendly || false}
+            onClick={() => setConvenience('disabilityFriendly')}
+          >
+            <Accessibility
+              className={`w-8 h-8 ${post.convenience?.disabilityFriendly ? 'text-primaryOrange' : 'text-gray-500'}`}
+            />
+            Disability friendly
+          </SelectionBox>
         </div>
       </div>
 

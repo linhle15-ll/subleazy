@@ -16,10 +16,15 @@ export const parseGoogleMapPlaces = (places: any[]) => {
       lat: place.location.latitude,
       long: place.location.longitude,
       googleMapsUri: place.googleMapsUri,
-      photo:
-        place.photos?.length > 0 ? place.photos[0].googleMapsUri : undefined,
     });
   });
 
   return result;
+};
+
+export const isNearby = (lat: number, long: number, places: Place[]) => {
+  const r = 0.01446; // 1 mile
+  return places.some(
+    (place) => (place.lat - lat) ** 2 + (place.long - long) ** 2 <= r ** 2
+  );
 };
