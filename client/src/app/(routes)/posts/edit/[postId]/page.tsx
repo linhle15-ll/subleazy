@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { CircleArrowLeft } from 'lucide-react';
 import PostEditorSidebar from '@/components/ui/post-editor/sidebar';
@@ -9,44 +9,50 @@ import Loading from '@/components/ui/commons/loading';
 import postService from '@/services/post.service';
 import { Post } from '@/lib/types/post.types';
 import { usePostEditStore } from '@/stores/post-edit.store';
+import { usePost } from '@/hooks/use-post';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function PostEditorPage() {
-  const params = useParams();
-  const postId = params.postId as string;
+  const { postId } = useParams<{ postId: string }>();
+  const { result, isFetching } = usePost(postId);
   const router = useRouter();
-  const { post, setPost } = usePostEditStore();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const post = usePostEditStore((state) => state.post);
+  const setPost = usePostEditStore((state) => state.setPost);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
-    const fetchPost = async () => {
-      setLoading(true);
-      setError(null);
-
-      const res = await postService.getPost(postId);
-
-      if (res.success && res.data) {
-        setPost(res.data);
-        setLoading(false);
-      } else {
-        setError(res.error || 'Failed to fetch post');
-        setLoading(false);
-      }
-    };
-    fetchPost();
-  }, [postId, setPost]);
+    if (isFetching || !result) return;
+    if (result.success) setPost(result.data!);
+  }, [result]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const res = await postService.editPost(postId, post as Partial<Post>);
     if (res.success) {
+      queryClient.invalidateQueries({ queryKey: ['post', postId] });
       setPost({});
       router.push('/posts/edit/success');
     }
   };
 
-  if (loading) return <Loading />;
+  if (isFetching || !result) return <Loading />;
+  if (!result.success)
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-medium text-gray-900 mb-4">
+            Post could not be found
+          </h2>
+          <button
+            onClick={() => router.push('/')}
+            className="text-primaryOrange hover:text-orange-600"
+          >
+            Return to home
+          </button>
+        </div>
+      </div>
+    );
 
   return (
     <form onSubmit={(e) => handleSave(e)}>
@@ -71,11 +77,6 @@ export default function PostEditorPage() {
               <PostEditorEditPanel />
             </div>
             <div className="flex items-center justify-end mt-6 space-x-12">
-              {error && (
-                <p className="text-sm text-red-500 whitespace-pre-wrap">
-                  {error}
-                </p>
-              )}
               <button type="submit" className="btn-primary text-base">
                 Save
               </button>

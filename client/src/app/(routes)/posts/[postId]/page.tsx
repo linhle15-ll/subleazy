@@ -26,25 +26,19 @@ import {
 } from 'lucide-react';
 import authorAvatar from '@/public/bannerImg.jpg'; // Placeholder for author avatar
 import Loading from '@/components/ui/commons/loading';
-import postService from '@/services/post.service';
-import { useQuery } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { User } from '@/lib/types/user.types';
 import { House } from '@/lib/types/house.types';
 import { PostingMap } from '@/components/ui/map/posting-map';
+import { usePost } from '@/hooks/use-post';
 
 export default function PostingPage() {
   const { postId } = useParams<{ postId: string }>();
+  const { result, isFetching } = usePost(postId);
   const router = useRouter();
   const [isFavorite, setIsFavorite] = useState(false);
   // TODO: implement isFavorite/wishlist functionality
-
-  const { data: result, isFetching } = useQuery({
-    queryKey: ['transformedData', postId],
-    queryFn: () => postService.getPost(postId),
-    enabled: !!postId,
-  });
 
   if (isFetching || !result) return <Loading />;
   if (!result.success)
