@@ -32,7 +32,7 @@ export default function PostEditorPage() {
     if (res.success) {
       queryClient.invalidateQueries({ queryKey: ['post', postId] });
       setPost({});
-      router.push('/posts/edit/success');
+      router.push(`/posts/${postId}`);
     }
   };
 
