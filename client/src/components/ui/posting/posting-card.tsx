@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { Heart, Star } from 'lucide-react';
 import { getPlaceTypeIcon, getHouseTypeIcon } from '@/lib/utils/icons';
 import { Post } from '@/lib/types/post.types';
+import { usePathname } from 'next/navigation';
+import { useFilterStore } from '@/stores/filter.store';
 
 interface PostingCardProps {
   post: Post;
@@ -24,6 +26,7 @@ export function PostingCard({
   if (!post) {
     return null;
   }
+  const pathname = usePathname();
 
   const placeType = post.houseInfo.placeType;
   const houseType = post.houseInfo.houseType;
@@ -77,10 +80,14 @@ export function PostingCard({
           <h3 className="font-medium text-lg line-clamp-2">
             {title || 'Untitled Post'}
           </h3>
-          <div className="flex items-center gap-1">
-            <Star className="w-4 h-4 fill-orange-300 stroke-orange-300" />
-            <span>5</span>
-          </div>
+          {pathname === '/posts/search' &&
+            post.bedroomInfo.maxGuests >
+              (useFilterStore.getState().filters.bedroomInfo?.maxGuests ||
+                1) && (
+              <div className="flex items-center">
+                <Star className="w-4 h-4 fill-orange-300 stroke-orange-300" />
+              </div>
+            )}
         </div>
         <div className="flex items-center gap-2 mb-2">
           <span>{location}</span>

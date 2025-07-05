@@ -8,17 +8,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const persistedState = localStorage.getItem('user-store');
-    let token: string | null = null;
-    if (persistedState) {
-      try {
-        const parsed = JSON.parse(persistedState);
-        token = parsed?.state?.accessToken ?? null;
-      } catch {
-        token = null;
-      }
-    }
-
+    const token = useUserStore.getState().accessToken;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

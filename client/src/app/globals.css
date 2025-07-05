@@ -67,6 +67,10 @@ body {
     @apply flex items-center justify-center gap-4 w-16 h-15 border-2 rounded-xl text-lg text-center font-medium border-gray-400;
   }
 
+  .screen-message {
+    @apply flex items-center justify-center h-[500px] text-2xl font-medium;
+  }
+
   @layer base {
     input[type='number']::-webkit-inner-spin-button,
     input[type='number']::-webkit-outer-spin-button {

@@ -43,7 +43,7 @@ const houseService = {
           'Content-Type': 'application/json',
           'X-Goog-Api-Key': process.env.GOOGLE_MAPS_API_KEY as string,
           'X-Goog-FieldMask':
-            'places.shortFormattedAddress,places.displayName,places.location,places.googleMapsUri,places.photos',
+            'places.shortFormattedAddress,places.displayName,places.location,places.googleMapsUri',
         },
         body: JSON.stringify({
           locationRestriction: {
