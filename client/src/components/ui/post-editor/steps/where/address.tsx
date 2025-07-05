@@ -1,10 +1,11 @@
 'use client';
 
+import { House } from '@/lib/types/house.types';
 import { usePostEditStore } from '@/stores/post-edit.store';
 
 export default function SubleaseFormAddress() {
   const { post } = usePostEditStore();
-  const { city, address, suites, state, zip } = post;
+  const { house, city, suites, state, zip } = post;
 
   return (
     <div className="flex flex-col gap-6 relative mb-15 mr-8">
@@ -17,7 +18,7 @@ export default function SubleaseFormAddress() {
         <div className="flex flex-col gap-4 ml-10">
           <input
             className="text-field"
-            value={address || ''}
+            value={(house as House).address || ''}
             title="Street address"
             readOnly
           ></input>

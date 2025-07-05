@@ -6,6 +6,7 @@ import {
   ParkingCircle,
   Snowflake,
   LucideIcon,
+  Accessibility,
 } from 'lucide-react';
 import { SelectionBox } from '@/components/ui/post-form/selection-box';
 import { Amenities } from '@/lib/types/post.types';
@@ -23,7 +24,7 @@ const options: { label: string; key: keyof Amenities; icon: LucideIcon }[] = [
 export default function SubleaseFormAmenities() {
   const post = usePostEditStore((state) => state.post);
   const setPost = usePostEditStore((state) => state.setPost);
-  const { setAmenities } = usePostSetters(setPost);
+  const { setAmenities, setConvenience } = usePostSetters(setPost);
 
   return (
     <div className="flex flex-col gap-6 relative mb-15 mr-8">
@@ -45,7 +46,7 @@ export default function SubleaseFormAmenities() {
                   onClick={() => {
                     setAmenities(opt.key);
                   }}
-                  className={`w-56 text-base ml-10 ${active ? 'font-medium' : 'font-normal'}`}
+                  className={`text-base ml-10 ${active ? 'font-medium' : 'font-normal'}`}
                 >
                   <Icon
                     className={`w-8 h-8 ${active ? 'text-primaryOrange' : 'text-gray-500'}`}
@@ -54,6 +55,23 @@ export default function SubleaseFormAmenities() {
                 </SelectionBox>
               );
             })}
+          </div>
+        </div>
+
+        {/* Convenience */}
+        <div className="mb-9">
+          <div className="form-h2">Select available convenience</div>
+          <div className="flex flex-wrap gap-4">
+            <SelectionBox
+              active={post.convenience?.disabilityFriendly || false}
+              onClick={() => setConvenience('disabilityFriendly')}
+              className={`text-base ml-10 ${post.convenience?.disabilityFriendly ? 'font-medium' : 'font-normal'}`}
+            >
+              <Accessibility
+                className={`w-8 h-8 ${post.convenience?.disabilityFriendly ? 'text-primaryOrange' : 'text-gray-500'}`}
+              />
+              Disability friendly
+            </SelectionBox>
           </div>
         </div>
       </div>
