@@ -16,7 +16,7 @@ export default function PostEditorSidebar() {
     <Tabs
       className="flex flex-col"
       value={activeTab}
-      onValueChange={(tab) => setActiveTab(tab as 'where' | 'when')}
+      onValueChange={(tab: 'where' | 'when') => setActiveTab(tab)}
     >
       <div className="flex justify-center">
         <TabsList className="bg-slate-200 p-2 mb-4">
