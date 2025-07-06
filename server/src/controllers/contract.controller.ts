@@ -3,7 +3,6 @@ import mongoose, { Types } from 'mongoose';
 import { getAuthRequest } from '../utils/common.utils';
 
 const contractController = {
-  // Create a new contract
   createContract: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const authReq = getAuthRequest(req);
@@ -31,7 +30,6 @@ const contractController = {
     }
   },
 
-  // Edit/Update an existing contract
   editContract: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const authReq = getAuthRequest(req);
@@ -89,7 +87,6 @@ const contractController = {
     }
   },
 
-  // Get contract by post ID
   getContractByPostId: async (
     req: Request,
     res: Response,
@@ -128,7 +125,6 @@ const contractController = {
     }
   },
 
-  // Delete a contract
   deleteContract: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const authReq = getAuthRequest(req);
