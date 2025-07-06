@@ -8,5 +8,6 @@ router.use(authenticate);
 
 router.post('/create', groupController.createGroup);
 router.get('/', groupController.getAllGroups);
+router.put('/:groupId/add-members', groupController.addMembers);
 
 export default router;

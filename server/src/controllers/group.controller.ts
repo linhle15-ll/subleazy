@@ -8,18 +8,19 @@ const groupController = {
   createGroup: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const authReq = getAuthRequest(req);
-      const reqUserId = new Types.ObjectId(authReq.user.id);
       const data: Group = authReq.body;
 
       if (!('isDM' in (data as object))) data.isDM = true;
-      if (!data.members.includes(reqUserId)) data.members.push(reqUserId);
+      data.members.push(new Types.ObjectId(authReq.user.id));
 
-      if (!data.isDM && data.members.length > 2) {
-        res.status(400).json({ error: 'DMs can only have 2 members' });
-        return;
-      }
+      data.members = await groupService.sieveUsers(data.members as ObjectId[]);
 
       if (data.isDM) {
+        if (data.members.length !== 2) {
+          res.status(400).json({ error: 'DMs must have exactly 2 members' });
+          return;
+        }
+
         data.members.sort();
         const dm = await groupService.findExistingDM(
           data.members as ObjectId[]
@@ -46,6 +47,66 @@ const groupController = {
       next(error);
     }
   },
+
+  addMembers: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const authReq = getAuthRequest(req);
+      const groupId = authReq.params.groupId;
+      const group = await groupService.getGroup(groupId);
+
+      if (!group) {
+        res.status(404).json({ error: 'Group not found' });
+        return;
+      }
+
+      if (group.isDM) {
+        res.status(400).json({ error: 'Cannot add members to a DM' });
+        return;
+      }
+
+      // TODO: add a system message describing who added who to the group
+      const members: typeof group.members = authReq.body.members;
+      group.members.push(...members);
+      group.members = await groupService.sieveUsers(
+        group.members as ObjectId[]
+      );
+
+      const updatedGroup = await groupService.updateGroup(groupId, group);
+      res.status(200).json(updatedGroup);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // leaveGroup: async (req: Request, res: Response, next: NextFunction) => {
+  //     try {
+  //         const authReq = getAuthRequest(req);
+  //         const groupId = authReq.params.groupId;
+  //         const group = await groupService.getGroup(groupId);
+
+  //         if (!group) {
+  //             res.status(404).json({ error: 'Group not found' });
+  //             return;
+  //         }
+
+  //         if (group.isDM) {
+  //             res.status(400).json({ error: 'Cannot leave a DM' });
+  //             return;
+  //         }
+
+  //         group.members = group.members.filter((member) => member.toString() !== authReq.user.id);
+  //         if (group.members.length === 0) {
+  //             await groupService.deleteGroup(groupId);
+  //             res.status(200).json({ message: 'Group deleted' });
+  //             return;
+  //         }
+
+  //         const updatedGroup = await groupService.updateGroup(groupId, group);
+  //         res.status(200).json(updatedGroup);
+  //     } catch (error) {
+  //         next(error);
+  //     }
+  // },
 };
 
 export default groupController;
