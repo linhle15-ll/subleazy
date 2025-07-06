@@ -25,11 +25,10 @@ import {
   LayoutTemplate,
   Underline,
   Highlighter,
-  Download,
   Upload,
   MessageCircle,
   ListTodo,  
-  FileCheck2
+  FileCheck2,
 } from 'lucide-react';
 import React from 'react';
 import './styles.scss';
@@ -63,7 +62,6 @@ const ConfigBar = ({ isLoading, setIsLoading, editor, createThread } : { isLoadi
     try {
       editor.chain().focus().setContent(content).run();
     } catch (error) {
-      console.error('Error loading template:', error);
       setError(new Error('Failed to load template'));
     }
 
@@ -98,6 +96,7 @@ const ConfigBar = ({ isLoading, setIsLoading, editor, createThread } : { isLoadi
               return
             }
             // Set the imported content to the editor
+            console.log("CONTEXT CONTENT", context.content)
             context.setEditorContent(context.content)
             setError(null)
             setIsLoading(false)
@@ -105,7 +104,7 @@ const ConfigBar = ({ isLoading, setIsLoading, editor, createThread } : { isLoadi
         })
         .run()
     },
-    [editor, setIsLoading, setError],
+    [editor],
   )
 
   return (
@@ -181,6 +180,58 @@ const MenuBar = ({ editor } : {editor: any}) => {
   if (!editor) {
     return null;
   }
+
+  const handleTableAction = (value: string) => {
+  switch (value) {
+    case 'create-table':
+      editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+      break;
+    case "add-column-before":
+      editor.chain().focus().addColumnBefore().run();
+      break;
+    case "add-column-after":
+      editor.chain().focus().addColumnAfter().run()
+      break;
+    case 'delete-column':
+      editor.chain().focus().deleteColumn().run();
+      break;
+    case 'add-row-before':
+      editor.chain().focus().addRowBefore().run();
+      break;
+    case 'add-row-after':
+      editor.chain().focus().addRowAfter().run();
+      break;
+    case 'delete-row':
+      editor.chain().focus().deleteRow().run();
+      break;
+    case 'delete-table':
+      editor.chain().focus().deleteTable().run();
+      break;
+    case 'merge-cells':
+      editor.chain().focus().mergeCells().run();
+      break;
+    case 'split-cell':
+      editor.chain().focus().splitCell().run();
+      break;
+    case 'toggle-header-column':
+      editor.chain().focus().toggleHeaderColumn().run();
+      break;
+    case 'toggle-header-row':
+      editor.chain().focus().toggleHeaderRow().run();
+      break;
+    case 'toggle-header-cell':
+      editor.chain().focus().toggleHeaderCell().run();
+      break;
+    case 'merge-or-split':
+      editor.chain().focus().mergeOrSplit().run();
+      break;
+    case 'fix-tables':
+      editor.chain().focus().fixTables().run();
+      break;
+    default:
+      break;
+  }
+};
 
   return (
     <div className="menu-bar">
@@ -388,102 +439,26 @@ const MenuBar = ({ editor } : {editor: any}) => {
       </div>
 
       <div className='menu-group'>
-        <Select>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Table" />
+        <Select onValueChange={(value) => handleTableAction(value)}>
+          <SelectTrigger className="w-[180px] bg-white">
+            <SelectValue placeholder="Table Actions" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="insert table"> 
-              <button onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}>
-                Insert table
-              </button>
-            </SelectItem>
-            <SelectItem value="add column before"> 
-              <button onClick={() => editor.chain().focus().addColumnBefore().run()}> 
-                Add column before
-              </button>
-            </SelectItem>
-            <SelectItem value="Add column after">
-              <button onClick={() => editor.chain().focus().addColumnAfter().run()}>
-                Add column after
-              </button>
-            </SelectItem>
-            <SelectItem value="Delete column">
-              <button onClick={() => editor.chain().focus().deleteColumn().run()}>
-                Delete column
-              </button>
-            </SelectItem>
-            <SelectItem value="Add row before">
-              <button onClick={() => editor.chain().focus().addRowBefore().run()}>
-                Add row before
-              </button>
-            </SelectItem>
-
-            <SelectItem value="Add row after">
-              <button onClick={() => editor.chain().focus().addRowAfter().run()}>
-                Add row after
-              </button>
-            </SelectItem>
-
-            <SelectItem value="Delete row">
-              <button onClick={() => editor.chain().focus().deleteRow().run()}>
-                Delete row
-              </button>
-            </SelectItem>
-
-            <SelectItem value="Delete table">
-              <button onClick={() => editor.chain().focus().deleteTable().run()}>
-                Delete table
-              </button>
-            </SelectItem>
-
-            <SelectItem value="Merge cells">
-              <button onClick={() => editor.chain().focus().mergeCells().run()}>
-                Merge cells
-              </button>
-            </SelectItem>
-
-            <SelectItem value="Split cell">
-              <button onClick={() => editor.chain().focus().splitCell().run()}>
-                Split cell
-              </button>
-            </SelectItem>
-
-            <SelectItem value="Toggle header column">
-              <button onClick={() => editor.chain().focus().toggleHeaderColumn().run()}>
-                Toggle header column
-              </button>
-            </SelectItem>
-
-            <SelectItem value="Toggle header row">
-              <button onClick={() => editor.chain().focus().toggleHeaderRow().run()}>
-                Toggle header row
-              </button>
-            </SelectItem>
-
-            <SelectItem value="Toggle header cell">
-              <button onClick={() => editor.chain().focus().toggleHeaderCell().run()}>
-                Toggle header cell
-              </button>
-            </SelectItem>
-
-            <SelectItem value="Merge or split">
-              <button onClick={() => editor.chain().focus().mergeOrSplit().run()}>
-                Merge or split
-              </button>
-            </SelectItem>
-
-            <SelectItem value="Set cell attribute">
-              <button onClick={() => editor.chain().focus().setCellAttribute('colspan', 2).run()}>
-                Set cell attribute
-              </button>
-            </SelectItem>
-
-            <SelectItem value="Fix tables">
-              <button onClick={() => editor.chain().focus().fixTables().run()}>
-                Fix tables
-              </button>
-            </SelectItem>
+          <SelectContent className="bg-white">
+            <SelectItem value="create-table">Create table</SelectItem>
+            <SelectItem value="add-column-before">Add column before</SelectItem>
+            <SelectItem value="add-column-after">Add column after</SelectItem>
+            <SelectItem value="delete-column">Delete column</SelectItem>
+            <SelectItem value="add-row-before">Add row before</SelectItem>
+            <SelectItem value="add-row-after">Add row after</SelectItem>
+            <SelectItem value="delete-row">Delete row</SelectItem>
+            <SelectItem value="delete-table">Delete table</SelectItem>
+            <SelectItem value="merge-cells">Merge cells</SelectItem>
+            <SelectItem value="split-cell">Split cell</SelectItem>
+            <SelectItem value="toggle-header-column">Toggle header column</SelectItem>
+            <SelectItem value="toggle-header-row">Toggle header row</SelectItem>
+            <SelectItem value="toggle-header-cell">Toggle header cell</SelectItem>
+            <SelectItem value="merge-or-split">Merge or split</SelectItem>
+            <SelectItem value="fix-tables">Fix tables</SelectItem>
           </SelectContent>
         </Select>
       </div>

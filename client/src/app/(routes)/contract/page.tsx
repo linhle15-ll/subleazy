@@ -30,7 +30,7 @@ export default function ContractScanPage() {
         {/* Heading Section */}
         <div className="text-center space-y-6 max-w-3xl leading-normal">
           <div className="space-y-2">
-            <h1 className="text-4xl lg:text-6xl font-medium leading-tight">
+            <h1 className="text-3xl lg:text-5xl font-medium leading-tight">
               Let us walk you through the <br />
               <span className="font-semibold text-orange-500 relative">
                 Contract Process
