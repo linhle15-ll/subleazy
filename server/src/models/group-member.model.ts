@@ -3,7 +3,7 @@ import { GroupMember } from '../types/group-member.types';
 
 const groupMemberSchema = new Schema<GroupMember>({
   user: {
-    type: Schema.Types.ObjectId,
+    type: [Schema.Types.ObjectId],
     ref: 'User',
     required: true,
   },

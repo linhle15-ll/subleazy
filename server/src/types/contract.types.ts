@@ -2,6 +2,7 @@ import { Types, ObjectId } from 'mongoose';
 import { Base, Timestamps } from './common.types';
 import { User } from './user.types';
 import { Post } from './post.types';
+import { GroupMember } from './group-member.types';
 
 export enum ContractStatus {
   PENDING = 'pending',
@@ -10,9 +11,11 @@ export enum ContractStatus {
 }
 
 export interface Contract extends Base, Timestamps {
+  title: string;
+  post: Types.ObjectId | ObjectId | Post;
   sublessor: Types.ObjectId | ObjectId | User;
   sublessees: (Types.ObjectId | ObjectId | User)[];
-  post: Types.ObjectId | ObjectId | Post;
+  group: Types.ObjectId | ObjectId | GroupMember;
   content: string;
   status: ContractStatus;
 }

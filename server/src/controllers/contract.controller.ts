@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import mongoose, { Types } from 'mongoose';
 import { getAuthRequest } from '../utils/common.utils';
+import contractService from '../services/contract.service';
+import { ContractStatus } from '../types/contract.types';
 
 const contractController = {
   createContract: async (req: Request, res: Response, next: NextFunction) => {
@@ -8,22 +10,68 @@ const contractController = {
       const authReq = getAuthRequest(req);
       const data = authReq.body;
 
-      // Add the authenticated user as the contract creator
-      data.creator = new Types.ObjectId(authReq.user.id);
+      // Validate required fields
+      const { title, post, sublessor, sublessees, group, content } = data;
+      if (!title || !post || !sublessor || !sublessees || !group || !content) {
+        res.status(400).json({
+          error:
+            'Missing required fields: title, post, sublessees, group, content',
+        });
+        return;
+      }
 
-      // TODO: Add contract data validation
-      // if (validateContractData(data)) {
-      //   res.status(400).json({ error: 'Invalid contract data' });
-      //   return;
-      // }
+      // Validate sublessees is an array
+      if (!sublessees || sublessees.length === 0) {
+        res.status(400).json({ error: 'Sublessees must be a non-empty array' });
+        return;
+      }
 
-      // TODO: Implement contract creation logic
-      // const contract = await contractService.createContract(data);
+      // Validate ObjectIds
+      if (!mongoose.isValidObjectId(post)) {
+        res.status(400).json({ error: 'Invalid post ID' });
+        return;
+      }
+
+      if (!mongoose.isValidObjectId(group)) {
+        res.status(400).json({ error: 'Invalid group ID' });
+        return;
+      }
+
+      for (const sublesseeId of sublessees) {
+        if (!mongoose.isValidObjectId(sublesseeId)) {
+          res.status(400).json({ error: 'Invalid sublessee ID' });
+          return;
+        }
+      }
+
+      if (!mongoose.isValidObjectId(sublessor)) {
+        res.status(400).json({ error: 'Invalid sublessor ID' });
+        return;
+      }
+
+      // Create contract data
+      const contractData = {
+        title,
+        post: new Types.ObjectId(post),
+        sublessor: new Types.ObjectId(authReq.user.id),
+        sublessees: sublessees.map((id: string) => new Types.ObjectId(id)),
+        group: new Types.ObjectId(group),
+        content,
+        status: ContractStatus.PENDING,
+      };
+
+      // Only sublessor can create contract
+      if (sublessor.toString() !== authReq.user.id) {
+        res.status(403).json({ error: 'Unauthorized to create contract' });
+        return;
+      }
+
+      const contract = await contractService.createContract(contractData);
 
       res.status(201).json({
         success: true,
         message: 'Contract created successfully',
-        data: {},
+        data: contract,
       });
     } catch (error) {
       next(error);
@@ -33,101 +81,95 @@ const contractController = {
   editContract: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const authReq = getAuthRequest(req);
-      const contractId = authReq.params.contractId;
+      const contractId = req.params.contractId;
+      const updates = req.body;
 
       if (!contractId || !mongoose.isValidObjectId(contractId)) {
         res.status(400).json({ error: 'Invalid contract ID' });
         return;
       }
 
-      // TODO: Get existing contract
-      // const existingContract = await contractService.getContract(contractId);
+      // Get existing contract
+      const existingContract = await contractService.getContract(contractId);
 
-      // if (!existingContract) {
-      //   res.status(404).json({ error: 'Contract not found' });
-      //   return;
-      // }
+      if (!existingContract) {
+        res.status(404).json({ error: 'Contract not found' });
+        return;
+      }
 
-      // TODO: Check authorization - only creator or involved parties can edit
-      // if (getContractCreatorId(existingContract) !== authReq.user.id) {
-      //   res.status(403).json({ error: 'Unauthorized to edit this contract' });
-      //   return;
-      // }
+      // only sublessor and sublessee in the group can edit contract
+      const isSublessor =
+        existingContract.sublessor.toString() === authReq.user.id;
+      const isSublessee = existingContract.sublessees.some(
+        (sublessee) => sublessee.toString() === authReq.user.id
+      );
 
-      // TODO: Define allowed fields for updates
-      // const allowedFields = [
-      //   'terms',
-      //   'status',
-      //   'startDate',
-      //   'endDate',
-      //   'rentAmount',
-      //   'depositAmount'
-      // ];
+      if (!isSublessor && !isSublessee) {
+        res.status(403).json({ error: 'Unauthorized to edit this contract' });
+        return;
+      }
 
-      // const filteredData = Object.fromEntries(
-      //   Object.entries(updates).filter(([key]) => allowedFields.includes(key))
-      // );
-
-      // TODO: Validate updated data
-      // if (validateContractData({ ...existingContract.toObject(), ...updates })) {
-      //   res.status(400).json({ error: 'Invalid contract data' });
-      //   return;
-      // }
-
-      // TODO: Update contract
-      // const editedContract = await contractService.updateContract(contractId, filteredData);
+      const editedContract = await contractService.updateContract(
+        contractId,
+        updates
+      );
 
       res.status(200).json({
         success: true,
         message: 'Contract updated successfully',
-        data: { contractId },
+        data: editedContract,
       });
     } catch (error) {
       next(error);
     }
   },
 
-  getContractByPostId: async (
+  getContractByGroupId: async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
       const authReq = getAuthRequest(req);
-      const postId = req.params.postId;
+      const groupId = req.params.groupId;
 
-      if (!postId || !mongoose.isValidObjectId(postId)) {
-        res.status(400).json({ error: 'Invalid post ID' });
+      if (!groupId || !mongoose.isValidObjectId(groupId)) {
+        res.status(400).json({ error: 'Invalid group ID' });
         return;
       }
 
-      // TODO: Get contract by post ID
-      // const contract = await contractService.getContractByPostId(postId);
+      const contract = await contractService.getContractByGroupId(groupId);
 
-      // if (!contract) {
-      //   res.status(404).json({ error: 'Contract not found for this post' });
-      //   return;
-      // }
+      if (!contract) {
+        res.status(404).json({ error: 'Contract not found for this group' });
+        return;
+      }
 
-      // TODO: Check authorization - only involved parties can view
-      // if (!isContractParticipant(contract, authReq.user.id)) {
-      //   res.status(403).json({ error: 'Unauthorized to view this contract' });
-      //   return;
-      // }
+      // Check authorization - only involved parties can view
+      const isSublessor = contract.sublessor.toString() === authReq.user.id;
+      const isSublessee = contract.sublessees.some(
+        (sublessee) => sublessee.toString() === authReq.user.id
+      );
+
+      if (!isSublessor && !isSublessee) {
+        res.status(403).json({ error: 'Unauthorized to view this contract' });
+        return;
+      }
 
       res.status(200).json({
         success: true,
         message: 'Contract retrieved successfully',
-        data: { postId },
+        data: contract,
       });
     } catch (error) {
       next(error);
     }
   },
 
+  // use case to use delete contract when contract is signed and it is deleted from the group by platform, not by sublessor or sublessee
   deleteContract: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const authReq = getAuthRequest(req);
+      // const authReq = getAuthRequest(req);
       const contractId = req.params.contractId;
 
       if (!contractId || !mongoose.isValidObjectId(contractId)) {
@@ -135,27 +177,97 @@ const contractController = {
         return;
       }
 
-      // TODO: Get existing contract
-      // const existingContract = await contractService.getContract(contractId);
+      // Get existing contract
+      const existingContract = await contractService.getContract(contractId);
 
-      // if (!existingContract) {
-      //   res.status(404).json({ error: 'Contract not found' });
-      //   return;
-      // }
+      if (!existingContract) {
+        res.status(404).json({ error: 'Contract not found' });
+        return;
+      }
 
-      // TODO: Check authorization - only creator can delete
-      // if (getContractCreatorId(existingContract) !== authReq.user.id) {
-      //   res.status(403).json({ error: 'Unauthorized to delete this contract' });
-      //   return;
-      // }
+      const deleted = await contractService.deleteContract(contractId);
 
-      // TODO: Delete contract
-      // await contractService.deleteContract(contractId);
+      if (!deleted) {
+        res.status(500).json({ error: 'Failed to delete contract' });
+        return;
+      }
 
       res.status(200).json({
         success: true,
         message: 'Contract deleted successfully',
         data: { contractId },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  getMyContracts: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const authReq = getAuthRequest(req);
+      const userId = authReq.user.id;
+      if (!userId || !mongoose.isValidObjectId(userId)) {
+        res.status(400).json({ error: 'Invalid user ID' });
+        return;
+      }
+
+      const contracts = await contractService.getContractsByUser(userId);
+
+      res.status(200).json({
+        success: true,
+        message: 'Contracts retrieved successfully',
+        data: contracts,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // only sublessor can update status
+  updateContractStatus: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const authReq = getAuthRequest(req);
+      const contractId = req.params.contractId;
+      const { status } = req.body;
+
+      if (!contractId || !mongoose.isValidObjectId(contractId)) {
+        res.status(400).json({ error: 'Invalid contract ID' });
+        return;
+      }
+
+      if (!status || !Object.values(ContractStatus).includes(status)) {
+        res.status(400).json({ error: 'Invalid contract status' });
+        return;
+      }
+
+      const existingContract = await contractService.getContract(contractId);
+
+      if (!existingContract) {
+        res.status(404).json({ error: 'Contract not found' });
+        return;
+      }
+
+      // Only sublessor can update status
+      if (existingContract.sublessor.toString() !== authReq.user.id) {
+        res
+          .status(403)
+          .json({ error: 'Unauthorized to update contract status' });
+        return;
+      }
+
+      const updatedContract = await contractService.updateContractStatus(
+        contractId,
+        status
+      );
+
+      res.status(200).json({
+        success: true,
+        message: 'Contract status updated successfully',
+        data: updatedContract,
       });
     } catch (error) {
       next(error);
