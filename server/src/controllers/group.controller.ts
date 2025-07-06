@@ -71,7 +71,9 @@ const groupController = {
         group.members as ObjectId[]
       );
 
-      const updatedGroup = await groupService.updateGroup(groupId, group);
+      const updatedGroup = await groupService.updateGroup(groupId, {
+        members: group.members,
+      });
       res.status(200).json(updatedGroup);
     } catch (error) {
       next(error);
@@ -103,7 +105,33 @@ const groupController = {
         return;
       }
 
-      const updatedGroup = await groupService.updateGroup(groupId, group);
+      const updatedGroup = await groupService.updateGroup(groupId, {
+        members: group.members,
+      });
+      res.status(200).json(updatedGroup);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  renameGroup: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const authReq = getAuthRequest(req);
+      const groupId = authReq.params.groupId;
+      const group = await groupService.getGroup(groupId);
+
+      if (!group) {
+        res.status(404).json({ error: 'Group not found' });
+        return;
+      }
+
+      if (group.isDM) {
+        res.status(400).json({ error: 'Cannot rename a DM' });
+        return;
+      }
+
+      const name = authReq.body.name;
+      const updatedGroup = await groupService.updateGroup(groupId, { name });
       res.status(200).json(updatedGroup);
     } catch (error) {
       next(error);

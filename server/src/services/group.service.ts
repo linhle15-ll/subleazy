@@ -51,7 +51,7 @@ const groupService = {
     return group;
   },
 
-  updateGroup: async (groupId: string | ObjectId, data: Group) => {
+  updateGroup: async (groupId: string | ObjectId, data: Partial<Group>) => {
     const group = await groupModel
       .findByIdAndUpdate(groupId, data, { new: true })
       .populate('members', 'firstName lastName profileImage');
