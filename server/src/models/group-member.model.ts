@@ -12,6 +12,7 @@ const groupMemberSchema = new Schema<GroupMember>({
     ref: 'Group',
     required: true,
   },
+  lastRead: Date,
 });
 
 // Prevent same user joining the same group twice

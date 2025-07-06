@@ -9,8 +9,13 @@ const groupSchema = new Schema<Group>(
     },
     isDM: {
       type: Boolean,
-      default: false,
+      default: true,
     },
+    post: {
+      type: Schema.Types.ObjectId,
+      ref: 'Post',
+    },
+    contracts: [{ type: Schema.Types.ObjectId, ref: 'Contract' }],
   },
   { timestamps: true }
 );
