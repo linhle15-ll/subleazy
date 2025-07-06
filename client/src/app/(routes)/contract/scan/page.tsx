@@ -1,11 +1,14 @@
 'use client';
 import React from 'react';
+import { useRouter } from 'next/navigation'
 import ContentMediaFolder from '@/public/content-media-folder.png';
 import Image from 'next/image';
+import { Camera, Upload, ArrowRight } from 'lucide-react';
 
 export default function ContractScanPage() {
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     const [document, setDocument] = React.useState<File | null>(null);
+    const router = useRouter()
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files?.length > 0) {
@@ -16,6 +19,12 @@ export default function ContractScanPage() {
     const openFilePicker = () => {
         fileInputRef.current?.click();
     };
+
+    const submitFile = (e: any) => {
+        console.log('File submitted bleh blehhh')
+        e.preventDefault()
+        router.push('/contract/edit')
+    }
 
     return (
         <div className="flex flex-col items-center justify-center px-6 py-12 lg:px-20 gap-10 lg:gap-16 w-full max-w-4xl mx-auto">
@@ -30,7 +39,7 @@ export default function ContractScanPage() {
             </div>
 
             {/* File Upload Section */}
-            <div className="w-full border-2 border-dashed border-gray-300 rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md transition-all duration-300">
+            <form className="w-full border-2 border-dashed border-gray-300 rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md transition-all duration-300">
                 <input
                     type="file"
                     accept=".pdf,.doc,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"
@@ -44,9 +53,9 @@ export default function ContractScanPage() {
                     <button
                         type="button"
                         className="btn-primary"
-                        // onClick={submitFile}
+                        onClick={openFilePicker}
                     >
-                        Upload Contract Document
+                        <Upload size={20}/> Upload Contract Document
                     </button>
 
                     <button
@@ -54,12 +63,10 @@ export default function ContractScanPage() {
                         className="btn-secondary"
                         onClick={openFilePicker}
                     >
-                        Upload Contract Document
+                        <Camera size={20}/> Scan your contract
                     </button>
-
                 </div>
                 
-
                 {/* Upload Illustration */}
                 <Image
                     src={ContentMediaFolder}
@@ -77,7 +84,11 @@ export default function ContractScanPage() {
                 ) : (
                     <p className="text-sm text-gray-400">No file selected</p>
                 )}
-            </div>
+
+                <button type='submit' className='btn-secondary mt-5' onClick={submitFile}>
+                    <ArrowRight size={20}/> Proceed to editor
+                </button>
+            </form>
         </div>
     );
 }
