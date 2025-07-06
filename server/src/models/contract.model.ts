@@ -3,6 +3,16 @@ import { Contract, ContractStatus } from '../types/contract.types';
 
 const contractSchema = new Schema<Contract>(
   {
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    post: {
+      type: Schema.Types.ObjectId,
+      ref: 'Post',
+      required: true,
+    },
     sublessor: {
       type: Schema.Types.ObjectId,
       ref: 'User',
@@ -15,9 +25,9 @@ const contractSchema = new Schema<Contract>(
         required: true,
       },
     ],
-    post: {
+    group: {
       type: Schema.Types.ObjectId,
-      ref: 'Post',
+      ref: 'Group',
       required: true,
     },
     content: {
@@ -33,11 +43,5 @@ const contractSchema = new Schema<Contract>(
   },
   { timestamps: true }
 );
-
-contractSchema.index({ post: 1 });
-contractSchema.index({ sublessor: 1 });
-contractSchema.index({ sublessees: 1 });
-contractSchema.index({ status: 1 });
-contractSchema.index({ createdAt: -1 });
 
 export default model<Contract>('Contract', contractSchema);
