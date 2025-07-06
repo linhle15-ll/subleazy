@@ -7,6 +7,6 @@ const router = Router();
 router.use(authenticate);
 
 router.post('/create', groupController.createGroup);
-// router.get('/', groupController.getAllGroups)
+router.get('/', groupController.getAllGroups);
 
 export default router;

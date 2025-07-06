@@ -37,15 +37,15 @@ const groupController = {
     }
   },
 
-  // getAllGroups: async (req: Request, res: Response, next: NextFunction) => {
-  //     try {
-  //         const authReq = getAuthRequest(req);
-  //         const groups = await groupService.getUserGroups(authReq.user.id);
-  //         res.status(200).json(groups);
-  //     } catch (error) {
-  //         next(error);
-  //     }
-  // },
+  getAllGroups: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const authReq = getAuthRequest(req);
+      const groups = await groupService.getUserGroups(authReq.user.id);
+      res.status(200).json(groups);
+    } catch (error) {
+      next(error);
+    }
+  },
 };
 
 export default groupController;

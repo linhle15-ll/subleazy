@@ -16,10 +16,13 @@ const groupService = {
     return group;
   },
 
-  // getUserGroups: async (userId: string | ObjectId) => {
-  //     const groups = await groupModel.find({ members: userId }).populate("members", "firstName lastName profileImage").sort({ updatedAt: -1 });
-  //     return groups
-  // },
+  getUserGroups: async (userId: string | ObjectId) => {
+    const groups = await groupModel
+      .find({ members: userId })
+      .populate('members', 'firstName lastName profileImage')
+      .sort({ updatedAt: -1 });
+    return groups;
+  },
 };
 
 export default groupService;
