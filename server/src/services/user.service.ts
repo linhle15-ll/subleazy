@@ -9,6 +9,21 @@ const userService = {
 
     return user;
   },
+
+  searchUsers: async (query: string) => {
+    const regex = new RegExp(query, 'i');
+    const users = await UserModel.find({
+      $or: [
+        { firstName: { $regex: regex } },
+        { lastName: { $regex: regex } },
+        { email: { $regex: regex } },
+      ],
+    })
+      .select('firstName lastName email profileImage')
+      .limit(5);
+
+    return users;
+  },
 };
 
 export default userService;
