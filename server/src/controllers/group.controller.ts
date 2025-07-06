@@ -78,35 +78,37 @@ const groupController = {
     }
   },
 
-  // leaveGroup: async (req: Request, res: Response, next: NextFunction) => {
-  //     try {
-  //         const authReq = getAuthRequest(req);
-  //         const groupId = authReq.params.groupId;
-  //         const group = await groupService.getGroup(groupId);
+  leaveGroup: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const authReq = getAuthRequest(req);
+      const groupId = authReq.params.groupId;
+      const group = await groupService.getGroup(groupId);
 
-  //         if (!group) {
-  //             res.status(404).json({ error: 'Group not found' });
-  //             return;
-  //         }
+      if (!group) {
+        res.status(404).json({ error: 'Group not found' });
+        return;
+      }
 
-  //         if (group.isDM) {
-  //             res.status(400).json({ error: 'Cannot leave a DM' });
-  //             return;
-  //         }
+      if (group.isDM) {
+        res.status(400).json({ error: 'Cannot leave a DM' });
+        return;
+      }
 
-  //         group.members = group.members.filter((member) => member.toString() !== authReq.user.id);
-  //         if (group.members.length === 0) {
-  //             await groupService.deleteGroup(groupId);
-  //             res.status(200).json({ message: 'Group deleted' });
-  //             return;
-  //         }
+      group.members = group.members.filter(
+        (member) => member.toString() !== authReq.user.id
+      );
+      if (group.members.length === 0) {
+        await groupService.deleteGroup(groupId);
+        res.status(200).json({ message: 'Group deleted' });
+        return;
+      }
 
-  //         const updatedGroup = await groupService.updateGroup(groupId, group);
-  //         res.status(200).json(updatedGroup);
-  //     } catch (error) {
-  //         next(error);
-  //     }
-  // },
+      const updatedGroup = await groupService.updateGroup(groupId, group);
+      res.status(200).json(updatedGroup);
+    } catch (error) {
+      next(error);
+    }
+  },
 };
 
 export default groupController;

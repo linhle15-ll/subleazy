@@ -58,9 +58,9 @@ const groupService = {
     return group;
   },
 
-  //   deleteGroup: async (groupId: string | ObjectId) => {
-  //     await groupModel.findByIdAndDelete(groupId);
-  //   },
+  deleteGroup: async (groupId: string | ObjectId) => {
+    await groupModel.findByIdAndDelete(groupId);
+  },
 };
 
 export default groupService;
