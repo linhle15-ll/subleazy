@@ -1,11 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import { Heart, Star } from 'lucide-react';
+import { Heart, SquarePen, Star } from 'lucide-react';
 import { getPlaceTypeIcon, getHouseTypeIcon } from '@/lib/utils/icons';
 import { Post } from '@/lib/types/post.types';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useFilterStore } from '@/stores/filter.store';
+import { useUserStore } from '@/stores/user.store';
 
 interface PostingCardProps {
   post: Post;
@@ -27,6 +28,9 @@ export function PostingCard({
     return null;
   }
   const pathname = usePathname();
+  const router = useRouter();
+  const currentUser = useUserStore((state) => state.user);
+  const isOwner = currentUser?._id === post.author;
 
   const placeType = post.houseInfo.placeType;
   const houseType = post.houseInfo.houseType;
@@ -59,19 +63,35 @@ export function PostingCard({
             target.src = '/placeholder-image.jpg';
           }}
         />
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleFavorite();
-          }}
-          className="absolute top-3 right-3 transition-colors hover:scale-110"
-          title={isFavorite ? 'Remove from wish list' : 'Add to wish list'}
-          aria-label={isFavorite ? 'Remove from wish list' : 'Add to wish list'}
-        >
-          <Heart
-            className={`w-7 h-7 ${isFavorite ? 'fill-orange-500 text-orange-500' : 'text-white'}`}
-          />
-        </button>
+        {isOwner ? (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(`/posts/edit/${post._id}`);
+            }}
+            className="absolute top-3 right-3 transition-colors hover:scale-110"
+            title={'Edit post'}
+            aria-label={'Edit post'}
+          >
+            <SquarePen className={`w-7 h-7 text-white`} />
+          </button>
+        ) : (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleFavorite();
+            }}
+            className="absolute top-3 right-3 transition-colors hover:scale-110"
+            title={isFavorite ? 'Remove from wish list' : 'Add to wish list'}
+            aria-label={
+              isFavorite ? 'Remove from wish list' : 'Add to wish list'
+            }
+          >
+            <Heart
+              className={`w-7 h-7 ${isFavorite ? 'fill-orange-500 text-orange-500' : 'text-white'}`}
+            />
+          </button>
+        )}
       </div>
 
       {/* Card Content */}
