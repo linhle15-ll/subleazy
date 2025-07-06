@@ -34,7 +34,6 @@ const contractSchema = new Schema<Contract>(
   { timestamps: true }
 );
 
-// Index for faster queries
 contractSchema.index({ post: 1 });
 contractSchema.index({ sublessor: 1 });
 contractSchema.index({ sublessees: 1 });
