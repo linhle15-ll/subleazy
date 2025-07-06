@@ -23,28 +23,25 @@ import {
   PartyPopper,
   Cigarette,
   Cannabis,
+  SquarePen,
 } from 'lucide-react';
 import authorAvatar from '@/public/bannerImg.jpg'; // Placeholder for author avatar
 import Loading from '@/components/ui/commons/loading';
-import postService from '@/services/post.service';
-import { useQuery } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { User } from '@/lib/types/user.types';
 import { House } from '@/lib/types/house.types';
 import { PostingMap } from '@/components/ui/map/posting-map';
+import { usePost } from '@/hooks/use-post';
+import { useUserStore } from '@/stores/user.store';
 
 export default function PostingPage() {
   const { postId } = useParams<{ postId: string }>();
+  const { result, isFetching } = usePost(postId);
   const router = useRouter();
   const [isFavorite, setIsFavorite] = useState(false);
+  const currentUser = useUserStore((state) => state.user);
   // TODO: implement isFavorite/wishlist functionality
-
-  const { data: result, isFetching } = useQuery({
-    queryKey: ['transformedData', postId],
-    queryFn: () => postService.getPost(postId),
-    enabled: !!postId,
-  });
 
   if (isFetching || !result) return <Loading />;
   if (!result.success)
@@ -65,6 +62,7 @@ export default function PostingPage() {
     );
 
   const post = result.data!;
+  const isOwner = currentUser?._id === (post.author as User)._id;
 
   const handleAuthorClick = () => {
     const authorId = (post.author as User)._id;
@@ -178,16 +176,29 @@ export default function PostingPage() {
             </div>
           </div>
         </div>
-        <button
-          onClick={() => setIsFavorite(!isFavorite)}
-          className="p-2 rounded-full hover:bg-gray-100"
-          title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-        >
-          <Heart
-            className={`w-6 h-6 ${isFavorite && 'fill-orange-500 text-orange-500'}`}
-          />
-        </button>
+        {isOwner ? (
+          <button
+            onClick={() => router.push(`/posts/edit/${postId}`)}
+            className="p-2 rounded-full hover:bg-gray-100"
+            title={'Edit post'}
+            aria-label={'Edit post'}
+          >
+            <SquarePen className={`w-6 h-6`} />
+          </button>
+        ) : (
+          <button
+            onClick={() => setIsFavorite(!isFavorite)}
+            className="p-2 rounded-full hover:bg-gray-100"
+            title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+            aria-label={
+              isFavorite ? 'Remove from favorites' : 'Add to favorites'
+            }
+          >
+            <Heart
+              className={`w-6 h-6 ${isFavorite && 'fill-orange-500 text-orange-500'}`}
+            />
+          </button>
+        )}
       </div>
 
       {/* Image Gallery */}
