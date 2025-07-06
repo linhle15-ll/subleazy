@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useEditor, EditorContent, EditorProvider } from '@tiptap/react';
+import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { Underline } from '@tiptap/extension-underline';
 import Highlight from '@tiptap/extension-highlight';
@@ -165,7 +165,6 @@ export default function Editor() {
     immediatelyRender: false,
     shouldRerenderOnTransaction: false,
     onCreate: ({ editor }) => {
-      // Set content when editor is created
       editor.commands.setContent(content);
     },
     // editable: true,
@@ -182,8 +181,6 @@ export default function Editor() {
     onLeaveThread,
     updateComment,
   } = useThreads(provider, editor, user);
-
-  console.log("HTMLLLL", editor?.getHTML(), content)
   
   if (!editor) {
     return (
