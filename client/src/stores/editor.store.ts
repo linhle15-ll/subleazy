@@ -6,7 +6,7 @@ interface DocumentData {
   filename: string;
   originalSize: number;
   uploadedAt: Date;
-  contentType: 'docx' | 'template' | 'manual' | 'string';
+  contentType: 'docx' | 'template' | 'manual';
 }
 
 interface EditorStore {
@@ -16,16 +16,13 @@ interface EditorStore {
   clearDocumentData: () => void;
   hasDocument: boolean;
 
-  // Editor state
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
   
-  // Error handling
   error: string | null;
   setError: (error: string | null) => void;
   clearError: () => void;
 
-  // Editor content operations
   updateContent: (content: string) => void;
   getContent: () => string | null;
 }
@@ -34,7 +31,6 @@ export const useEditorStore = create<EditorStore>()(
   devtools(
     subscribeWithSelector(
       (set, get) => ({
-        // Document data
         documentData: null,
         setDocumentData: (data: DocumentData) => {
           console.log('Setting document data in store:', {
@@ -45,7 +41,7 @@ export const useEditorStore = create<EditorStore>()(
           });
           set({ 
             documentData: data,
-            error: null // Clear any previous errors
+            error: null 
           });
         },
         clearDocumentData: () => {
@@ -56,16 +52,13 @@ export const useEditorStore = create<EditorStore>()(
           return get().documentData !== null;
         },
 
-        // Editor state
         isLoading: false,
         setIsLoading: (loading: boolean) => set({ isLoading: loading }),
 
-        // Error handling
         error: null,
         setError: (error: string | null) => set({ error }),
         clearError: () => set({ error: null }),
 
-        // Editor content operations
         updateContent: (content: string) => {
           const currentData = get().documentData;
           if (currentData) {
@@ -73,7 +66,7 @@ export const useEditorStore = create<EditorStore>()(
               documentData: {
                 ...currentData,
                 content,
-                uploadedAt: new Date() // Update timestamp when content changes
+                uploadedAt: new Date()
               }
             });
           }
@@ -90,7 +83,6 @@ export const useEditorStore = create<EditorStore>()(
   )
 );
 
-// Selector hooks for better performance
 export const useDocumentData = () => useEditorStore((state) => state.documentData);
 export const useHasDocument = () => useEditorStore((state) => state.hasDocument);
 export const useEditorLoading = () => useEditorStore((state) => state.isLoading);
