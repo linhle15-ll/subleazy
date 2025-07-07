@@ -1,4 +1,5 @@
 import messageModel from '../models/message.model';
+import { Message } from '../types/message.types';
 
 const messageService = {
   countMessages: async (groupId: string) => {
@@ -14,6 +15,14 @@ const messageService = {
       .limit(50)
       .populate('sender', 'firstName lastName profileImage');
     return messages;
+  },
+
+  sendMessage: async (data: Message) => {
+    const message = (await messageModel.create(data)).populate(
+      'sender',
+      'firstName lastName profileImage'
+    );
+    return message;
   },
 };
 

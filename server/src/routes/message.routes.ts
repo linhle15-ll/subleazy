@@ -7,5 +7,6 @@ const router = Router();
 router.use(authenticate);
 
 router.get('/:groupId', messageController.getMessages);
+router.post('/:groupId', messageController.sendMessage);
 
 export default router;
