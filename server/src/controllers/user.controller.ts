@@ -25,6 +25,22 @@ const userController = {
     }
   },
 
+  searchUsers: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const query = req.query.q as string;
+      if (!query || query.length === 0) {
+        res.status(400).json({ error: 'Missing search query' });
+        return;
+      }
+
+      const users = await userService.searchUsers(query);
+      res.status(200).json(users);
+
+    } catch (error) {
+      next(error);
+    }
+  },
+  
   // Lifestyle
   createOrUpdateLifestyle: async (
     req: Request,
