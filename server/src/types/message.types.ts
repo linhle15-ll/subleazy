@@ -5,6 +5,6 @@ import { Group } from './group.types';
 
 export interface Message extends Base, Timestamps {
   content: string;
-  sender: Types.ObjectId | ObjectId | User;
+  sender?: Types.ObjectId | ObjectId | User;
   group: Types.ObjectId | ObjectId | Group;
 }

@@ -60,7 +60,7 @@ export interface Post extends Base, Timestamps {
   media: string[];
   author: string | User;
   sublessees: (string | User)[];
-  house?: string | House;
+  house: string | House;
   houseInfo: HouseInfo;
   suites?: string;
   city: string;

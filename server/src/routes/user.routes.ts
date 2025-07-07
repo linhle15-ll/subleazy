@@ -7,4 +7,6 @@ const router = Router();
 router.use(authenticate);
 
 router.get('/:userId', userController.getUser);
+router.get('/search', userController.searchUsers);
+
 export default router;

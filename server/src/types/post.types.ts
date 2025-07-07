@@ -61,7 +61,7 @@ export interface Post extends Base, Timestamps {
   media: string[];
   author: Types.ObjectId | ObjectId | User;
   sublessees: (Types.ObjectId | ObjectId | User)[];
-  house?: Types.ObjectId | ObjectId | House;
+  house: Types.ObjectId | ObjectId | House;
   houseInfo: HouseInfo;
   suites?: string;
   city: string;
