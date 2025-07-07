@@ -9,4 +9,8 @@ router.use(authenticate);
 router.get('/:userId', userController.getUser);
 router.get('/search', userController.searchUsers);
 
+// Lifestyle
+router.get('/:userId/lifestyle', userController.getLifestyle);
+router.patch('/:userId/lifestyle', userController.createOrUpdateLifestyle);
+
 export default router;
