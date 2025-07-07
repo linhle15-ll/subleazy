@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+
+// Tiptap and Tiptap extensions
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { Underline } from '@tiptap/extension-underline';
@@ -11,10 +13,8 @@ import ListItem from '@tiptap/extension-list-item';
 import TaskItem from '@tiptap/extension-task-item'
 import TaskList from '@tiptap/extension-task-list'
 import { TextAlign } from '@tiptap/extension-text-align';
-import Gapcursor from '@tiptap/extension-gapcursor';
-import Dropcursor from '@tiptap/extension-dropcursor';
-import { ImportDocx } from '@tiptap-pro/extension-import-docx';
 import { ExportDocx } from '@tiptap-pro/extension-export-docx';
+import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link';
 import Table from '@tiptap/extension-table';
 import TableCell from '@tiptap/extension-table-cell';
@@ -41,16 +41,21 @@ import ToggleButton from '@/components/ui/button/toogle-btn';
 import './styles.scss';
 import { ThreadsProvider } from './context';
 
+// Editor store
+import { useEditorStore } from '@/stores/editor.store';
+
+const DOCUMENT_ID = 'contract-editor-v1';
 const doc = new Y.Doc();
 
-const isDev = process.env.MODE === 'development';
+const isDev = process.env.NODE_ENV=== 'development';
 const id = isDev ? 'dev' : uuid();
 
-export default function Editor() {
+export default function Editor({ initialContent }: { initialContent?: string | null }) {
   const user = useUser();
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [showUnresolved, setShowUnresolved] = React.useState(true);
+  const [showUnresolved, setShowUnresolved] = React.useState<boolean>(true);
   const [selectedThread, setSelectedThread] = React.useState(null);
+   const [hasInitialized, setHasInitialized] = React.useState(false);
+  const { isLoading, setIsLoading, updateContent } = useEditorStore()
 
   type Thread = { id: string; resolvedAt?: Date | null; [key: string]: any };
   const threadsRef = React.useRef<Thread[]>([]);
@@ -59,20 +64,28 @@ export default function Editor() {
   // Create provider ONCE
   if (!providerRef.current) {
     providerRef.current = new TiptapCollabProvider({
-      name: `tiptap-editor/${id}`,
+      name: DOCUMENT_ID,
       appId: process.env.NEXT_PUBLIC_TIPTAP_PRO_APPID!,
       token: process.env.NEXT_PUBLIC_TIPTAP_PRO_TOKEN!,
       document: doc,
+      onOpen() {
+        console.log('WebSocket connection opened.')
+      },
+      onConnect() {
+        console.log('Connected to the server.')
+      },
     });
   }
 
   const provider = providerRef.current;
 
+  // Determine which content to use
+  const editorContent = initialContent || content;
+
   const editor = useEditor({
     extensions: [
       Underline,
       Highlight.configure({ multicolor: true }),
-      Dropcursor,
       Color.configure({ types: [TextStyle.name, ListItem.name] }),
       TextStyle.configure({ mergeNestedSpanStyles: true }),
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
@@ -80,7 +93,9 @@ export default function Editor() {
       TaskItem.configure({
         nested: true,
       }),
+      Image,
       StarterKit.configure({
+        history: false, // IMPORTANT: Disable history for collaboration
         bulletList: {
           keepMarks: true,
           keepAttributes: false,
@@ -91,10 +106,6 @@ export default function Editor() {
         },
       }),
 
-      ImportDocx.configure({
-        appId: process.env.NEXT_PUBLIC_TIPTAP_PRO_APPID!,
-        token: process.env.NEXT_PUBLIC_TIPTAP_PRO_TOKEN!
-      }),
       ExportDocx.configure({
         onCompleteExport: (result: any | Buffer<ArrayBufferLike> | Blob) => {
           setIsLoading(false);
@@ -111,7 +122,6 @@ export default function Editor() {
         },
       }),
       Link,
-      Gapcursor,
       Table.configure({
         resizable: true,
       }),
@@ -120,7 +130,7 @@ export default function Editor() {
       TableCell,
       // Collaboration and CommentsKit extensions
       Collaboration.configure({
-        document: doc,
+        document: doc 
       }),
       CollaborationCursor.configure({
         provider,
@@ -129,6 +139,7 @@ export default function Editor() {
           color: user.color,
         },
       }),
+
       CommentsKit.configure({
         provider,
         useLegacyWrapping: false,
@@ -157,18 +168,56 @@ export default function Editor() {
         },
       }),
       Placeholder.configure({
-        placeholder: 'Start writing your own contract here ...',
+        placeholder: initialContent 
+          ? 'Edit your imported document...' 
+          : 'Start writing your own contract here ...',
         emptyEditorClass: 'is-editor-empty',
       }),
     ],
-    content,
     immediatelyRender: false,
     shouldRerenderOnTransaction: false,
     onCreate: ({ editor }) => {
-      editor.commands.setContent(content);
+      setHasInitialized(true)
     },
-    // editable: true,
+
+    onUpdate: ({ editor }) => {
+      updateContent(editor.getHTML())
+    },
   });
+
+
+  // Meoww, fixed bug editor content got duplicated every reload
+  React.useEffect(() => {
+    if (!editor || !hasInitialized) return;
+
+    // Wait for provider to sync first
+    const handleSynced = () => {
+      const yText = doc.getText('sync text');
+      const currentLength = yText.length;
+      
+      // Only set initial content if: have initial content to set // The collaborative document is empty
+      if (initialContent && currentLength === 0) {
+        yText.insert(0, initialContent); 
+      } else if (!initialContent && currentLength === 0) {
+        yText.insert(0, content);
+      } else {
+        console.log('Document already has content, skipping initial content setting');
+      }
+    };
+
+    // Check if already synced
+    if (provider.isSynced) {
+      handleSynced();
+    } else {
+      // Wait for sync
+      provider.on('synced', handleSynced);
+    }
+
+    // Cleanup
+    return () => {
+      provider.off('synced', handleSynced);
+    };
+  }, [editor, hasInitialized, initialContent, provider]);
 
   const {
     threads,
@@ -191,9 +240,15 @@ export default function Editor() {
   }
 
   threadsRef.current = threads || [];
+
   const filteredThreads = threads.filter((t: any) =>
     showUnresolved ? !t.resolvedAt : !!t.resolvedAt
   );
+
+  const finishContract = () => {
+    console.log('Meo Meo')
+    
+  }
 
   return (
     <ThreadsProvider
@@ -221,6 +276,7 @@ export default function Editor() {
               setIsLoading={setIsLoading}
               editor={editor}
               createThread={createThread}
+              finishContract={finishContract}
             />
             <EditorContent editor={editor} />
           </div>
