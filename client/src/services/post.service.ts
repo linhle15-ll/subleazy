@@ -40,6 +40,26 @@ const postService = {
     }
   },
 
+  editPost: async (
+    id: string,
+    submissionData: Partial<PostRequestBody>
+  ): Promise<Result<Post>> => {
+    try {
+      const response = await api.put(`/posts/edit/${id}`, submissionData);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          (error as AxiosError<{ error: string }>).response?.data.error ||
+          'Failed to get post by ID',
+      };
+    }
+  },
+
   searchPosts: async (
     filter: Partial<PostRequestBody>
   ): Promise<Result<Post[]>> => {
