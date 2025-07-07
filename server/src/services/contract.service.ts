@@ -15,10 +15,10 @@ const contractService = {
 
   getContract: async (contractId: string): Promise<ContractType | null> => {
     return await Contract.findById(contractId)
-      .populate('post', 'title description')
-      .populate('sublessor', 'firstName lastName email profileImage')
-      .populate('sublessees', 'firstName lastName email profileImage')
-      .populate('group', 'name');
+      .populate('post', '_id title description')
+      .populate('sublessor', '_id firstName lastName email profileImage')
+      .populate('sublessees', '_id firstName lastName email profileImage')
+      .populate('group', '_id name');
   },
 
   updateContract: async (
@@ -30,20 +30,20 @@ const contractService = {
       { $set: updates },
       { new: true, runValidators: true }
     )
-      .populate('post', 'title description media')
-      .populate('sublessor', 'firstName lastName email profileImage')
-      .populate('sublessees', 'firstName lastName email profileImage')
-      .populate('group', 'name description');
+      .populate('post', '_id title description')
+      .populate('sublessor', '_id firstName lastName email profileImage')
+      .populate('sublessees', '_id firstName lastName email profileImage')
+      .populate('group', '_id name');
   },
 
   getContractByGroupId: async (
     groupId: string
   ): Promise<ContractType | null> => {
     return await Contract.findOne({ group: groupId })
-      .populate('post', 'title description media')
-      .populate('sublessor', 'firstName lastName email profileImage')
-      .populate('sublessees', 'firstName lastName email profileImage')
-      .populate('group', 'name description');
+      .populate('post', '_id title description')
+      .populate('sublessor', '_id firstName lastName email profileImage')
+      .populate('sublessees', '_id firstName lastName email profileImage')
+      .populate('group', '_id name');
   },
 
   deleteContract: async (contractId: string): Promise<boolean> => {
@@ -58,10 +58,10 @@ const contractService = {
         { sublessees: new Types.ObjectId(userId) },
       ],
     })
-      .populate('post', 'title description media')
-      .populate('sublessor', 'firstName lastName email profileImage')
-      .populate('sublessees', 'firstName lastName email profileImage')
-      .populate('group', 'name description')
+      .populate('post', '_id title description')
+      .populate('sublessor', '_id firstName lastName email profileImage')
+      .populate('sublessees', '_id firstName lastName email profileImage')
+      .populate('group', '_id name')
       .sort({ createdAt: -1 });
   },
 
@@ -74,10 +74,10 @@ const contractService = {
       { status },
       { new: true, runValidators: true }
     )
-      .populate('post', 'title description media')
-      .populate('sublessor', 'firstName lastName email profileImage')
-      .populate('sublessees', 'firstName lastName email profileImage')
-      .populate('group', 'name description');
+      .populate('post', '_id title description')
+      .populate('sublessor', '_id firstName lastName email profileImage')
+      .populate('sublessees', '_id firstName lastName email profileImage')
+      .populate('group', '_id name');
   },
 };
 

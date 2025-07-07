@@ -32,11 +32,13 @@ const contractController = {
         return;
       }
 
+      // Validate group
       if (!mongoose.isValidObjectId(group)) {
         res.status(400).json({ error: 'Invalid group ID' });
         return;
       }
 
+      // Validate sublessees
       for (const sublesseeId of sublessees) {
         if (!mongoose.isValidObjectId(sublesseeId)) {
           res.status(400).json({ error: 'Invalid sublessee ID' });
@@ -44,12 +46,19 @@ const contractController = {
         }
       }
 
+      // Validate sublessor
       if (!mongoose.isValidObjectId(sublessor)) {
         res.status(400).json({ error: 'Invalid sublessor ID' });
         return;
       }
 
-      // Create contract data
+      // Only sublessor can create contract
+      if (sublessor.toString() !== authReq.user.id) {
+        res.status(403).json({ error: 'Unauthorized to create contract' });
+        return;
+      }
+
+      // Create contract data, only sublessor can create contract
       const contractData = {
         title,
         post: new Types.ObjectId(post),
@@ -59,12 +68,6 @@ const contractController = {
         content,
         status: ContractStatus.PENDING,
       };
-
-      // Only sublessor can create contract
-      if (sublessor.toString() !== authReq.user.id) {
-        res.status(403).json({ error: 'Unauthorized to create contract' });
-        return;
-      }
 
       const contract = await contractService.createContract(contractData);
 
@@ -99,9 +102,12 @@ const contractController = {
 
       // only sublessor and sublessee in the group can edit contract
       const isSublessor =
+        (existingContract.sublessor as any)._id?.toString() ||
         existingContract.sublessor.toString() === authReq.user.id;
       const isSublessee = existingContract.sublessees.some(
-        (sublessee) => sublessee.toString() === authReq.user.id
+        (sublessee) =>
+          (sublessee as any)._id?.toString() ||
+          sublessee.toString() === authReq.user.id
       );
 
       if (!isSublessor && !isSublessee) {
@@ -146,9 +152,11 @@ const contractController = {
       }
 
       // Check authorization - only involved parties can view
-      const isSublessor = contract.sublessor.toString() === authReq.user.id;
+      const isSublessor = (contract.sublessor as any)._id.toString() === authReq.user.id;
       const isSublessee = contract.sublessees.some(
-        (sublessee) => sublessee.toString() === authReq.user.id
+        (sublessee) =>
+          (sublessee as any)._id?.toString() ||
+          sublessee.toString() === authReq.user.id
       );
 
       if (!isSublessor && !isSublessee) {
@@ -252,7 +260,9 @@ const contractController = {
       }
 
       // Only sublessor can update status
-      if (existingContract.sublessor.toString() !== authReq.user.id) {
+      if (
+        (existingContract.sublessor as any)._id.toString() !== authReq.user.id
+      ) {
         res
           .status(403)
           .json({ error: 'Unauthorized to update contract status' });
