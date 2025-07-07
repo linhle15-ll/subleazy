@@ -8,6 +8,7 @@ import wishRoutes from './routes/wish.routes';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
 import groupRoutes from './routes/group.routes';
+import messageRoutes from './routes/message.routes';
 
 const app: Application = express();
 
@@ -49,8 +50,11 @@ app.use('/api/users', userRoutes);
 // auth routes
 app.use('/api/auth', authRoutes);
 
-// groups routes
+// group routes
 app.use('/api/groups', groupRoutes);
+
+// message routes
+app.use('/api/messages', messageRoutes);
 
 // Basic Error Handling Middleware
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
