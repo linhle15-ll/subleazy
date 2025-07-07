@@ -34,7 +34,7 @@ yarn-error.log*
 .env*
 .env.local
 .env.*.local
-
+client/.npmrc
 # Vercel deployment
 .vercel
 
@@ -44,3 +44,6 @@ next-env.d.ts
 
 # Server-side build folders (if any server-specific build dirs are present)
 dist/
+
+# yaml
+*/pnpm-lock.yaml
