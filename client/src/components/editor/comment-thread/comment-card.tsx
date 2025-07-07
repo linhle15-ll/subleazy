@@ -19,8 +19,8 @@ export const CommentCard = ({
     onEdit: (value: string) => void;
     showActions?: boolean;
 }) => {
-    const [isComposing, setIsComposing] = React.useState<boolean>(false)
-    const [composeValue, setComposeValue] = React.useState<string>(content ?? '')
+    const [isComposing, setIsComposing] = React.useState(false)
+    const [composeValue, setComposeValue] = React.useState(content ?? '')
 
     const handleSubmit = React.useCallback((e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()

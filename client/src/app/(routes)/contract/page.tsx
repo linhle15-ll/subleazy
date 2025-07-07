@@ -25,7 +25,7 @@ const options = [
 
 export default function ContractScanPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+    <div className="min-h-screen">
       <div className="flex flex-col items-center justify-center px-6 py-12 lg:px-20 gap-12 lg:gap-16 w-full max-w-5xl mx-auto">
         {/* Heading Section */}
         <div className="text-center space-y-6 max-w-3xl leading-normal">

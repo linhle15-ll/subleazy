@@ -46,15 +46,17 @@ import {
 } from "@/components/ui/commons/select"
 
 import { content } from './content';
+import Link from 'next/link';
+import FinishContractPage from '@/app/(routes)/contract/finish-contract/page';
 
-const ConfigBar = ({ isLoading, setIsLoading, editor, createThread } : { isLoading: boolean, setIsLoading: any, editor: any, createThread: any}) => {
-  const importRef = React.useRef<HTMLInputElement>(null);
+const ConfigBar = ({ isLoading, setIsLoading, editor, createThread, finishContract } : { isLoading: boolean, setIsLoading: any, editor: any, createThread: any, finishContract: any}) => {
+  const importRef  = React.useRef<HTMLInputElement>(null);
   const [error, setError] = React.useState<Error | null>(null);
 
   if (!editor) return null;
 
   const createExport = React.useCallback(() => {
-    setIsLoading(true)
+    setIsLoading(true);
     editor.chain().exportDocx().run()
   }, [editor])
 
@@ -72,40 +74,67 @@ const ConfigBar = ({ isLoading, setIsLoading, editor, createThread } : { isLoadi
   }, [])
 
   const handleImportFilePick = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0]
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
 
       if (importRef.current) {
-        importRef.current.value = ''
+        importRef.current.value = '';
       }
       if (!file) {
-        return
+        return;
       }
 
-      setIsLoading(true)
-      setError(null)
-      
-      editor
-        .chain()
-        .importDocx({
-          file,
-          onImport(context: any) {
-            if (context.error) {
-              setError(context.error)
-              setIsLoading(false)
-              return
-            }
-            // Set the imported content to the editor
-            console.log("CONTEXT CONTENT", context.content)
-            context.setEditorContent(context.content)
-            setError(null)
-            setIsLoading(false)
+      if (!file.name.match(/\.(docx|doc)$/i)) {
+        setError(new Error('Please select a valid DOCX or DOC file'));
+        return;
+      }
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        // Import mammoth dynamically (client-side only)
+        const mammoth = await import('mammoth');
+        
+        // Convert file to array buffer
+        const arrayBuffer = await file.arrayBuffer();
+        
+        // Convert DOCX to HTML
+        const result = await mammoth.convertToHtml(
+          { arrayBuffer }, 
+          { styleMap: [
+            "p[style-name='Aside Heading'] => div.aside > h2:fresh",
+            "p[style-name='Aside Text'] => div.aside > p:fresh",
+            "p[style-name='Section Title'] => h1:fresh",
+            "p[style-name='Subsection Title'] => h2:fresh"
+          ],
+          includeDefaultStyleMap: false,
+          convertImage: mammoth.images.imgElement(function(image) {
+              return image.read("base64").then(function(imageBuffer) {
+                return {
+                  src: "data:" + image.contentType + ";base64," + imageBuffer
+                };
+              });
+            })
           },
-        })
-        .run()
+        );
+        
+        // Set the converted HTML content to the editor
+        editor.chain().focus().setContent(result.value).run();
+
+        if (result.messages && result.messages.length > 0) {
+          console.log('Conversion messages:', result.messages);
+        }
+        
+      } catch (error: any) {
+        console.error('Error importing DOCX:', error);
+        setError(new Error(`Failed to import document: ${error.message}`));
+      } finally {
+        setIsLoading(false);
+      }
     },
-    [editor],
-  )
+    [editor, setIsLoading, setError],
+  );
 
   return (
     <div className="menu-bar">
@@ -113,6 +142,7 @@ const ConfigBar = ({ isLoading, setIsLoading, editor, createThread } : { isLoadi
         onChange={handleImportFilePick} 
         type="file" 
         ref={importRef} 
+        accept=".docx,.doc,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"
         style={{ display: 'none' }} 
       />
       <div className="menu-group">
@@ -159,12 +189,14 @@ const ConfigBar = ({ isLoading, setIsLoading, editor, createThread } : { isLoadi
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <button className='flex gap-1 btn-primary'>
-              <FileCheck2 size={20} /> Finish contract
-            </button>
+            <Link href="/contract/finish-contract">
+              <button className='flex gap-1 btn-primary' onClick={finishContract}>
+                <FileCheck2 size={20} /> Finish contract
+              </button>
+            </Link>
           </TooltipTrigger>
           <TooltipContent>
-            <p className='text-red-600 text-md'>Please make sure your contract content.<br /> This contract is ineditable after finished.</p>
+            <p className='text-red-500 text-md'>Please make sure your contract content.<br /> This contract is ineditable after finished.</p>
           </TooltipContent>
         </Tooltip>
       </div>
@@ -181,7 +213,7 @@ const MenuBar = ({ editor } : {editor: any}) => {
     return null;
   }
 
-  const handleTableAction = (value: string) => {
+const handleTableAction = (value: string) => {
   switch (value) {
     case 'create-table':
       editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
@@ -518,10 +550,10 @@ const MenuBar = ({ editor } : {editor: any}) => {
   );
 };
 
-export default function EditorMenuBar ({ isLoading, setIsLoading, editor, createThread } : { isLoading: boolean, setIsLoading: any, editor: any, createThread: any}) {
+export default function EditorMenuBar ({ isLoading, setIsLoading, editor, createThread, finishContract } : { isLoading: boolean, setIsLoading: any, editor: any, createThread: any, finishContract: any}) {
   return (
     <div>
-      <ConfigBar isLoading={isLoading} setIsLoading={setIsLoading} editor={editor} createThread={createThread} />
+      <ConfigBar isLoading={isLoading} setIsLoading={setIsLoading} editor={editor} createThread={createThread} finishContract={finishContract} />
       <MenuBar editor={editor} />
     </div>
   )
