@@ -18,7 +18,7 @@ export default function SubleaseStep5() {
 
   const [cameraProps, setCameraProps] = useState<MapCameraProps>({
     center: { lat: 38.907, lng: -77.036 },
-    zoom: 12,
+    zoom: 15,
   });
 
   useEffect(() => {

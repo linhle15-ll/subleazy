@@ -16,7 +16,7 @@ export function getPostAuthorId(post: Post): string {
     '_id' in post.author
       ? post.author._id?.toString()
       : post.author?.toString();
-  
+
   if (!authorId) {
     throw new Error('Post does not have author');
   }

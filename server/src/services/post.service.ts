@@ -127,14 +127,15 @@ const postService = {
   },
 
   getAllPosts: async () => {
-    const posts = await postModel.find();
+    const posts = await postModel.find().sort({ createdAt: -1 }).limit(12);
     return posts;
   },
 
-  getPostWithAuthor: async (postId: string) => {
+  getPostWithAuthorAndHouse: async (postId: string) => {
     const post = await postModel
       .findById(postId)
-      .populate('author', 'firstName lastName profileImage');
+      .populate('author', 'firstName lastName profileImage bio')
+      .populate('house');
     return post;
   },
 };

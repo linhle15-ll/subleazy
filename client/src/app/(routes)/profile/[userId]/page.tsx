@@ -1,46 +1,33 @@
 'use client';
 
-import React from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
-import userService from '@/services/user.service';
 import Loading from '@/components/ui/commons/loading';
-import { usePosts } from '@/hooks/use-posts';
 import { PostingGrid } from '@/components/ui/posting/posting-grid';
-
+import { usePosts } from '@/hooks/use-posts';
+import userService from '@/services/user.service';
+import { useUserStore } from '@/stores/user.store';
+import { useQuery } from '@tanstack/react-query';
 import Image from 'next/image';
+import { useParams, useRouter } from 'next/navigation';
 
 export default function ProfilePage() {
-  const searchParams = useSearchParams();
+  const { userId } = useParams<{ userId: string }>();
   const router = useRouter();
-  const userId = searchParams.get('id');
+  const currentUser = useUserStore((state) => state.user);
+  const isOwner = currentUser?._id === userId;
 
-  const {
-    data: user,
-    isLoading,
-    error,
-  } = useQuery({
+  const { data: result, isFetching } = useQuery({
     queryKey: ['user', userId],
     queryFn: () => userService.getUser(userId!),
     enabled: !!userId,
   });
 
-  const userData = user?.data;
-  const userPosts = usePosts(userId ?? undefined);
+  const userPosts = usePosts(userId);
 
-  // Get current logged-in user (adjust according to your auth)
-  // const { data: session } = useSession();
-  // const isOwner = session?.user?.id === userId;
+  if (isFetching || !result) return <Loading />;
+  if (!result.success)
+    return <div className="text-red-500 screen-message">User not found</div>;
 
-  const isOwner = true; // Replace with actual logic to check if the logged-in user is the profile owner
-
-  if (isLoading)
-    return (
-      <div>
-        <Loading />
-      </div>
-    );
-  if (error || !user) return <div className="text-red-500">User not found</div>;
+  const user = result.data!;
 
   return (
     <div className="max-w-full mx-auto px-20 py-15">
@@ -48,7 +35,8 @@ export default function ProfilePage() {
         {/* Avatar */}
         <div className="flex-shrink-0">
           <Image
-            src={userData?.profileImage || '/default-profile.png'}
+            // TODO: add default profile image
+            src={user.profileImage || '/default-profile.png'}
             alt="Profile"
             width={180}
             height={180}
@@ -58,11 +46,11 @@ export default function ProfilePage() {
         {/* Info & Actions */}
         <div className="flex-1 flex flex-col gap-2">
           <h2 className="text-3xl font-medium">
-            {userData?.firstName} {userData?.lastName}
+            {user.firstName} {user.lastName}
           </h2>
-          <div>{userData?.bio}</div>
+          <div>{user.bio}</div>
           <div className="flex gap-4 mt-4">
-            {isOwner ? (
+            {isOwner && (
               <>
                 <button
                   className="btn-secondary"
@@ -77,7 +65,7 @@ export default function ProfilePage() {
                   View Wishlist
                 </button>
               </>
-            ) : null}
+            )}
             <button
               className="btn-secondary"
               onClick={() => {
@@ -93,9 +81,9 @@ export default function ProfilePage() {
       {/* Listings */}
       <div className="mt-12 w-full">
         <div className="flex items-center gap-2 mb-4">
-          <span className="text-2xl font-semibold text-orange-500">▦</span>
-          <span className="text-xl font-semibold">
-            {userData?.firstName}’s places for sublet
+          <span className="text-2xl font-medium text-orange-500">▦</span>
+          <span className="text-xl font-medium">
+            {user.firstName}’s places for sublet
           </span>
         </div>
         {userPosts.loading ? (
@@ -103,11 +91,11 @@ export default function ProfilePage() {
             <Loading />
           </div>
         ) : userPosts.error ? (
-          <div className="text-red-500">{userPosts.error}</div>
+          <div className="text-red-500 screen-message">{userPosts.error}</div>
         ) : userPosts.posts && userPosts.posts.length > 0 ? (
           <PostingGrid isVertical={true} posts={userPosts.posts} />
         ) : (
-          <div className="text-gray-500">No listings yet.</div>
+          <div className="screen-message">No listings yet</div>
         )}
       </div>
     </div>

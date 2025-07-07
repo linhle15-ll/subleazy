@@ -7,6 +7,8 @@ import postRoutes from './routes/post.routes';
 import wishRoutes from './routes/wish.routes';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
+import groupRoutes from './routes/group.routes';
+import messageRoutes from './routes/message.routes';
 
 const app: Application = express();
 
@@ -18,8 +20,20 @@ app.use(express.json());
 app.use(cookieParser());
 
 // CORS config
-app.use(cors());
-app.options(/(.*)/, cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  })
+);
+
+app.options(
+  /(.*)/,
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  })
+);
 
 // Connect to MongoDB
 db();
@@ -35,6 +49,12 @@ app.use('/api/users', userRoutes);
 
 // auth routes
 app.use('/api/auth', authRoutes);
+
+// group routes
+app.use('/api/groups', groupRoutes);
+
+// message routes
+app.use('/api/messages', messageRoutes);
 
 // Basic Error Handling Middleware
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {

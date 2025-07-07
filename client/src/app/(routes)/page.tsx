@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import Image from 'next/image';
 import bannerImage from '@/public/bannerImg.jpg';
 import { PostingGrid } from '@/components/ui/posting/posting-grid';
@@ -72,20 +71,15 @@ export default function LandingPage() {
       </section>
 
       {/* Featured Listings Section */}
-      <section className="px-6 lg:px-12">
+      <section className="px-6 lg:px-12 mb-11">
         {loading ? (
-          <div>
-            {' '}
-            <Loading />{' '}
-          </div>
+          <Loading />
         ) : error ? (
-          <div>Error: {error}</div>
+          <div className="text-red-500 screen-message">{error}</div>
         ) : posts && posts.length > 0 ? (
           <PostingGrid isVertical={true} posts={posts} />
         ) : (
-          <div className="font-medium text-2xl text-grey">
-            No posts available
-          </div>
+          <div className="screen-message">No postings available</div>
         )}
       </section>
     </div>

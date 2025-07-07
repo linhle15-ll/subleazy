@@ -1,5 +1,24 @@
 import { Schema, model } from 'mongoose';
 import { User } from '../types/user.types';
+import {
+  AccessNeeds,
+  BedTime,
+  CleanAfterCooking,
+  Cleanliness,
+  CookingFrequency,
+  Gender,
+  GenderComfort,
+  GuestFrequency,
+  GuestTolerance,
+  RoomTemperature,
+  SleepEnvironment,
+  SmokeFrequency,
+  SmokeTolerance,
+  StudyInRoom,
+  StudyNoise,
+  StudyTime,
+  WakeTime,
+} from '../types/enums';
 
 const userSchema = new Schema<User>(
   {
@@ -37,7 +56,81 @@ const userSchema = new Schema<User>(
       trim: true,
     },
     sublesseeHistory: [{ type: Schema.Types.ObjectId, ref: 'Post' }], // Where user has been a sublessee
-    // Additional stats to add later if necessary
+
+    lifestyle: {
+      gender: {
+        type: String,
+        enum: Object.values(Gender),
+      },
+      genderComfort: {
+        type: String,
+        enum: Object.values(GenderComfort),
+      },
+      accessNeeds: {
+        type: String,
+        enum: Object.values(AccessNeeds),
+      },
+      guestFrequency: {
+        type: String,
+        enum: Object.values(GuestFrequency),
+      },
+      guestTolerance: {
+        type: String,
+        enum: Object.values(GuestTolerance),
+      },
+      smokeFrequency: {
+        type: String,
+        enum: Object.values(SmokeFrequency),
+      },
+      smokeTolerance: {
+        type: String,
+        enum: Object.values(SmokeTolerance),
+      },
+      bedTime: {
+        type: String,
+        enum: Object.values(BedTime),
+      },
+      wakeTime: {
+        type: String,
+        enum: Object.values(WakeTime),
+      },
+      sleepEnvironment: {
+        type: String,
+        enum: Object.values(SleepEnvironment),
+      },
+      studyInRoom: {
+        type: String,
+        enum: Object.values(StudyInRoom),
+      },
+      studyTime: {
+        type: String,
+        enum: Object.values(StudyTime),
+      },
+      studyNoise: {
+        type: String,
+        enum: Object.values(StudyNoise),
+      },
+      cleanliness: {
+        type: String,
+        enum: Object.values(Cleanliness),
+      },
+      roomTemperature: {
+        type: String,
+        enum: Object.values(RoomTemperature),
+      },
+      cookingFrequency: {
+        type: String,
+        enum: Object.values(CookingFrequency),
+      },
+      cleanAfterCooking: {
+        type: String,
+        enum: Object.values(CleanAfterCooking),
+      },
+    },
+    lifestyleVector: {
+      type: [Number],
+      default: [],
+    },
   },
   { timestamps: true }
 );

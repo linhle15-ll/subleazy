@@ -1,3 +1,5 @@
+'use client';
+
 import { useTextSearch } from '@/hooks/use-text-search';
 import { useSortStore } from '@/stores/sort.store';
 import { useEffect, useRef, useState } from 'react';

@@ -9,10 +9,23 @@ const groupSchema = new Schema<Group>(
     },
     isDM: {
       type: Boolean,
-      default: false,
+      default: true,
+    },
+    post: {
+      type: Schema.Types.ObjectId,
+      ref: 'Post',
+    },
+    contracts: [{ type: Schema.Types.ObjectId, ref: 'Contract' }],
+    members: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    lastRead: {
+      type: Map,
+      of: Date,
+      default: {},
     },
   },
   { timestamps: true }
 );
+
+groupSchema.index({ members: 1 });
 
 export default model<Group>('Group', groupSchema);
