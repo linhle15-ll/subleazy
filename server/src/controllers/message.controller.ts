@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import messageService from '../services/message.service';
 import { getAuthRequest } from '../utils/common.utils';
 import { Types } from 'mongoose';
+import groupService from '../services/group.service';
 
 const messageController = {
   getMessages: async (req: Request, res: Response, next: NextFunction) => {
@@ -30,6 +31,7 @@ const messageController = {
         sender: new Types.ObjectId(authReq.user.id),
         content,
       });
+      await groupService.updateGroup(groupId, { lastMessage: message });
       res.status(201).json(message);
     } catch (error) {
       next(error);
