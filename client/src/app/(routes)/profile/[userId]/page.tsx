@@ -1,33 +1,44 @@
+// personal page
 'use client';
-
+import React from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import userService from '@/services/user.service';
 import Loading from '@/components/ui/commons/loading';
 import { PostingGrid } from '@/components/ui/posting/posting-grid';
-import { usePosts } from '@/hooks/use-posts';
-import userService from '@/services/user.service';
-import { useUserStore } from '@/stores/user.store';
-import { useQuery } from '@tanstack/react-query';
 import Image from 'next/image';
-import { useParams, useRouter } from 'next/navigation';
 
 export default function ProfilePage() {
-  const { userId } = useParams<{ userId: string }>();
+  const searchParams = useSearchParams();
   const router = useRouter();
-  const currentUser = useUserStore((state) => state.user);
-  const isOwner = currentUser?._id === userId;
+  const userId = searchParams.get('id');
 
-  const { data: result, isFetching } = useQuery({
+  const {
+    data: user,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['user', userId],
-    queryFn: () => userService.getUser(userId!),
+    queryFn: () => userService.getUserById(userId!),
     enabled: !!userId,
   });
 
-  const userPosts = usePosts(userId);
+  const userData = user?.data;
+  // const userPosts = usePosts(userId ?? undefined); /////// use-get-posts.hook // by user id
 
-  if (isFetching || !result) return <Loading />;
-  if (!result.success)
-    return <div className="text-red-500 screen-message">User not found</div>;
+  // Get current logged-in user (adjust according to your auth)
+  // const { data: session } = useSession();
+  // const isOwner = session?.user?.id === userId;
 
-  const user = result.data!;
+  const isOwner = true; // Replace with actual logic to check if the logged-in user is the profile owner
+
+  if (isLoading)
+    return (
+      <div>
+        <Loading />
+      </div>
+    );
+  if (error || !user) return <div className="text-red-500">User not found</div>;
 
   return (
     <div className="max-w-full mx-auto px-20 py-15">
@@ -35,8 +46,7 @@ export default function ProfilePage() {
         {/* Avatar */}
         <div className="flex-shrink-0">
           <Image
-            // TODO: add default profile image
-            src={user.profileImage || '/default-profile.png'}
+            src={userData?.profileImage || '/default-profile.png'}
             alt="Profile"
             width={180}
             height={180}
@@ -45,12 +55,12 @@ export default function ProfilePage() {
         </div>
         {/* Info & Actions */}
         <div className="flex-1 flex flex-col gap-2">
-          <h2 className="text-3xl font-medium">
-            {user.firstName} {user.lastName}
-          </h2>
-          <div>{user.bio}</div>
+          <div className="text-3xl font-medium">
+            {userData?.firstName} {userData?.lastName}
+          </div>
+          <div>{userData?.bio}</div>
           <div className="flex gap-4 mt-4">
-            {isOwner && (
+            {isOwner ? (
               <>
                 <button
                   className="btn-secondary"
@@ -60,12 +70,12 @@ export default function ProfilePage() {
                 </button>
                 <button
                   className="btn-secondary"
-                  onClick={() => router.push('/wishlist')}
+                  onClick={() => router.push(`/profile/wishlist?id=${userId}`)}
                 >
                   View Wishlist
                 </button>
               </>
-            )}
+            ) : null}
             <button
               className="btn-secondary"
               onClick={() => {
@@ -81,22 +91,22 @@ export default function ProfilePage() {
       {/* Listings */}
       <div className="mt-12 w-full">
         <div className="flex items-center gap-2 mb-4">
-          <span className="text-2xl font-medium text-orange-500">▦</span>
-          <span className="text-xl font-medium">
-            {user.firstName}’s places for sublet
+          <span className="text-2xl font-semibold text-orange-500">▦</span>
+          <span className="text-xl font-semibold">
+            {userData?.firstName}’s places for sublet
           </span>
         </div>
-        {userPosts.loading ? (
+        {/* {userPosts.loading ? (
           <div>
             <Loading />
           </div>
         ) : userPosts.error ? (
-          <div className="text-red-500 screen-message">{userPosts.error}</div>
+          <div className="text-red-500">{userPosts.error}</div>
         ) : userPosts.posts && userPosts.posts.length > 0 ? (
           <PostingGrid isVertical={true} posts={userPosts.posts} />
         ) : (
-          <div className="screen-message">No listings yet</div>
-        )}
+          <div className="text-gray-500">No listings yet.</div>
+        )} */}
       </div>
     </div>
   );
