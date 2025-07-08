@@ -9,9 +9,10 @@ import { useGroups } from '@/hooks/use-groups';
 import { Group } from '@/lib/types/group.types';
 import { Message } from '@/lib/types/message.types';
 import { cn } from '@/lib/utils/cn';
-import messageService from '@/services/message.service';
 import { useUserStore } from '@/stores/user.store';
 import { useEffect, useState } from 'react';
+import { io } from 'socket.io-client';
+import messageService from '@/services/message.service';
 
 export default function ChatPage() {
   const [groups, setGroups] = useState<Group[]>([]);
@@ -25,6 +26,16 @@ export default function ChatPage() {
     if (isFetching || !result) return;
     if (result.success) setGroups(result.data!);
   }, [result]);
+
+  useEffect(() => {
+    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
+      withCredentials: true,
+    });
+
+    socket.on('connect', () => console.log('connected ' + socket.id));
+
+    socket.on('disconnect', () => console.log('disconnected'));
+  }, []);
 
   const handleGroupSelect = async (group: Group) => {
     setActiveGroup(group);
