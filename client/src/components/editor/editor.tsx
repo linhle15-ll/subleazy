@@ -10,11 +10,11 @@ import Highlight from '@tiptap/extension-highlight';
 import Color from '@tiptap/extension-color';
 import TextStyle from '@tiptap/extension-text-style';
 import ListItem from '@tiptap/extension-list-item';
-import TaskItem from '@tiptap/extension-task-item'
-import TaskList from '@tiptap/extension-task-list'
+import TaskItem from '@tiptap/extension-task-item';
+import TaskList from '@tiptap/extension-task-list';
 import { TextAlign } from '@tiptap/extension-text-align';
 import { ExportDocx } from '@tiptap-pro/extension-export-docx';
-import Image from '@tiptap/extension-image'
+import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import Table from '@tiptap/extension-table';
 import TableCell from '@tiptap/extension-table-cell';
@@ -47,15 +47,19 @@ import { useEditorStore } from '@/stores/editor.store';
 const DOCUMENT_ID = 'contract-editor-v1';
 const doc = new Y.Doc();
 
-const isDev = process.env.NODE_ENV=== 'development';
+const isDev = process.env.NODE_ENV === 'development';
 const id = isDev ? 'dev' : uuid();
 
-export default function Editor({ initialContent }: { initialContent?: string | null }) {
+export default function Editor({
+  initialContent,
+}: {
+  initialContent?: string | null;
+}) {
   const user = useUser();
   const [showUnresolved, setShowUnresolved] = React.useState<boolean>(true);
   const [selectedThread, setSelectedThread] = React.useState(null);
-   const [hasInitialized, setHasInitialized] = React.useState(false);
-  const { isLoading, setIsLoading, updateContent } = useEditorStore()
+  const [hasInitialized, setHasInitialized] = React.useState(false);
+  const { isLoading, setIsLoading, updateContent } = useEditorStore();
 
   type Thread = { id: string; resolvedAt?: Date | null; [key: string]: any };
   const threadsRef = React.useRef<Thread[]>([]);
@@ -69,10 +73,10 @@ export default function Editor({ initialContent }: { initialContent?: string | n
       token: process.env.NEXT_PUBLIC_TIPTAP_PRO_TOKEN!,
       document: doc,
       onOpen() {
-        console.log('WebSocket connection opened.')
+        console.log('WebSocket connection opened.');
       },
       onConnect() {
-        console.log('Connected to the server.')
+        console.log('Connected to the server.');
       },
     });
   }
@@ -112,13 +116,13 @@ export default function Editor({ initialContent }: { initialContent?: string | n
           const blob = new Blob([result], {
             type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
           });
-          const url = URL.createObjectURL(blob)
-          const a = document.createElement('a')
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
 
-          a.href = url
-          a.download = 'export.docx'
-          a.click()
-          URL.revokeObjectURL(url)
+          a.href = url;
+          a.download = 'export.docx';
+          a.click();
+          URL.revokeObjectURL(url);
         },
       }),
       Link,
@@ -130,7 +134,7 @@ export default function Editor({ initialContent }: { initialContent?: string | n
       TableCell,
       // Collaboration and CommentsKit extensions
       Collaboration.configure({
-        document: doc 
+        document: doc,
       }),
       CollaborationCursor.configure({
         provider,
@@ -168,8 +172,8 @@ export default function Editor({ initialContent }: { initialContent?: string | n
         },
       }),
       Placeholder.configure({
-        placeholder: initialContent 
-          ? 'Edit your imported document...' 
+        placeholder: initialContent
+          ? 'Edit your imported document...'
           : 'Start writing your own contract here ...',
         emptyEditorClass: 'is-editor-empty',
       }),
@@ -177,14 +181,13 @@ export default function Editor({ initialContent }: { initialContent?: string | n
     immediatelyRender: false,
     shouldRerenderOnTransaction: false,
     onCreate: ({ editor }) => {
-      setHasInitialized(true)
+      setHasInitialized(true);
     },
 
     onUpdate: ({ editor }) => {
-      updateContent(editor.getHTML())
+      updateContent(editor.getHTML());
     },
   });
-
 
   // Meoww, fixed bug editor content got duplicated every reload
   React.useEffect(() => {
@@ -194,14 +197,16 @@ export default function Editor({ initialContent }: { initialContent?: string | n
     const handleSynced = () => {
       const yText = doc.getText('sync text');
       const currentLength = yText.length;
-      
+
       // Only set initial content if: have initial content to set // The collaborative document is empty
       if (initialContent && currentLength === 0) {
-        yText.insert(0, initialContent); 
+        yText.insert(0, initialContent);
       } else if (!initialContent && currentLength === 0) {
         yText.insert(0, content);
       } else {
-        console.log('Document already has content, skipping initial content setting');
+        console.log(
+          'Document already has content, skipping initial content setting'
+        );
       }
     };
 
@@ -230,7 +235,7 @@ export default function Editor({ initialContent }: { initialContent?: string | n
     onLeaveThread,
     updateComment,
   } = useThreads(provider, editor, user);
-  
+
   if (!editor) {
     return (
       <div className="editor-container">
@@ -246,9 +251,8 @@ export default function Editor({ initialContent }: { initialContent?: string | n
   );
 
   const finishContract = () => {
-    console.log('Meo Meo')
-    
-  }
+    console.log('Meo Meo');
+  };
 
   return (
     <ThreadsProvider
