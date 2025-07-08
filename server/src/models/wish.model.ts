@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 import { Wish } from '../types/wish.types';
 
-const wishSchema = new Schema<Wish>({
+const wishSchema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
     ref: 'User',
