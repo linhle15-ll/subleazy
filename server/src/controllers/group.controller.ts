@@ -3,6 +3,7 @@ import { getAuthRequest } from '../utils/common.utils';
 import { Group } from '../types/group.types';
 import { ObjectId, Types } from 'mongoose';
 import groupService from '../services/group.service';
+import { User } from '../types/user.types';
 
 const groupController = {
   createGroup: async (req: Request, res: Response, next: NextFunction) => {
@@ -42,7 +43,29 @@ const groupController = {
     try {
       const authReq = getAuthRequest(req);
       const groups = await groupService.getUserGroups(authReq.user.id);
-      res.status(200).json(groups);
+      const transformedData = groups.map((group) => {
+        let name = group.name || '';
+        if (group.isDM) {
+          const otherUser = group.members.find(
+            (member) => (member as User)?._id?.toString() !== authReq.user.id
+          );
+          if (otherUser)
+            name =
+              (otherUser as User).firstName +
+              ' ' +
+              (otherUser as User).lastName;
+        } else if (!group.name) {
+          const firstNames = group.members.map(
+            (member) => (member as User).firstName
+          );
+          name = firstNames.join(', ');
+        }
+        return {
+          ...group,
+          name,
+        };
+      });
+      res.status(200).json(transformedData);
     } catch (error) {
       next(error);
     }
