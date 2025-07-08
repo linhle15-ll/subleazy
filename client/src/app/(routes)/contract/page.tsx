@@ -1,27 +1,34 @@
-import Link from "next/link"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card/card"
-import { Button } from "@/components/ui/button"
-import { ScanLine, PenTool, ArrowRight } from "lucide-react"
+import Link from 'next/link';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card/card';
+import { Button } from '@/components/ui/button';
+import { ScanLine, PenTool, ArrowRight } from 'lucide-react';
 
 const options = [
   {
-    label: "Scan your contract",
+    label: 'Scan your contract',
     description:
       "Upload your PDF/DOCX contract or scan a paper contract. We'll help you digitize and process it quickly.",
-    link: "/contract/scan",
+    link: '/contract/scan',
     icon: ScanLine,
-    color: "bg-blue-50 border-blue-200 hover:bg-blue-100",
-    iconColor: "text-blue-600",
+    color: 'bg-blue-50 border-blue-200 hover:bg-blue-100',
+    iconColor: 'text-blue-600',
   },
   {
-    label: "Write your contract",
-    description: "Create a new contract from scratch using our guided template system and legal frameworks.",
-    link: "/contract/edit",
+    label: 'Write your contract',
+    description:
+      'Create a new contract from scratch using our guided template system and legal frameworks.',
+    link: '/contract/edit',
     icon: PenTool,
-    color: "bg-green-50 border-green-200 hover:bg-green-100",
-    iconColor: "text-green-600",
+    color: 'bg-green-50 border-green-200 hover:bg-green-100',
+    iconColor: 'text-green-600',
   },
-]
+];
 
 export default function ContractScanPage() {
   return (
@@ -40,13 +47,16 @@ export default function ContractScanPage() {
           </div>
 
           <p className="text-xl lg:text-2xl text-gray-600 font-medium">
-            We understand that contract process can be complex, so let Subleazy make it easy for you.
+            We understand that contract process can be complex, so let Subleazy
+            make it easy for you.
           </p>
 
           <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 text-left">
             <p className="text-gray-700 leading-relaxed text-center">
-              As a <span className="font-semibold text-orange-700">sublessor</span>, you have the right to set up the
-              contract before sending it out to your sublessees. Start this process by choosing how you'd like to
+              As a{' '}
+              <span className="font-semibold text-orange-700">sublessor</span>,
+              you have the right to set up the contract before sending it out to
+              your sublessees. Start this process by choosing how you'd like to
               proceed with your contract setup.
             </p>
           </div>
@@ -55,14 +65,18 @@ export default function ContractScanPage() {
         {/* Options Section */}
         <div className="w-full space-y-8">
           <div className="text-center">
-            <h2 className="text-2xl lg:text-3xl font-semibold text-gray-800 mb-2">Choose your preferred method</h2>
-            <p className="text-gray-600">Select the option that works best for your situation</p>
+            <h2 className="text-2xl lg:text-3xl font-semibold text-gray-800 mb-2">
+              Choose your preferred method
+            </h2>
+            <p className="text-gray-600">
+              Select the option that works best for your situation
+            </p>
           </div>
 
           {/* Option Cards */}
           <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
             {options.map((option, index) => {
-              const IconComponent = option.icon
+              const IconComponent = option.icon;
               return (
                 <Card
                   key={index}
@@ -72,29 +86,31 @@ export default function ContractScanPage() {
                     <div
                       className={`w-16 h-16 mx-auto mb-4 rounded-full bg-white flex items-center justify-center shadow-md`}
                     >
-                      <IconComponent className={`w-8 h-8 ${option.iconColor}`} />
+                      <IconComponent
+                        className={`w-8 h-8 ${option.iconColor}`}
+                      />
                     </div>
-                    <CardTitle className="text-xl lg:text-2xl font-semibold text-gray-800">{option.label}</CardTitle>
+                    <CardTitle className="text-xl lg:text-2xl font-semibold text-gray-800">
+                      {option.label}
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="text-center space-y-6">
                     <CardDescription className="text-gray-600 text-base leading-relaxed">
                       {option.description}
                     </CardDescription>
                     <Link href={option.link} className="block">
-                      <Button
-                        className="btn-primary w-full"
-                      >
+                      <Button className="btn-primary w-full">
                         Get Started
                         <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
                       </Button>
                     </Link>
                   </CardContent>
                 </Card>
-              )
+              );
             })}
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
