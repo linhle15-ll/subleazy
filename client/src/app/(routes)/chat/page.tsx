@@ -11,9 +11,14 @@ import { Group } from '@/lib/types/group.types';
 import { Message } from '@/lib/types/message.types';
 import { cn } from '@/lib/utils/cn';
 import { useUserStore } from '@/stores/user.store';
+<<<<<<< HEAD
 import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { User } from '@/lib/types/user.types';
+=======
+import { useEffect, useState } from 'react';
+import { io } from 'socket.io-client';
+>>>>>>> ac4336d (set up socket.io)
 import messageService from '@/services/message.service';
 
 export default function ChatPage() {
@@ -53,6 +58,7 @@ export default function ChatPage() {
   }, [result]);
 
   useEffect(() => {
+<<<<<<< HEAD
     if (!currentUser) return;
 
     const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
@@ -90,6 +96,16 @@ export default function ChatPage() {
       });
     });
   }, [socket, activeGroup?._id]);
+=======
+    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
+      withCredentials: true,
+    });
+
+    socket.on('connect', () => console.log('connected ' + socket.id));
+
+    socket.on('disconnect', () => console.log('disconnected'));
+  }, []);
+>>>>>>> ac4336d (set up socket.io)
 
   const handleGroupSelect = async (group: Group) => {
     setActiveGroup(group);

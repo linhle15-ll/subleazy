@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 5001; // if there is no port, return port 5001
 
 // create server instance
 const server = http.createServer(app);
-export const io = new Server(server, {
+const io = new Server(server, {
   cors: {
     origin: process.env.CLIENT_URL,
     credentials: true,
