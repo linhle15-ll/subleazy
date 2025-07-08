@@ -71,6 +71,10 @@ body {
     @apply flex items-center justify-center h-[500px] text-2xl font-medium;
   }
 
+  .chat-outer-border {
+    @apply bg-white rounded-3xl border-2 border-primaryOrange shadow-lg p-4;
+  }
+
   @layer base {
     input[type='number']::-webkit-inner-spin-button,
     input[type='number']::-webkit-outer-spin-button {
