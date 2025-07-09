@@ -64,21 +64,6 @@ const contractService = {
       .populate('group', '_id name')
       .sort({ createdAt: -1 });
   },
-
-  updateContractStatus: async (
-    contractId: string,
-    status: ContractStatus
-  ): Promise<ContractType | null> => {
-    return await Contract.findByIdAndUpdate(
-      contractId,
-      { status },
-      { new: true, runValidators: true }
-    )
-      .populate('post', '_id title description')
-      .populate('sublessor', '_id firstName lastName email profileImage')
-      .populate('sublessees', '_id firstName lastName email profileImage')
-      .populate('group', '_id name');
-  },
 };
 
 export default contractService;

@@ -1,33 +1,43 @@
 // TODO: Change to store
-'use client'
-import React from 'react'
+'use client';
+import React from 'react';
 
 interface ThreadsProps {
-  children: React.ReactNode
-  threads?: any[]
-  selectedThreads?: any[]
-  selectedThread?: any
-  onClickThread?: (threadId: string) => void
-  onDeleteThread?: (threadId: string) => void
-  onResolveThread?: (threadId: string) => void
-  onUnresolveThread?: (threadId: string) => void
-  onUpdateComment?: (threadId: string, comment: any, content: any, metaData: any) => void
-  onHoverThread?: (threadId: string) => void
-  onLeaveThread?: () => void,
-  setSelectedThread?: (threadId: any) => void
+  children: React.ReactNode;
+  threads?: any[];
+  selectedThreads?: any[];
+  selectedThread?: any;
+  onClickThread?: (threadId: string) => void;
+  onDeleteThread?: (threadId: string) => void;
+  onResolveThread?: (threadId: string) => void;
+  onUnresolveThread?: (threadId: string) => void;
+  onUpdateComment?: (
+    threadId: string,
+    comment: any,
+    content: any,
+    metaData: any
+  ) => void;
+  onHoverThread?: (threadId: string) => void;
+  onLeaveThread?: () => void;
+  setSelectedThread?: (threadId: any) => void;
 }
 
 interface ThreadsContextType {
-  threads: any[]
-  selectedThreads: any[]
-  selectedThread: any
-  onClickThread: (threadId: any) => void 
-  deleteThread: (threadId: any) => void
-  resolveThread: (threadId: any) => void
-  unresolveThread: (threadId: any) => void
-  onUpdateComment: (threadId: any, comment: any, content: any, metaData: any) => void
-  onHoverThread: (threadId: any) => void
-  onLeaveThread: () => void
+  threads: any[];
+  selectedThreads: any[];
+  selectedThread: any;
+  onClickThread: (threadId: any) => void;
+  deleteThread: (threadId: any) => void;
+  resolveThread: (threadId: any) => void;
+  unresolveThread: (threadId: any) => void;
+  onUpdateComment: (
+    threadId: any,
+    comment: any,
+    content: any,
+    metaData: any
+  ) => void;
+  onHoverThread: (threadId: any) => void;
+  onLeaveThread: () => void;
 }
 
 export const ThreadsContext = React.createContext<ThreadsContextType>({
@@ -41,7 +51,7 @@ export const ThreadsContext = React.createContext<ThreadsContextType>({
   onUpdateComment: () => {},
   onHoverThread: () => {},
   onLeaveThread: () => {},
-})
+});
 
 export const ThreadsProvider = ({
   children,
@@ -55,20 +65,23 @@ export const ThreadsProvider = ({
   onUpdateComment = () => {},
   onHoverThread = () => {},
   onLeaveThread = () => {},
-  setSelectedThread = () => null
+  setSelectedThread = () => null,
 }: ThreadsProps) => {
-  const handleThreadClick = React.useCallback((threadId: any) => {
-    if (setSelectedThread) {
-      // Toggle thread selection: if same thread is clicked, close it; otherwise, open the new one
-      setSelectedThread((currentThreadId: any) => {
-        const newThreadId = currentThreadId === threadId ? null : threadId;
-        if (onClickThread) {
-          onClickThread(newThreadId || threadId);
-        }
-        return newThreadId;
-      });
-    }
-  }, [onClickThread, setSelectedThread]);
+  const handleThreadClick = React.useCallback(
+    (threadId: any) => {
+      if (setSelectedThread) {
+        // Toggle thread selection: if same thread is clicked, close it; otherwise, open the new one
+        setSelectedThread((currentThreadId: any) => {
+          const newThreadId = currentThreadId === threadId ? null : threadId;
+          if (onClickThread) {
+            onClickThread(newThreadId || threadId);
+          }
+          return newThreadId;
+        });
+      }
+    },
+    [onClickThread, setSelectedThread]
+  );
 
   const providerValue: ThreadsContextType = {
     threads,
@@ -81,15 +94,15 @@ export const ThreadsProvider = ({
     onUpdateComment,
     onHoverThread,
     onLeaveThread,
-  }
+  };
 
   return (
     <ThreadsContext.Provider value={providerValue}>
       {children}
     </ThreadsContext.Provider>
-  )
-}
+  );
+};
 
 export const useThreadsState = () => {
-  return React.useContext(ThreadsContext)
-}
+  return React.useContext(ThreadsContext);
+};

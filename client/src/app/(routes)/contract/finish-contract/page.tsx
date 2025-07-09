@@ -1,21 +1,29 @@
 'use client';
-import { HomeIcon, CheckCircle2, Download, Share2, FileText, Clock, Users } from "lucide-react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { useEditorStore } from "@/stores/editor.store"
-import React from "react"
+import {
+  HomeIcon,
+  CheckCircle2,
+  Download,
+  Share2,
+  FileText,
+  Clock,
+  Users,
+} from 'lucide-react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { useEditorStore } from '@/stores/editor.store';
+import React from 'react';
 
 export default function FinishContractPage() {
   const { documentData } = useEditorStore();
 
-  console.log(documentData)
+  console.log(documentData);
 
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
         title: 'Contract Completed',
         text: 'I have successfully completed my contract using Subleazy!',
-        url: window.location.origin
+        url: window.location.origin,
       });
     } else {
       navigator.clipboard.writeText(window.location.origin);
@@ -36,18 +44,20 @@ export default function FinishContractPage() {
               Your contract has been successfully completed!
             </div>
             <div className="text-base lg:text-lg max-w-2xl mx-auto leading-relaxed">
-              You've successfully navigated through the contract creation process. Your legal document is now ready and professionally formatted.
+              You've successfully navigated through the contract creation
+              process. Your legal document is now ready and professionally
+              formatted.
             </div>
           </div>
         </div>
 
         {/* Contract Summary */}
-        
+
         {/* Navigation Options */}
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
           <Button
             onClick={handleShare}
-            variant={"outline"}
+            variant={'outline'}
             className="btn-secondary w-50"
           >
             <Share2 size={20} />
@@ -55,10 +65,8 @@ export default function FinishContractPage() {
           </Button>
 
           <Link href="/" className="flex-1">
-            <Button
-              className="btn-primary w-50"
-            >
-              <HomeIcon size={20}/>
+            <Button className="btn-primary w-50">
+              <HomeIcon size={20} />
               Back to Home
             </Button>
           </Link>
