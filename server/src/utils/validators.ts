@@ -1,6 +1,14 @@
 import { PostRequestBody } from '../types/post.types';
 
-export const validateMedia = (data: string[]) => data.length >= 5;
+export const validateMedia = (media: any) => {
+  if (!Array.isArray(media) || media.length === 0) {
+    return {
+      valid: false,
+      message: 'At least one image or video is required.',
+    };
+  }
+  return { valid: true };
+};
 
 export const validateTime = (data: string) => {
   if (!data) return true; // Time is optional

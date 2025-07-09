@@ -1,6 +1,7 @@
 import { Result } from '@/lib/types/common.types';
 import { User } from '@/lib/types/user.types';
 import api from './api';
+import { AxiosError } from 'axios';
 
 const userService = {
   getUserById: async (id: string): Promise<Result<User>> => {
@@ -13,7 +14,10 @@ const userService = {
     } catch (error) {
       return {
         success: false,
-        error: (error as any).response.data.error,
+        error:
+          (error as AxiosError<{ error: string }>).response?.data.error ||
+          JSON.stringify((error as AxiosError<{ error: string }>).response?.data) ||
+          'Failed to get user by id', 
       };
     }
   },
@@ -29,7 +33,10 @@ const userService = {
     } catch (error) {
       return {
         success: false,
-        error: (error as any).response.data.error,
+        error:
+          (error as AxiosError<{ error: string }>).response?.data.error ||
+          JSON.stringify((error as AxiosError<{ error: string }>).response?.data) ||
+          'Failed to get posts by user id', 
       };
     }
   },

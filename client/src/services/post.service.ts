@@ -74,7 +74,8 @@ const postService = {
         success: false,
         error:
           (error as AxiosError<{ error: string }>).response?.data.error ||
-          'Failed to search posts',
+          JSON.stringify((error as AxiosError<{ error: string }>).response?.data) ||
+          'Failed to search posts', 
       };
     }
   },
@@ -89,7 +90,10 @@ const postService = {
     } catch (error) {
       return {
         success: false,
-        error: (error as AxiosError<{ error: string }>).response?.data.error,
+        error:
+          (error as AxiosError<{ error: string }>).response?.data.error ||
+          JSON.stringify((error as AxiosError<{ error: string }>).response?.data) ||
+          'Failed to get all posts', 
       };
     }
   },
@@ -104,7 +108,10 @@ const postService = {
     } catch (error) {
       return {
         success: false,
-        error: (error as AxiosError<{ error: string }>).response?.data.error,
+        error:
+          (error as AxiosError<{ error: string }>).response?.data.error ||
+          JSON.stringify((error as AxiosError<{ error: string }>).response?.data) ||
+          'Failed to get posts by user id', 
       };
     }
   },

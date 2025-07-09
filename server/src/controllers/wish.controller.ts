@@ -10,9 +10,9 @@ const wishController = {
     try {
       const authReq = getAuthRequest(req);
       const data: Wish = authReq.body;
-      data.author = new Types.ObjectId(authReq.user.id);
+      data.user = new Types.ObjectId(authReq.user.id);
 
-      if (!data.post || !data.author) {
+      if (!data.post || !data.user) {
         res.status(400).json({ error: 'Missing post or user' });
         return;
       }

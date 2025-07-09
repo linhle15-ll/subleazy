@@ -1,40 +1,49 @@
 'use client';
 
 import Image from 'next/image';
+import React from 'react'
 import { Heart, SquarePen, Star } from 'lucide-react';
 import { getPlaceTypeIcon, getHouseTypeIcon } from '@/lib/utils/icons';
 import { Post } from '@/lib/types/post.types';
 import { usePathname, useRouter } from 'next/navigation';
 import { useFilterStore } from '@/stores/filter.store';
 import { useUserStore } from '@/stores/user.store';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/commons/tooltip"
+import placeHolderImg from '@/public/placeholder.webp'
+import wishService from '@/services/wish.services'
 
 interface PostingCardProps {
   post: Post;
   isVertical?: boolean;
   isFavorite?: boolean;
   onViewDetails: () => void;
-  onToggleFavorite: () => void;
 }
 
 export function PostingCard({
   post,
   onViewDetails,
-  onToggleFavorite,
   isVertical,
-  isFavorite = false,
 }: PostingCardProps) {
+
+  const [isFavorite, setIsFavorite] = React.useState(false);
   // If post is not provided, return null to avoid rendering
   if (!post) {
     return null;
   }
   const pathname = usePathname();
   const router = useRouter();
+
   const currentUser = useUserStore((state) => state.user);
+  const currentUserId = currentUser?._id
   const isOwner = currentUser?._id === post.author;
 
   const placeType = post.houseInfo.placeType;
   const houseType = post.houseInfo.houseType;
-  const imageUrl = post.media?.[0] || '/placeholder-image.jpg'; // Add a placeholder image
+  const imageUrl = post.media?.[0] || placeHolderImg; 
   const location =
     post.city && post.state && post.zip
       ? `${post.city}, ${post.state} ${post.zip}`
@@ -44,9 +53,32 @@ export function PostingCard({
   const PlaceTypeIcon = getPlaceTypeIcon(placeType);
   const HouseTypeIcon = getHouseTypeIcon(houseType);
 
+  const handleToggleFavorite = async (currentPostId: string) => {
+    if (!currentUserId) {
+      alert('Sign in to add this post to your Wishlist')
+      setIsFavorite(false)
+      return;
+    }
+    try {
+      const result = await wishService.createWish({
+        post: currentPostId,
+        user: currentUserId,
+      });
+      if (result.success) {
+        setIsFavorite(true);  
+      }
+    } catch {
+      alert('Failed to update favorite');
+    }
+
+    if (isFavorite) {
+      setIsFavorite(false)
+    }
+  };
+
   return (
     <div
-      className={`bg-white rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-700 flex border border-orange-500 ${isVertical ? 'flex-col' : 'flex-row h-[220px]'}`}
+      className={`bg-white rounded-lg overflow-hidden hover:shadow-2xl transition-shadow duration-700 flex shadow-md ${isVertical ? 'flex-col' : 'flex-row h-[220px]'}`}
     >
       <div className={`relative ${isVertical ? '' : 'w-2/5'}`}>
         <Image
@@ -60,7 +92,7 @@ export function PostingCard({
           onError={(e) => {
             // Handle image loading error
             const target = e.target as HTMLImageElement;
-            target.src = '/placeholder-image.jpg';
+            target.src = '/public/placeholder.webp';
           }}
         />
         {isOwner ? (
@@ -73,13 +105,17 @@ export function PostingCard({
             title={'Edit post'}
             aria-label={'Edit post'}
           >
-            <SquarePen className={`w-7 h-7 text-white`} />
+            <SquarePen className="text-white" size={30} />
           </button>
         ) : (
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onToggleFavorite();
+              if (post._id) {
+                handleToggleFavorite(post._id);
+              } else {
+                alert('Post ID is missing.');
+              }
             }}
             className="absolute top-3 right-3 transition-colors hover:scale-110"
             title={isFavorite ? 'Remove from wish list' : 'Add to wish list'}
@@ -87,9 +123,17 @@ export function PostingCard({
               isFavorite ? 'Remove from wish list' : 'Add to wish list'
             }
           >
-            <Heart
-              className={`w-7 h-7 ${isFavorite ? 'fill-orange-500 text-orange-500' : 'text-white'}`}
-            />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Heart
+                  className={`${isFavorite && 'fill-primaryOrange text-primaryOrange text-transparent'} text-white`} size={30}
+                />
+              </TooltipTrigger>
+              <TooltipContent>
+                  <p>Love this? Click to add post to your Wishlist!</p>
+                 
+              </TooltipContent>
+            </Tooltip>
           </button>
         )}
       </div>
@@ -133,7 +177,7 @@ export function PostingCard({
         <div className="flex items-center justify-between pt-2 pb-3">
           <span className="font-medium">${price || 0}/ month</span>
           <button
-            className="text-orange-500 hover:font-medium focus:outline-none"
+            className="text-primaryOrange hover:font-medium focus:outline-none"
             onClick={(e) => {
               e.stopPropagation();
               onViewDetails();
