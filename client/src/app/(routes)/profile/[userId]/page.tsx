@@ -64,6 +64,12 @@ export default function ProfilePage() {
                 >
                   View Wishlist
                 </button>
+                <button
+                  className="btn-secondary"
+                  onClick={() => router.push(`/profile/${userId}/lifestyle`)}
+                >
+                  Lifestyle Form
+                </button>
               </>
             )}
             <button

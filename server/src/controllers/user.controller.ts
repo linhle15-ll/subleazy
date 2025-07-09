@@ -48,7 +48,7 @@ const userController = {
   ) => {
     try {
       const authReq = getAuthRequest(req);
-      const lifestyle: Lifestyle = authReq.body.lifestyle;
+      const lifestyle: Lifestyle = authReq.body;
 
       const userId = req.params.userId;
       if (!userId || !mongoose.isValidObjectId(userId)) {
