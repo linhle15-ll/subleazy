@@ -50,22 +50,36 @@ const groupService = {
     return groups;
   },
 
+  getUserGroupsSimple: async (userId: string | ObjectId) => {
+    const groups = await groupModel.find({ members: userId });
+    return groups;
+  },
+
   getGroup: async (groupId: string | ObjectId) => {
     const group = await groupModel.findById(groupId);
     return group;
   },
 
-  updateGroup: async (groupId: string | ObjectId, data: Partial<Group>) => {
+  updateGroup: async (
+    groupId: string | ObjectId,
+    data: Partial<Group>,
+    updateTimestamp = true
+  ) => {
     const group = await groupModel
-      .findByIdAndUpdate(groupId, data, { new: true })
+      .findByIdAndUpdate(groupId, data, {
+        new: true,
+        timestamps: updateTimestamp,
+      })
       .populate('members', 'firstName lastName profileImage');
     return group;
   },
 
   markRead: async (groupId: string, userId: string) => {
-    await groupService.updateGroup(groupId, {
-      [`lastRead.${userId}`]: new Date(),
-    });
+    await groupService.updateGroup(
+      groupId,
+      { [`lastRead.${userId}`]: new Date() },
+      false
+    );
   },
 
   deleteGroup: async (groupId: string | ObjectId) => {
