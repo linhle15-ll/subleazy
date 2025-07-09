@@ -1,5 +1,6 @@
 import { Group } from '@/lib/types/group.types';
 import { User } from '@/lib/types/user.types';
+import { useUserStore } from '@/stores/user.store';
 import { SquarePen } from 'lucide-react';
 
 export default function ChatSidebar({
@@ -9,10 +10,12 @@ export default function ChatSidebar({
   onSelect,
 }: {
   groups: Group[];
-  userMaps: Map<string, Map<string, User>>;
+  userMaps: Record<string, Record<string, User>>;
   activeGroupId?: string;
   onSelect: (group: Group) => void;
 }) {
+  const currentUser = useUserStore((state) => state.user);
+
   return (
     <>
       <div className="flex justify-between items-center p-2">
@@ -32,19 +35,33 @@ export default function ChatSidebar({
             const groupName = group.name;
             const sender =
               typeof group.lastMessage?.sender === 'string'
-                ? userMaps.get(groupId)?.get(group.lastMessage?.sender)
+                ? userMaps[groupId][group.lastMessage?.sender]
                 : group.lastMessage?.sender;
+            const isUnread =
+              group.updatedAt! > group.lastRead[currentUser!._id!];
             return (
-              // TODO: add unread status
               <div
                 key={groupId}
                 title={groupName}
-                className={`flex flex-col gap-1 justify-center p-2 rounded-lg min-h-20 h-20 cursor-pointer ${activeGroupId === groupId ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
+                className={`flex items-center justify-between gap-2 p-2 rounded-lg min-h-20 h-20 cursor-pointer ${activeGroupId === groupId ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
                 onClick={() => onSelect(group)}
               >
-                <div className="font-medium truncate">{groupName}</div>
-                {group.lastMessage && (
-                  <div className="text-gray-500 truncate">{`${sender?.firstName}: ${group.lastMessage.content}`}</div>
+                <div
+                  className={`flex flex-col gap-1 justify-center ${isUnread ? 'max-w-[90%]' : 'max-w-full'}`}
+                >
+                  <div
+                    className={`${isUnread ? 'font-semibold' : 'font-medium'} truncate`}
+                  >
+                    {groupName}
+                  </div>
+                  {group.lastMessage && (
+                    <div
+                      className={`text-sm text-gray-400 truncate ${isUnread && 'font-medium'}`}
+                    >{`${sender?.firstName}: ${group.lastMessage.content}`}</div>
+                  )}
+                </div>
+                {isUnread && (
+                  <span className="rounded-full w-3 h-3 bg-blue-400"></span>
                 )}
               </div>
             );

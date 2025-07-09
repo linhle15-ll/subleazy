@@ -10,21 +10,27 @@ import { Group } from '@/lib/types/group.types';
 import { Message } from '@/lib/types/message.types';
 import { cn } from '@/lib/utils/cn';
 import { useUserStore } from '@/stores/user.store';
-import { useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
+import { useEffect, useRef, useState } from 'react';
+import { io, Socket } from 'socket.io-client';
 import messageService from '@/services/message.service';
 import { User } from '@/lib/types/user.types';
 
 export default function ChatPage() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [activeGroup, setActiveGroup] = useState<Group>();
-  const [userMaps, setUserMaps] = useState<Map<string, Map<string, User>>>(
-    new Map()
-  );
+  const [userMaps, setUserMaps] = useState<
+    Record<string, Record<string, User>>
+  >({});
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
+  const [socket, setSocket] = useState<Socket>();
   const currentUser = useUserStore((state) => state.user);
   const { result, isFetching } = useGroups(currentUser?._id);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
 
   useEffect(() => {
     if (isFetching || !result) return;
@@ -32,11 +38,14 @@ export default function ChatPage() {
       const groups = result.data!;
       setGroups(groups);
       for (const group of groups) {
-        const userMap = new Map();
+        const userMap: Record<string, User> = {};
         for (const user of group.members) {
-          userMap.set(user._id, user);
+          userMap[user._id!] = user;
         }
-        setUserMaps((prev) => new Map([...prev, [group._id!, userMap]]));
+        setUserMaps((prev) => ({
+          ...prev,
+          [group._id!]: userMap,
+        }));
       }
     }
   }, [result]);
@@ -44,14 +53,27 @@ export default function ChatPage() {
   useEffect(() => {
     if (!currentUser) return;
 
-    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
+    const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
       withCredentials: true,
     });
 
-    socket.on('connect', () => {
-      console.log(`user ${currentUser._id} connected - ${socket.id}`);
-      socket.emit('join-chat', currentUser._id);
+    setSocket(newSocket);
+
+    newSocket.on('connect', () => {
+      console.log(`user ${currentUser._id} connected - ${newSocket.id}`);
+      newSocket.emit('join-chat', currentUser._id);
     });
+
+    newSocket.on('disconnect', () => console.log('disconnected'));
+
+    return () => {
+      newSocket.disconnect();
+      setSocket(undefined);
+    };
+  }, [currentUser?._id]);
+
+  useEffect(() => {
+    if (!socket) return;
 
     socket.on('new-message', (message: Message) => {
       const groupId = message.group as string;
@@ -60,32 +82,35 @@ export default function ChatPage() {
       setGroups((prev) => {
         const idx = prev.findIndex((group) => group._id === groupId);
         const updatedGroup = { ...prev[idx], lastMessage: message };
+        updatedGroup.lastRead[currentUser!._id!] = new Date();
         return [updatedGroup, ...prev.filter((group) => group._id !== groupId)];
       });
     });
-
-    socket.on('disconnect', () => console.log('disconnected'));
-
-    return () => {
-      socket.disconnect();
-    };
-  }, [currentUser?._id, activeGroup?._id]);
+  }, [socket, activeGroup?._id]);
 
   const handleGroupSelect = async (group: Group) => {
     setActiveGroup(group);
+    setGroups((prev) =>
+      prev.map((g) =>
+        g._id === group._id
+          ? {
+              ...g,
+              lastRead: { ...g.lastRead, [currentUser!._id!]: new Date() },
+            }
+          : g
+      )
+    );
     setLoading(true);
     try {
       const result = await messageService.getMessages(group._id!);
-      if (result.success) {
-        setMessages(result.data!.messages);
-      }
+      if (result.success) setMessages(result.data!.messages);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="h-screen flex p-8 gap-4">
+    <div className="h-screen flex p-8 gap-4" ref={bottomRef}>
       <div
         className={cn(
           'chat-outer-border flex flex-col w-1/3 h-full',
@@ -122,7 +147,7 @@ export default function ChatPage() {
             <ChatHeader groupName={activeGroup.name} />
             <MessageList
               messages={messages}
-              userMap={userMaps.get(activeGroup._id!)!}
+              userMap={userMaps[activeGroup._id!]}
             />
             <MessageInput groupId={activeGroup._id!} />
           </>
