@@ -27,7 +27,7 @@ import {
   Highlighter,
   Upload,
   MessageCircle,
-  ListTodo,  
+  ListTodo,
   FileCheck2,
 } from 'lucide-react';
 import React from 'react';
@@ -36,42 +36,53 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/commons/tooltip"
+} from '@/components/ui/commons/tooltip';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/commons/select"
+} from '@/components/ui/commons/select';
 
 import { content } from './content';
 import Link from 'next/link';
 import FinishContractPage from '@/app/(routes)/contract/finish-contract/page';
 
-const ConfigBar = ({ isLoading, setIsLoading, editor, createThread, finishContract } : { isLoading: boolean, setIsLoading: any, editor: any, createThread: any, finishContract: any}) => {
-  const importRef  = React.useRef<HTMLInputElement>(null);
+const ConfigBar = ({
+  isLoading,
+  setIsLoading,
+  editor,
+  createThread,
+  finishContract,
+}: {
+  isLoading: boolean;
+  setIsLoading: any;
+  editor: any;
+  createThread: any;
+  finishContract: any;
+}) => {
+  const importRef = React.useRef<HTMLInputElement>(null);
   const [error, setError] = React.useState<Error | null>(null);
 
   if (!editor) return null;
 
   const createExport = React.useCallback(() => {
     setIsLoading(true);
-    editor.chain().exportDocx().run()
-  }, [editor])
+    editor.chain().exportDocx().run();
+  }, [editor]);
 
-  const handleTemplateImport = React.useCallback(async() => {
+  const handleTemplateImport = React.useCallback(async () => {
     try {
       editor.chain().focus().setContent(content).run();
     } catch (error) {
       setError(new Error('Failed to load template'));
     }
-
-  }, [editor])
+  }, [editor]);
 
   const handleImportClick = React.useCallback(() => {
-    importRef?.current?.click()
-  }, [])
+    importRef?.current?.click();
+  }, []);
 
   const handleImportFilePick = React.useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,37 +106,37 @@ const ConfigBar = ({ isLoading, setIsLoading, editor, createThread, finishContra
       try {
         // Import mammoth dynamically (client-side only)
         const mammoth = await import('mammoth');
-        
+
         // Convert file to array buffer
         const arrayBuffer = await file.arrayBuffer();
-        
+
         // Convert DOCX to HTML
         const result = await mammoth.convertToHtml(
-          { arrayBuffer }, 
-          { styleMap: [
-            "p[style-name='Aside Heading'] => div.aside > h2:fresh",
-            "p[style-name='Aside Text'] => div.aside > p:fresh",
-            "p[style-name='Section Title'] => h1:fresh",
-            "p[style-name='Subsection Title'] => h2:fresh"
-          ],
-          includeDefaultStyleMap: false,
-          convertImage: mammoth.images.imgElement(function(image) {
-              return image.read("base64").then(function(imageBuffer) {
+          { arrayBuffer },
+          {
+            styleMap: [
+              "p[style-name='Aside Heading'] => div.aside > h2:fresh",
+              "p[style-name='Aside Text'] => div.aside > p:fresh",
+              "p[style-name='Section Title'] => h1:fresh",
+              "p[style-name='Subsection Title'] => h2:fresh",
+            ],
+            includeDefaultStyleMap: false,
+            convertImage: mammoth.images.imgElement(function (image) {
+              return image.read('base64').then(function (imageBuffer) {
                 return {
-                  src: "data:" + image.contentType + ";base64," + imageBuffer
+                  src: 'data:' + image.contentType + ';base64,' + imageBuffer,
                 };
               });
-            })
-          },
+            }),
+          }
         );
-        
+
         // Set the converted HTML content to the editor
         editor.chain().focus().setContent(result.value).run();
 
         if (result.messages && result.messages.length > 0) {
           console.log('Conversion messages:', result.messages);
         }
-        
       } catch (error: any) {
         console.error('Error importing DOCX:', error);
         setError(new Error(`Failed to import document: ${error.message}`));
@@ -133,56 +144,60 @@ const ConfigBar = ({ isLoading, setIsLoading, editor, createThread, finishContra
         setIsLoading(false);
       }
     },
-    [editor, setIsLoading, setError],
+    [editor, setIsLoading, setError]
   );
 
   return (
     <div className="menu-bar">
-      <input 
-        onChange={handleImportFilePick} 
-        type="file" 
-        ref={importRef} 
+      <input
+        onChange={handleImportFilePick}
+        type="file"
+        ref={importRef}
         accept=".docx,.doc,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"
-        style={{ display: 'none' }} 
+        style={{ display: 'none' }}
       />
       <div className="menu-group">
-        <button disabled={editor.isEmpty} onClick={createExport} className='btn-secondary'>
+        <button
+          disabled={editor.isEmpty}
+          onClick={createExport}
+          className="btn-secondary"
+        >
           <Tooltip>
             <TooltipTrigger asChild>
-              <Upload size={16} /> 
+              <Upload size={16} />
             </TooltipTrigger>
             <TooltipContent>
-                <p>Export DOCX file</p>
+              <p>Export DOCX file</p>
             </TooltipContent>
           </Tooltip>
         </button>
 
-        <button onClick={handleImportClick} className='btn-secondary'>
+        <button onClick={handleImportClick} className="btn-secondary">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Import size={16} /> 
+              <Import size={16} />
             </TooltipTrigger>
             <TooltipContent>
-                <p>Import DOCX file</p>
+              <p>Import DOCX file</p>
             </TooltipContent>
           </Tooltip>
         </button>
 
-        <button onClick={handleTemplateImport} className='btn-secondary'>
+        <button onClick={handleTemplateImport} className="btn-secondary">
           <Tooltip>
             <TooltipTrigger asChild>
-              <LayoutTemplate size={16} /> 
+              <LayoutTemplate size={16} />
             </TooltipTrigger>
             <TooltipContent>
-                <p>Import template contract</p>
+              <p>Import template contract</p>
             </TooltipContent>
           </Tooltip>
         </button>
 
-        <button 
-          onClick={createThread} 
+        <button
+          onClick={createThread}
           disabled={!editor || !editor.isEditable}
-          className='flex gap-1 btn-secondary'
+          className="flex gap-1 btn-secondary"
         >
           <MessageCircle size={16} /> Add comment
         </button>
@@ -190,80 +205,89 @@ const ConfigBar = ({ isLoading, setIsLoading, editor, createThread, finishContra
         <Tooltip>
           <TooltipTrigger asChild>
             <Link href="/contract/finish-contract">
-              <button className='flex gap-1 btn-primary' onClick={finishContract}>
+              <button
+                className="flex gap-1 btn-primary"
+                onClick={finishContract}
+              >
                 <FileCheck2 size={20} /> Finish contract
               </button>
             </Link>
           </TooltipTrigger>
           <TooltipContent>
-            <p className='text-red-500 text-md'>Please make sure your contract content.<br /> This contract is ineditable after finished.</p>
+            <p className="text-red-500 text-md">
+              Please make sure your contract content.
+              <br /> This contract is ineditable after finished.
+            </p>
           </TooltipContent>
         </Tooltip>
       </div>
-     
+
       {isLoading && <div className="hint purple-spinner">Processing...</div>}
       {error && <div className="hint error">{error.message}</div>}
     </div>
-  )
-}
+  );
+};
 
-const MenuBar = ({ editor } : {editor: any}) => {
-
+const MenuBar = ({ editor }: { editor: any }) => {
   if (!editor) {
     return null;
   }
 
-const handleTableAction = (value: string) => {
-  switch (value) {
-    case 'create-table':
-      editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
-      break;
-    case "add-column-before":
-      editor.chain().focus().addColumnBefore().run();
-      break;
-    case "add-column-after":
-      editor.chain().focus().addColumnAfter().run()
-      break;
-    case 'delete-column':
-      editor.chain().focus().deleteColumn().run();
-      break;
-    case 'add-row-before':
-      editor.chain().focus().addRowBefore().run();
-      break;
-    case 'add-row-after':
-      editor.chain().focus().addRowAfter().run();
-      break;
-    case 'delete-row':
-      editor.chain().focus().deleteRow().run();
-      break;
-    case 'delete-table':
-      editor.chain().focus().deleteTable().run();
-      break;
-    case 'merge-cells':
-      editor.chain().focus().mergeCells().run();
-      break;
-    case 'split-cell':
-      editor.chain().focus().splitCell().run();
-      break;
-    case 'toggle-header-column':
-      editor.chain().focus().toggleHeaderColumn().run();
-      break;
-    case 'toggle-header-row':
-      editor.chain().focus().toggleHeaderRow().run();
-      break;
-    case 'toggle-header-cell':
-      editor.chain().focus().toggleHeaderCell().run();
-      break;
-    case 'merge-or-split':
-      editor.chain().focus().mergeOrSplit().run();
-      break;
-    case 'fix-tables':
-      editor.chain().focus().fixTables().run();
-      break;
-    default:
-      break;
-  }
-};
+  const handleTableAction = (value: string) => {
+    switch (value) {
+      case 'create-table':
+        editor
+          .chain()
+          .focus()
+          .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+          .run();
+        break;
+      case 'add-column-before':
+        editor.chain().focus().addColumnBefore().run();
+        break;
+      case 'add-column-after':
+        editor.chain().focus().addColumnAfter().run();
+        break;
+      case 'delete-column':
+        editor.chain().focus().deleteColumn().run();
+        break;
+      case 'add-row-before':
+        editor.chain().focus().addRowBefore().run();
+        break;
+      case 'add-row-after':
+        editor.chain().focus().addRowAfter().run();
+        break;
+      case 'delete-row':
+        editor.chain().focus().deleteRow().run();
+        break;
+      case 'delete-table':
+        editor.chain().focus().deleteTable().run();
+        break;
+      case 'merge-cells':
+        editor.chain().focus().mergeCells().run();
+        break;
+      case 'split-cell':
+        editor.chain().focus().splitCell().run();
+        break;
+      case 'toggle-header-column':
+        editor.chain().focus().toggleHeaderColumn().run();
+        break;
+      case 'toggle-header-row':
+        editor.chain().focus().toggleHeaderRow().run();
+        break;
+      case 'toggle-header-cell':
+        editor.chain().focus().toggleHeaderCell().run();
+        break;
+      case 'merge-or-split':
+        editor.chain().focus().mergeOrSplit().run();
+        break;
+      case 'fix-tables':
+        editor.chain().focus().fixTables().run();
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <div className="menu-bar">
@@ -419,7 +443,7 @@ const handleTableAction = (value: string) => {
           onClick={() => editor.chain().focus().toggleTaskList().run()}
           className={editor.isActive('taskList') ? 'is-active' : ''}
         >
-          <ListTodo size={16}/>
+          <ListTodo size={16} />
         </button>
 
         <button
@@ -470,7 +494,7 @@ const handleTableAction = (value: string) => {
         </button>
       </div>
 
-      <div className='menu-group'>
+      <div className="menu-group">
         <Select onValueChange={(value) => handleTableAction(value)}>
           <SelectTrigger className="w-[180px] bg-white">
             <SelectValue placeholder="Table Actions" />
@@ -486,9 +510,13 @@ const handleTableAction = (value: string) => {
             <SelectItem value="delete-table">Delete table</SelectItem>
             <SelectItem value="merge-cells">Merge cells</SelectItem>
             <SelectItem value="split-cell">Split cell</SelectItem>
-            <SelectItem value="toggle-header-column">Toggle header column</SelectItem>
+            <SelectItem value="toggle-header-column">
+              Toggle header column
+            </SelectItem>
             <SelectItem value="toggle-header-row">Toggle header row</SelectItem>
-            <SelectItem value="toggle-header-cell">Toggle header cell</SelectItem>
+            <SelectItem value="toggle-header-cell">
+              Toggle header cell
+            </SelectItem>
             <SelectItem value="merge-or-split">Merge or split</SelectItem>
             <SelectItem value="fix-tables">Fix tables</SelectItem>
           </SelectContent>
@@ -507,10 +535,10 @@ const handleTableAction = (value: string) => {
         </button>
 
         <button
-            onClick={() => editor.chain().focus().toggleHighlight().run()}
-            className={editor.isActive('highlight') ? 'is-active' : ''}
-          >
-            <Highlighter size={16} />
+          onClick={() => editor.chain().focus().toggleHighlight().run()}
+          className={editor.isActive('highlight') ? 'is-active' : ''}
+        >
+          <Highlighter size={16} />
         </button>
 
         <button
@@ -550,11 +578,29 @@ const handleTableAction = (value: string) => {
   );
 };
 
-export default function EditorMenuBar ({ isLoading, setIsLoading, editor, createThread, finishContract } : { isLoading: boolean, setIsLoading: any, editor: any, createThread: any, finishContract: any}) {
+export default function EditorMenuBar({
+  isLoading,
+  setIsLoading,
+  editor,
+  createThread,
+  finishContract,
+}: {
+  isLoading: boolean;
+  setIsLoading: any;
+  editor: any;
+  createThread: any;
+  finishContract: any;
+}) {
   return (
     <div>
-      <ConfigBar isLoading={isLoading} setIsLoading={setIsLoading} editor={editor} createThread={createThread} finishContract={finishContract} />
+      <ConfigBar
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        editor={editor}
+        createThread={createThread}
+        finishContract={finishContract}
+      />
       <MenuBar editor={editor} />
     </div>
-  )
+  );
 }

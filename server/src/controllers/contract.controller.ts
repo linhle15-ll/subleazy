@@ -58,6 +58,8 @@ const contractController = {
         return;
       }
 
+      
+
       // Create contract data, only sublessor can create contract
       const contractData = {
         title,
