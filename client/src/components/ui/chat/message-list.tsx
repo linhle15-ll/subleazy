@@ -8,7 +8,7 @@ export default function MessageList({
   userMap,
 }: {
   messages: Message[];
-  userMap: Map<string, User>;
+  userMap: Record<string, User>;
 }) {
   const currentUser = useUserStore((state) => state.user);
   // TODO: load more message on scroll
@@ -17,15 +17,15 @@ export default function MessageList({
   return (
     <>
       <div className="flex flex-col-reverse overflow-y-auto gap-4 p-2">
-        {messages.map((message) => {
+        {messages.map((message, index) => {
           const sender =
             typeof message.sender === 'string'
-              ? userMap.get(message.sender)!
+              ? userMap[message.sender]
               : (message.sender as User);
           const isOwner = sender._id === currentUser?._id;
           return (
             <div
-              key={message._id}
+              key={index}
               className={`flex flex-col ${isOwner ? 'items-end' : 'items-start'}`}
             >
               <span className="text-gray-500 px-2">

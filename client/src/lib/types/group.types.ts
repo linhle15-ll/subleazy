@@ -9,6 +9,6 @@ export interface Group extends Base, Timestamps {
   post?: Post;
   contracts: string[]; // TODO: add Contract
   members: User[];
-  lastRead: Map<string, Date>;
+  lastRead: Record<string, Date>;
   lastMessage?: Message;
 }
