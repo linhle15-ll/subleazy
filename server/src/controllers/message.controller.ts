@@ -29,6 +29,14 @@ const messageController = {
       const authReq = getAuthRequest(req);
       const groupId = authReq.params.groupId;
       const content: string = authReq.body.content;
+
+      io.to(groupId).emit('new-message', {
+        group: groupId,
+        sender: authReq.user.id,
+        content,
+        createdAt: new Date(),
+      });
+
       const message = await messageService.sendMessage({
         group: new Types.ObjectId(groupId),
         sender: new Types.ObjectId(authReq.user.id),
@@ -36,7 +44,6 @@ const messageController = {
       });
       await groupService.updateGroup(groupId, { lastMessage: message });
       await groupService.markRead(groupId, authReq.user.id);
-      io.to(groupId).emit('new-message', message);
       res.status(201).json(message);
     } catch (error) {
       next(error);
