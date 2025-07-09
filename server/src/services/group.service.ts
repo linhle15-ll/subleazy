@@ -62,6 +62,12 @@ const groupService = {
     return group;
   },
 
+  markRead: async (groupId: string, userId: string) => {
+    await groupService.updateGroup(groupId, {
+      [`lastRead.${userId}`]: new Date(),
+    });
+  },
+
   deleteGroup: async (groupId: string | ObjectId) => {
     await groupModel.findByIdAndDelete(groupId);
   },
