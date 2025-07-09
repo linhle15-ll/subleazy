@@ -14,7 +14,11 @@ interface EditorStore {
   documentData: DocumentData | null;
   setDocumentData: (data: DocumentData) => void;
   clearDocumentData: () => void;
-  hasDocument: boolean;
+  hasDocument: () => boolean;
+
+  // Contract name
+  contractName: string;
+  setContractName: (name: string) => void;
 
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
@@ -47,9 +51,10 @@ export const useEditorStore = create<EditorStore>()(
         console.log('Clearing document data from store');
         set({ documentData: null });
       },
-      get hasDocument() {
-        return get().documentData !== null;
-      },
+      hasDocument: () => get().documentData !== null,
+
+      contractName: '',
+      setContractName: (name: string) => set({ contractName: name }),
 
       isLoading: false,
       setIsLoading: (loading: boolean) => set({ isLoading: loading }),
@@ -83,8 +88,21 @@ export const useEditorStore = create<EditorStore>()(
 
 export const useDocumentData = () =>
   useEditorStore((state) => state.documentData);
+
 export const useHasDocument = () =>
-  useEditorStore((state) => state.hasDocument);
+  useEditorStore((state) => state.hasDocument());
+
 export const useEditorLoading = () =>
   useEditorStore((state) => state.isLoading);
+
 export const useEditorError = () => useEditorStore((state) => state.error);
+
+export const useUpdateContent = () =>
+  useEditorStore((state) => state.updateContent);
+
+export const useGetContent = () => useEditorStore((state) => state.getContent);
+
+export const useContractName = () =>
+  useEditorStore((state) => state.contractName);
+export const useSetContractName = () =>
+  useEditorStore((state) => state.setContractName);
