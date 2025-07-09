@@ -33,6 +33,7 @@ const groupController = {
       }
 
       const group = await groupService.createGroup(data);
+      await groupService.markRead(group._id.toString(), authReq.user.id);
       res.status(201).json(group);
     } catch (error) {
       next(error);
@@ -97,6 +98,7 @@ const groupController = {
       const updatedGroup = await groupService.updateGroup(groupId, {
         members: group.members,
       });
+      await groupService.markRead(groupId, authReq.user.id);
       res.status(200).json(updatedGroup);
     } catch (error) {
       next(error);
@@ -155,6 +157,7 @@ const groupController = {
 
       const name = authReq.body.name;
       const updatedGroup = await groupService.updateGroup(groupId, { name });
+      await groupService.markRead(groupId, authReq.user.id);
       res.status(200).json(updatedGroup);
     } catch (error) {
       next(error);
