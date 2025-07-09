@@ -44,22 +44,43 @@ import { ThreadsProvider } from './context';
 // Editor store
 import { useEditorStore } from '@/stores/editor.store';
 
+// Services
+import contractService from '@/services/contract.service';
+
 const DOCUMENT_ID = 'contract-editor-v1';
 const doc = new Y.Doc();
 
 const isDev = process.env.NODE_ENV === 'development';
 const id = isDev ? 'dev' : uuid();
 
+// only for testing purpose before Matching feature merged
+const contractCreateTest = {
+  post: '686dee83e51e1a9f103d7e62',
+  sublessor: '686b9238652b52b4a4ce0e74',
+  sublessees: ['6840175954de852613cfe2b0', '685fbd6570eba18985ff3361'],
+  group: '686b961d3205181c6a549c1c',
+};
+
 export default function Editor({
   initialContent,
+  contractId,
 }: {
   initialContent?: string | null;
+  contractId?: string;
 }) {
   const user = useUser();
   const [showUnresolved, setShowUnresolved] = React.useState<boolean>(true);
   const [selectedThread, setSelectedThread] = React.useState(null);
   const [hasInitialized, setHasInitialized] = React.useState(false);
-  const { isLoading, setIsLoading, updateContent } = useEditorStore();
+  const [contractData, setContractData] = React.useState<any>(null);
+  const [fetchingContract, setFetchingContract] = React.useState(false);
+  const {
+    isLoading,
+    setIsLoading,
+    updateContent,
+    contractName,
+    setContractName,
+  } = useEditorStore();
 
   type Thread = { id: string; resolvedAt?: Date | null; [key: string]: any };
   const threadsRef = React.useRef<Thread[]>([]);
@@ -83,8 +104,33 @@ export default function Editor({
 
   const provider = providerRef.current;
 
-  // Determine which content to use
-  const editorContent = initialContent || content;
+  // Fetch contract data on component mount
+  React.useEffect(() => {
+    const fetchContractByGroup = async () => {
+      const testGroupId = '686b95c73205181c6a549c15'; // Hardcoded for testing
+      setFetchingContract(true);
+
+      try {
+        console.log('Fetching contract for group ID:', testGroupId);
+        const result = await contractService.getContractByGroupId(testGroupId);
+
+        if (result.success && result.data) {
+          console.log('Contract fetched successfully:', result.data);
+          setContractData(result.data);
+        } else {
+          console.log('No contract found for group or error:', result.error);
+        }
+      } catch (error) {
+        console.error('Error fetching contract:', error);
+      } finally {
+        setFetchingContract(false);
+      }
+    };
+
+    fetchContractByGroup();
+  }, []);
+
+  const editorContent = contractData?.content || initialContent || content;
 
   const editor = useEditor({
     extensions: [
@@ -172,9 +218,11 @@ export default function Editor({
         },
       }),
       Placeholder.configure({
-        placeholder: initialContent
-          ? 'Edit your imported document...'
-          : 'Start writing your own contract here ...',
+        placeholder: contractData?.content
+          ? 'Edit your contract...'
+          : initialContent
+            ? 'Edit your imported document...'
+            : 'Start writing your own contract here ...',
         emptyEditorClass: 'is-editor-empty',
       }),
     ],
@@ -198,11 +246,18 @@ export default function Editor({
       const yText = doc.getText('sync text');
       const currentLength = yText.length;
 
-      // Only set initial content if: have initial content to set // The collaborative document is empty
-      if (initialContent && currentLength === 0) {
-        yText.insert(0, initialContent);
-      } else if (!initialContent && currentLength === 0) {
-        yText.insert(0, content);
+      // Only set initial content if the collaborative document is empty
+      if (currentLength === 0) {
+        if (contractData?.content) {
+          console.log('Setting contract content from database');
+          yText.insert(0, contractData.content);
+        } else if (initialContent) {
+          console.log('Setting initial content');
+          yText.insert(0, initialContent);
+        } else {
+          console.log('Setting default template content');
+          yText.insert(0, content);
+        }
       } else {
         console.log(
           'Document already has content, skipping initial content setting'
@@ -222,7 +277,7 @@ export default function Editor({
     return () => {
       provider.off('synced', handleSynced);
     };
-  }, [editor, hasInitialized, initialContent, provider]);
+  }, [editor, hasInitialized, contractData, initialContent, provider]);
 
   const {
     threads,
@@ -236,10 +291,15 @@ export default function Editor({
     updateComment,
   } = useThreads(provider, editor, user);
 
-  if (!editor) {
+  if (!editor || fetchingContract) {
     return (
       <div className="editor-container">
         <Loading />
+        {fetchingContract && (
+          <div className="text-center text-gray-600 mt-2">
+            Loading contract data...
+          </div>
+        )}
       </div>
     );
   }
@@ -250,8 +310,49 @@ export default function Editor({
     showUnresolved ? !t.resolvedAt : !!t.resolvedAt
   );
 
-  const finishContract = () => {
-    console.log('Meo Meo');
+  const finishContract = async () => {
+    if (!editor) {
+      console.error('Editor not available');
+      return;
+    }
+
+    if (!contractData) {
+      console.error('No contract data available');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      // Get the current content from the editor
+      const content = editor.getHTML();
+
+      if (!content || content.trim() === '') {
+        console.error('No content to save');
+        return;
+      }
+
+      console.log(`Finishing contract`);
+
+      // Save the contract content
+      const contractToCreate = {
+        ...contractCreateTest,
+        title: contractName || contractData.title || 'Contract',
+        content,
+      };
+      const result = await contractService.createContract(contractToCreate);
+      if (result.success) {
+        console.log('Contract finished successfully:', result.data);
+        // Update local contract data
+        setContractData(result.data);
+      } else {
+        console.error('Failed to finish contract:', result.error);
+      }
+    } catch (error) {
+      console.error('Error finishing contract:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -281,6 +382,8 @@ export default function Editor({
               editor={editor}
               createThread={createThread}
               finishContract={finishContract}
+              contractName={contractName}
+              setContractName={setContractName}
             />
             <EditorContent editor={editor} />
           </div>
