@@ -67,111 +67,111 @@ export enum MoveRule {
 
 // Lifestyle
 export enum Gender {
-  MALE = 'male',
-  FEMALE = 'female',
-  NONBINARY = 'nonbinary',
-  NO_SAY = 'prefer not say',
+  MALE = 'Male',
+  FEMALE = 'Female',
+  NONBINARY = 'Nonbinary',
+  NO_SAY = 'Prefer not to say',
 }
 
 export enum GenderComfort {
-  SAME = 'prefer same gender',
-  ANY = 'any gender is fine',
+  SAME = 'Same gender only',
+  ANY = 'Any gender',
 }
 
 export enum AccessNeeds {
-  YES = 'has access needs and prefer someone understands',
-  NEUTRAL = 'does not have access needs but happy to live with someone who does',
-  NO = 'not applicable or prefer not to say',
+  YES = 'I have accessibility needs and would like understanding housemates',
+  NEUTRAL = "I don't have access needs but would be happy to live with someone who does / No preference",
+  NO = 'Not applicable / prefer not to say',
 }
 
 export enum GuestFrequency {
-  FREQUENTLY = 'frequently',
-  OCCASIONALLY = 'occasionally',
-  NEVER = 'rarely or never',
+  FREQUENTLY = 'Frequently',
+  OCCASIONALLY = 'Occasionally',
+  NEVER = 'Rarely / Never',
 }
 
 export enum GuestTolerance {
-  FREQUENTLY = 'fine with frequent guests',
-  OCCASIONALLY = 'fine with occasional guests',
-  NEVER = 'fine with little or no guests',
-  NO_PREF = 'no preference',
+  FREQUENTLY = 'Frequent guests are fine',
+  OCCASIONALLY = 'Occasional guests are fine',
+  NEVER = 'Prefer little to no guests',
+  NO_PREF = 'No preference',
 }
 
 export enum SmokeFrequency {
-  FREQUENTLY = 'daily or often',
-  OCCASIONALLY = 'socially or irregularly',
-  NEVER = 'does not smoke/vape',
+  FREQUENTLY = 'Daily / often',
+  OCCASIONALLY = 'Socially / irregularly',
+  NEVER = 'Does not smoke/vape',
 }
 
 export enum SmokeTolerance {
-  FREQUENTLY = 'fine with smoking',
-  OCCASIONALLY = 'fine with occasional smoking',
-  NEVER = 'prefer no smoking',
-  NO_PREF = 'no preference',
+  FREQUENTLY = 'Okay with smoking',
+  OCCASIONALLY = 'Occasional smoking is fine',
+  NEVER = 'Prefer no smoking',
+  NO_PREF = 'No preference',
 }
 
 export enum BedTime {
-  EARLY = 'before 12:00 am',
-  MIDNIGHT = '12:00 - 1:00 am',
-  LATE = 'after 1:00 am',
-  NO_PREF = 'no preference',
+  EARLY = 'Early (before 12:00 am)',
+  MIDNIGHT = 'Around midnight (12:00 - 1:00 am)',
+  LATE = 'Late (after 1:00 am)',
+  NO_PREF = 'No preference',
 }
 
 export enum WakeTime {
-  EARLY = 'before 7:30 am',
+  EARLY = 'Before 7:30 am',
   AVERAGE = '7:30 - 9:00 am',
-  LATE = 'after 9:00 am',
-  NO_PREF = 'no preference',
+  LATE = 'After 9:00 am',
+  NO_PREF = 'No preference',
 }
 
 export enum SleepEnvironment {
-  NO_NOISE_LIGHT = 'completely quiet and dark',
-  SOME_NOISE_LIGHT = 'okay with some noise or light',
-  NO_PREF = 'no preference',
+  NO_NOISE_LIGHT = 'Completely quiet and dark',
+  SOME_NOISE_LIGHT = 'Some light or white noise is okay',
+  NO_PREF = "Doesn't matter to me",
 }
 
 export enum StudyInRoom {
-  FREQUENTLY = 'always or frequently',
-  OCCASIONALLY = 'sometimes',
-  NEVER = 'never',
+  FREQUENTLY = 'Always or frequently',
+  OCCASIONALLY = 'Sometimes',
+  NEVER = 'Never',
 }
 
 export enum StudyTime {
-  EARLY_MORNING = 'before 9:00 am',
-  DAYTIME = 'daytime',
-  NIGHT = '7:00 pm - 12:00 am',
-  LATE_NIGHT = 'after 12:00 am',
-  NO_PREF = 'varies',
+  EARLY_MORNING = 'Early morning (before 9:00 am)',
+  DAYTIME = 'Daytime',
+  NIGHT = 'Night (7:00 pm - 12:00 am)',
+  LATE_NIGHT = 'Late night (after 12:00 am)',
+  NO_PREF = 'Varies',
 }
 
 export enum StudyNoise {
-  FREQUENTLY = 'always or frequently',
-  OCCASIONALLY = 'sometimes',
-  NEVER = 'never',
+  FREQUENTLY = 'Always or frequently',
+  OCCASIONALLY = 'Sometimes',
+  NEVER = 'Never',
 }
 
 export enum Cleanliness {
-  VERY = 'daily cleaning',
-  CLEAN = 'weekly cleaning',
-  AVERAGE = 'average',
-  MESSY = 'messy',
+  VERY = 'Very clean (daily cleaning)',
+  CLEAN = 'Clean (weekly cleaning)',
+  AVERAGE = 'Average',
+  MESSY = 'Messy',
 }
 
 export enum RoomTemperature {
-  COOL = 'cool',
-  AVERAGE = 'average',
-  WARM = 'warm',
-  NO_PREF = 'no preference',
+  COOL = 'Cool (below 68F / 20C)',
+  AVERAGE = 'Average (68-72F / 20-22C)',
+  WARM = 'Warm (above 72F / 22C)',
+  NO_PREF = 'No preference',
 }
 
 export enum CookingFrequency {
-  FREQUENTLY = 'daily',
-  OCCASIONALLY = 'occasionally',
-  NEVER = 'rarely or never',
+  FREQUENTLY = 'Daily',
+  OCCASIONALLY = 'Occasionally',
+  NEVER = 'Rarely or never',
 }
 
 export enum CleanAfterCooking {
-  RIGHT_AFTER = 'clean up right after cooking or meal',
-  ONCE_A_DAY = 'clean up once a day',
-  WHENEVER_HAVE_TIME = 'clean up whenever get to it',
+  RIGHT_AFTER = 'After cooking or after meal',
+  ONCE_A_DAY = 'Once a day',
+  WHENEVER_HAVE_TIME = 'Whenever I get to it',
 }
