@@ -83,55 +83,6 @@ const contractController = {
     }
   },
 
-  editContract: async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const authReq = getAuthRequest(req);
-      const contractId = req.params.contractId;
-      const updates = req.body;
-
-      if (!contractId || !mongoose.isValidObjectId(contractId)) {
-        res.status(400).json({ error: 'Invalid contract ID' });
-        return;
-      }
-
-      // Get existing contract
-      const existingContract = await contractService.getContract(contractId);
-
-      if (!existingContract) {
-        res.status(404).json({ error: 'Contract not found' });
-        return;
-      }
-
-      // only sublessor and sublessee in the group can edit contract
-      const isSublessor =
-        (existingContract.sublessor as any)._id?.toString() ||
-        existingContract.sublessor.toString() === authReq.user.id;
-      const isSublessee = existingContract.sublessees.some(
-        (sublessee) =>
-          (sublessee as any)._id?.toString() ||
-          sublessee.toString() === authReq.user.id
-      );
-
-      if (!isSublessor && !isSublessee) {
-        res.status(403).json({ error: 'Unauthorized to edit this contract' });
-        return;
-      }
-
-      const editedContract = await contractService.updateContract(
-        contractId,
-        updates
-      );
-
-      res.status(200).json({
-        success: true,
-        message: 'Contract updated successfully',
-        data: editedContract,
-      });
-    } catch (error) {
-      next(error);
-    }
-  },
-
   getContractByGroupId: async (
     req: Request,
     res: Response,
@@ -227,59 +178,6 @@ const contractController = {
         success: true,
         message: 'Contracts retrieved successfully',
         data: contracts,
-      });
-    } catch (error) {
-      next(error);
-    }
-  },
-
-  // only sublessor can update status
-  updateContractStatus: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const authReq = getAuthRequest(req);
-      const contractId = req.params.contractId;
-      const { status } = req.body;
-
-      if (!contractId || !mongoose.isValidObjectId(contractId)) {
-        res.status(400).json({ error: 'Invalid contract ID' });
-        return;
-      }
-
-      if (!status || !Object.values(ContractStatus).includes(status)) {
-        res.status(400).json({ error: 'Invalid contract status' });
-        return;
-      }
-
-      const existingContract = await contractService.getContract(contractId);
-
-      if (!existingContract) {
-        res.status(404).json({ error: 'Contract not found' });
-        return;
-      }
-
-      // Only sublessor can update status
-      if (
-        (existingContract.sublessor as any)._id.toString() !== authReq.user.id
-      ) {
-        res
-          .status(403)
-          .json({ error: 'Unauthorized to update contract status' });
-        return;
-      }
-
-      const updatedContract = await contractService.updateContractStatus(
-        contractId,
-        status
-      );
-
-      res.status(200).json({
-        success: true,
-        message: 'Contract status updated successfully',
-        data: updatedContract,
       });
     } catch (error) {
       next(error);

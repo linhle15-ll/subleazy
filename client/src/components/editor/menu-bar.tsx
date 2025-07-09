@@ -47,7 +47,6 @@ import {
 
 import { content } from './content';
 import Link from 'next/link';
-import FinishContractPage from '@/app/(routes)/contract/finish-contract/page';
 
 const ConfigBar = ({
   isLoading,
@@ -55,12 +54,16 @@ const ConfigBar = ({
   editor,
   createThread,
   finishContract,
+  contractName,
+  setContractName,
 }: {
   isLoading: boolean;
-  setIsLoading: any;
+  setIsLoading: (loading: boolean) => void;
   editor: any;
   createThread: any;
   finishContract: any;
+  contractName: string;
+  setContractName: (name: string) => void;
 }) => {
   const importRef = React.useRef<HTMLInputElement>(null);
   const [error, setError] = React.useState<Error | null>(null);
@@ -104,13 +107,8 @@ const ConfigBar = ({
       setError(null);
 
       try {
-        // Import mammoth dynamically (client-side only)
         const mammoth = await import('mammoth');
-
-        // Convert file to array buffer
         const arrayBuffer = await file.arrayBuffer();
-
-        // Convert DOCX to HTML
         const result = await mammoth.convertToHtml(
           { arrayBuffer },
           {
@@ -131,7 +129,6 @@ const ConfigBar = ({
           }
         );
 
-        // Set the converted HTML content to the editor
         editor.chain().focus().setContent(result.value).run();
 
         if (result.messages && result.messages.length > 0) {
@@ -156,70 +153,84 @@ const ConfigBar = ({
         accept=".docx,.doc,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"
         style={{ display: 'none' }}
       />
-      <div className="menu-group">
-        <button
-          disabled={editor.isEmpty}
-          onClick={createExport}
-          className="btn-secondary"
-        >
+      <div className="menu-group flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <button
+            disabled={editor.isEmpty}
+            onClick={createExport}
+            className="btn-secondary"
+          >
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Upload size={16} />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Export DOCX file</p>
+              </TooltipContent>
+            </Tooltip>
+          </button>
+
+          <button onClick={handleImportClick} className="btn-secondary">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Import size={16} />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Import DOCX file</p>
+              </TooltipContent>
+            </Tooltip>
+          </button>
+
+          <button onClick={handleTemplateImport} className="btn-secondary">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <LayoutTemplate size={16} />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Import template contract</p>
+              </TooltipContent>
+            </Tooltip>
+          </button>
+
+          <button
+            onClick={createThread}
+            disabled={!editor || !editor.isEditable}
+            className="flex gap-1 btn-secondary"
+          >
+            <MessageCircle size={16} /> Add comment
+          </button>
+
           <Tooltip>
             <TooltipTrigger asChild>
-              <Upload size={16} />
+              <Link href="/contract/finish-contract">
+                <button
+                  className="flex gap-1 btn-primary"
+                  onClick={finishContract}
+                >
+                  <FileCheck2 size={20} /> Finish contract
+                </button>
+              </Link>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Export DOCX file</p>
+              <p className="text-red-500 text-md">
+                Please make sure your contract content.
+                <br /> This contract is ineditable after finished.
+              </p>
             </TooltipContent>
           </Tooltip>
-        </button>
+        </div>
+      </div>
 
-        <button onClick={handleImportClick} className="btn-secondary">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Import size={16} />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Import DOCX file</p>
-            </TooltipContent>
-          </Tooltip>
-        </button>
-
-        <button onClick={handleTemplateImport} className="btn-secondary">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <LayoutTemplate size={16} />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Import template contract</p>
-            </TooltipContent>
-          </Tooltip>
-        </button>
-
-        <button
-          onClick={createThread}
-          disabled={!editor || !editor.isEditable}
-          className="flex gap-1 btn-secondary"
-        >
-          <MessageCircle size={16} /> Add comment
-        </button>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Link href="/contract/finish-contract">
-              <button
-                className="flex gap-1 btn-primary"
-                onClick={finishContract}
-              >
-                <FileCheck2 size={20} /> Finish contract
-              </button>
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p className="text-red-500 text-md">
-              Please make sure your contract content.
-              <br /> This contract is ineditable after finished.
-            </p>
-          </TooltipContent>
-        </Tooltip>
+      <div className="menu-group flex-row gap-2">
+        <p>Contract Name:</p>
+        <input
+          id="contract-name"
+          type="text"
+          value={contractName}
+          onChange={(e) => setContractName(e.target.value)}
+          className="text-field w-80"
+          placeholder="Enter contract name"
+        />
       </div>
 
       {isLoading && <div className="hint purple-spinner">Processing...</div>}
@@ -584,12 +595,16 @@ export default function EditorMenuBar({
   editor,
   createThread,
   finishContract,
+  contractName,
+  setContractName,
 }: {
   isLoading: boolean;
-  setIsLoading: any;
+  setIsLoading: (loading: boolean) => void;
   editor: any;
   createThread: any;
   finishContract: any;
+  contractName: string;
+  setContractName: (name: string) => void;
 }) {
   return (
     <div>
@@ -599,6 +614,8 @@ export default function EditorMenuBar({
         editor={editor}
         createThread={createThread}
         finishContract={finishContract}
+        contractName={contractName}
+        setContractName={setContractName}
       />
       <MenuBar editor={editor} />
     </div>
