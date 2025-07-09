@@ -3,15 +3,25 @@ import { User } from '@/lib/types/user.types';
 import { cn } from '@/lib/utils/cn';
 import { useUserStore } from '@/stores/user.store';
 
-export default function MessageList({ messages }: { messages: Message[] }) {
+export default function MessageList({
+  messages,
+  userMap,
+}: {
+  messages: Message[];
+  userMap: Map<string, User>;
+}) {
   const currentUser = useUserStore((state) => state.user);
   // TODO: load more message on scroll
+  // TODO: add sender profile image
 
   return (
     <>
       <div className="flex flex-col-reverse overflow-y-auto gap-4 p-2">
         {messages.map((message) => {
-          const sender = message.sender as User;
+          const sender =
+            typeof message.sender === 'string'
+              ? userMap.get(message.sender)!
+              : (message.sender as User);
           const isOwner = sender._id === currentUser?._id;
           return (
             <div
