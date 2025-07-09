@@ -47,7 +47,7 @@ import { useEditorStore } from '@/stores/editor.store';
 const DOCUMENT_ID = 'contract-editor-v1';
 const doc = new Y.Doc();
 
-const isDev = process.env.NODE_ENV=== 'development';
+const isDev = process.env.NODE_ENV==='development';
 const id = isDev ? 'dev' : uuid();
 
 export default function Editor({ initialContent }: { initialContent?: string | null }) {

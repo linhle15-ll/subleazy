@@ -32,7 +32,7 @@ export default function ContractScanPage() {
           <div className="space-y-2">
             <h1 className="text-3xl lg:text-5xl font-medium leading-tight">
               Let us walk you through the <br />
-              <span className="font-semibold text-orange-500 relative">
+              <span className="font-semibold text-primaryOrange relative">
                 Contract Process
                 <div className="absolute -bottom-2 left-0 right-0 h-1 bg-orange-200 rounded-full"></div>
               </span>
