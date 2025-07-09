@@ -1,11 +1,11 @@
 /client:
 /client/.env
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=
-NEXT_PUBLIC_API_URL=http://localhost:5000/api
+NEXT_PUBLIC_API_URL=http://localhost:5001/api
 NEXT_PUBLIC_TIPTAP_PRO_TOKEN=
 NEXT_PUBLIC_TIPTAP_PRO_APPID=
-
-MODE='development'
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=
 
 /client/.npmrc
 @tiptap-pro:registry=https://registry.tiptap.dev/
@@ -14,6 +14,8 @@ MODE='development'
 
 /server
 /server/.client
-PORT=5000 
+PORT=5001
 MONGO_PASSWORD=
 MONGODB_URL=
+ACADEMIC_EMAIL_API_TOKEN=
+CLIENT_URL='http://localhost:3000'

@@ -1,12 +1,15 @@
 import { Result } from '@/lib/types/common.types';
-import { User } from '@/lib/types/user.types';
-import { AxiosError } from 'axios';
+import { Wish } from '@/lib/types/wish.types';
 import api from './api';
+import { AxiosError } from 'axios';
 
-const authService = {
-  signup: async (userData: Partial<User>): Promise<Result<User>> => {
+const wishService = {
+  createWish: async (wish: {
+    post: string;
+    user: string;
+  }): Promise<Result<Wish>> => {
     try {
-      const response = await api.post('/auth/signup', userData);
+      const response = await api.post('/wishes/create', wish);
       return {
         success: true,
         data: response.data,
@@ -17,16 +20,14 @@ const authService = {
         error:
           (error as AxiosError<{ error: string }>).response?.data.error ||
           JSON.stringify((error as AxiosError<{ error: string }>).response?.data) ||
-          'Failed to sign up', 
+          'Failed to create post', 
       };
     }
   },
 
-  signin: async (
-    userData: Partial<User>
-  ): Promise<Result<{ accessToken: string; user: User }>> => {
+  getWishListByUserId: async (userId: string): Promise<Result<Wish>> => {
     try {
-      const response = await api.post('/auth/signin', userData);
+      const response = await api.get(`/wishes/getByUserId/${userId}`);
       return {
         success: true,
         data: response.data,
@@ -37,10 +38,10 @@ const authService = {
         error:
           (error as AxiosError<{ error: string }>).response?.data.error ||
           JSON.stringify((error as AxiosError<{ error: string }>).response?.data) ||
-          'Failed to sign in', 
+          'Failed to get post by user id', 
       };
     }
   },
 };
 
-export default authService;
+export default wishService;

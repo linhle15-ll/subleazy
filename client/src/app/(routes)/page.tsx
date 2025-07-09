@@ -22,7 +22,7 @@ export default function LandingPage() {
 
           <p className="text-base lg:text-lg text-center lg:text-left">
             Find your next sublease in just a few clicks. <br />
-            We make it easy to connect with the right sublessors <br /> and find
+            We make it easy to connect with the right sublessors and sublessees and find
             the perfect place to stay.
           </p>
 
@@ -58,20 +58,10 @@ export default function LandingPage() {
           </span>
           <span className="italic"> Wherever you go </span>
         </div>
-
-        <div className="flex flex-col sm:flex-row gap-6 sm:gap-16 justify-center items-center">
-          <a className="btn-primary" href="/sublease">
-            Match housemates
-          </a>
-
-          <a className="btn-secondary" href="/community">
-            Join community
-          </a>
-        </div>
       </section>
 
       {/* Featured Listings Section */}
-      <section className="px-6 lg:px-12 mb-11">
+      <section className="px-6 lg:px-12 mb-11 mt-15">
         {loading ? (
           <Loading />
         ) : error ? (

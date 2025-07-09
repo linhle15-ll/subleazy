@@ -1,50 +1,56 @@
 'use client';
 
 import Image from 'next/image';
+import React, { useEffect } from 'react';
 import {
   Heart,
   MapPin,
-  Wifi,
-  Utensils,
-  Dog,
-  Wind,
   Clock,
-  Users,
-  BedDouble,
-  Bath,
-  Home,
-  Building2,
-  Car,
-  Train,
-  ShoppingCart,
-  Accessibility,
-  WashingMachine,
-  Lock,
-  PartyPopper,
-  Cigarette,
-  Cannabis,
   SquarePen,
 } from 'lucide-react';
-import authorAvatar from '@/public/bannerImg.jpg'; // Placeholder for author avatar
+import authorAvatar from '@/public/placeholder-image-person.webp';
 import Loading from '@/components/ui/commons/loading';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { User } from '@/lib/types/user.types';
-import { House } from '@/lib/types/house.types';
+import { postData } from '@/lib/utils/post-data'
 import { PostingMap } from '@/components/ui/map/posting-map';
 import { usePost } from '@/hooks/use-post';
 import { useUserStore } from '@/stores/user.store';
+import wishService from '@/services/wish.services'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/commons/tooltip"
+import { ProfileAvatar } from '@/components/ui/commons/avatar'
+import { GalleryModal } from '@/components/ui/commons/image-gallery'
 
 export default function PostingPage() {
   const { postId } = useParams<{ postId: string }>();
+  const currentUser = useUserStore((state) => state.user);
+  const currentUserId = currentUser?._id
   const { result, isFetching } = usePost(postId);
   const router = useRouter();
   const [isFavorite, setIsFavorite] = useState(false);
-  const currentUser = useUserStore((state) => state.user);
-  // TODO: implement isFavorite/wishlist functionality
+  const [showAllPhotos, setShowAllPhotos] = useState(false)
+
+  useEffect(() => {
+    if (showAllPhotos) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'auto'
+    }
+
+    // store scroll on component unmount
+    return () => {
+      document.body.style.overflow = 'auto'
+    }
+  }, [showAllPhotos])
 
   if (isFetching || !result) return <Loading />;
-  if (!result.success)
+
+  if (!result.success) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="text-center">
@@ -60,107 +66,42 @@ export default function PostingPage() {
         </div>
       </div>
     );
+  }
 
   const post = result.data!;
   const isOwner = currentUser?._id === (post.author as User)._id;
 
+  const { address, author, amenities, roomInfo, whoElse, rules, convenience, availability } = postData(post)
+
   const handleAuthorClick = () => {
     const authorId = (post.author as User)._id;
-    router.push(`/profile/${authorId}`);
+    router.push(`/dashboard/${authorId}`);
   };
 
-  const transformedData = {
-    address: `${(post.house as House).address}, ${post.suites ? `${post.suites},` : ''} ${post.city}, ${post.state} ${post.zip}`,
-    author: post.author as User,
-    amenities: [
-      { icon: Wifi, label: post.amenities.wifi ? 'Wifi' : '' },
-      { icon: Utensils, label: post.amenities.kitchen ? 'Kitchen' : '' },
-      { icon: WashingMachine, label: post.amenities.laundry ? 'Laundry' : '' },
-      {
-        icon: Wind,
-        label: post.amenities.airConditioning ? 'Air conditioning' : '',
-      },
-      { icon: Car, label: post.amenities.parking ? 'Parking' : '' },
-    ].filter((amenity) => amenity.label),
-    convenience: [
-      {
-        icon: Train,
-        label: post.convenience.publicTransport ? 'Near public transport' : '',
-      },
-      {
-        icon: ShoppingCart,
-        label: post.convenience.supermarket ? 'Near supermarket' : '',
-      },
-      {
-        icon: Accessibility,
-        label: post.convenience.disabilityFriendly ? 'Disability friendly' : '',
-      },
-    ].filter((item) => item.label),
-    roomInfo: [
-      {
-        icon: Home,
-        label: `${post.houseInfo.houseType.charAt(0).toUpperCase() + post.houseInfo.houseType.slice(1)}`,
-      },
-      {
-        icon: Building2,
-        label: `${post.houseInfo.placeType.charAt(0).toUpperCase() + post.houseInfo.placeType.slice(1)} living space`,
-      },
-      {
-        icon: Users,
-        label: `Max ${post.bedroomInfo.maxGuests} guest${post.bedroomInfo.maxGuests > 1 ? 's' : ''}`,
-      },
-      {
-        icon: BedDouble,
-        label: `${post.bedroomInfo.bedrooms} bedroom${post.bedroomInfo.bedrooms > 1 ? 's' : ''}, ${post.bedroomInfo.beds} bed${post.bedroomInfo.beds > 1 ? 's' : ''}`,
-      },
-      {
-        icon: Bath,
-        label: `${post.bathroomInfo.privateAttached + post.bathroomInfo.privateAccessible} private, ${post.bathroomInfo.shared} shared bathroom`,
-      },
-      {
-        icon: Lock,
-        label: post.bedroomInfo.lock
-          ? 'Room has lock'
-          : 'Room does not have lock',
-      },
-    ],
-    rules: [
-      {
-        icon: Clock,
-        label: post.rules.quietHours
-          ? `Quiet hours: ${post.rules.quietHours.from} - ${post.rules.quietHours.to}`
-          : 'No quiet hours specified',
-      },
-      {
-        icon: Users,
-        label: post.rules.noGuest ? 'No guests allowed' : 'Guests allowed',
-      },
-      {
-        icon: Dog,
-        label: post.rules.noPet ? 'No pets allowed' : 'Pets allowed',
-      },
-      {
-        icon: PartyPopper,
-        label: post.rules.noParty ? 'No parties allowed' : 'Parties allowed',
-      },
-      {
-        icon: Cigarette,
-        label: post.rules.noSmoking ? 'No smoking allowed' : 'Smoking allowed',
-      },
-      {
-        icon: Cannabis,
-        label: post.rules.noDrug ? 'No drugs allowed' : 'Drugs allowed',
-      },
-    ],
-    availability: {
-      startDate: new Date(post.availability.startDate).toLocaleDateString(),
-      endDate: new Date(post.availability.endDate).toLocaleDateString(),
-      checkinTime: post.availability.checkinTime,
-      checkoutTime: post.availability.checkoutTime,
-    },
-    whoElse: post.whoElse
-      .map((item) => item.charAt(0).toUpperCase() + item.slice(1))
-      .join(', '),
+  const handleToggleFavorite = async (currentPostId: string) => {
+    if (!currentUserId) {
+      alert('You must be logged in to add to favorites.');
+      setIsFavorite(false)
+      return;
+    }
+
+    try {
+      const result = await wishService.createWish({
+        post: currentPostId,
+        user: currentUserId,
+      });
+      if (result.success) {
+        setIsFavorite(true);
+      } else {
+        alert(result.error || 'Failed to update favorite');
+      }
+    } catch {
+      alert('Failed to update favorite');
+    }
+
+    if (isFavorite) {
+      setIsFavorite(false)
+    }
   };
 
   return (
@@ -172,7 +113,7 @@ export default function PostingPage() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1">
               <MapPin className="w-4 h-4 text-gray-600" />
-              <span className="text-sm">{transformedData.address}</span>
+              <span className="text-sm">{address}</span>
             </div>
           </div>
         </div>
@@ -190,33 +131,70 @@ export default function PostingPage() {
             onClick={() => setIsFavorite(!isFavorite)}
             className="p-2 rounded-full hover:bg-gray-100"
             title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-            aria-label={
-              isFavorite ? 'Remove from favorites' : 'Add to favorites'
-            }
           >
-            <Heart
-              className={`w-6 h-6 ${isFavorite && 'fill-orange-500 text-orange-500'}`}
-            />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Heart
+                  className={`${isFavorite && 'fill-primaryOrange text-primaryOrange text-transparent'} text-white`}size={30}
+                  onClick={() => {
+                    if (postId) {
+                      handleToggleFavorite(postId);
+                    }
+                  }}
+                />
+              </TooltipTrigger>
+              <TooltipContent>
+                  <p>Love this? Click to add post to your Wishlist!</p>
+              </TooltipContent>
+            </Tooltip>
+            
           </button>
         )}
       </div>
 
       {/* Image Gallery */}
-      <div className="grid grid-cols-4 gap-2 mb-8 rounded-xl overflow-hidden">
-        {post.media.map((image, index) => (
-          <div
-            key={index}
-            className={`relative ${index === 0 ? 'col-span-2 row-span-2' : ''} group cursor-pointer overflow-hidden`}
-          >
+      <div className="relative mb-8">
+        <div className="grid h-[400px] grid-cols-2 grid-rows-2 gap-2 overflow-hidden rounded-xl md:grid-cols-4">
+          {/* Main Image */}
+          <div className="relative col-span-2 row-span-2 cursor-pointer overflow-hidden group">
             <Image
-              src={image}
-              alt={`Image ${index + 1}`}
-              width={800}
-              height={600}
+              src={post.media[0]}
+              alt="Main listing image"
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
             />
+          
           </div>
-        ))}
+
+          {/* Secondary Images */}
+          {post.media.slice(1, 5).map((image, index) => (
+            <div
+              key={index}
+              className="relative hidden cursor-pointer overflow-hidden group md:block"
+            >
+              <Image
+                src={image}
+                alt={`Listing image ${index + 2}`}
+                fill
+                sizes="25vw"
+                className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
+              />
+            </div>
+          ))}
+        </div>
+        {post.media.length > 5 && (
+          <button 
+            onClick={() => setShowAllPhotos(true)}
+            className="absolute px-4 py-2 text-sm font-medium transition bg-white bg-opacity-80 rounded-lg shadow-md bottom-4 right-4 hover:bg-gray-100"
+          >
+            Show all photos
+          </button>
+        )}
+        {showAllPhotos && (
+          <GalleryModal data={post.media} onClose={() => setShowAllPhotos(false)} />
+        )}
       </div>
 
       {/* Main Content */}
@@ -229,17 +207,11 @@ export default function PostingPage() {
             className="flex gap-2 mb-4 items-center"
             onClick={handleAuthorClick}
           >
-            <Image
-              src={transformedData.author.profileImage || authorAvatar}
-              alt="Author Avatar"
-              className="w-11 h-11 rounded-full"
-              width={44}
-              height={44}
-            />
+            <ProfileAvatar src={author.profileImage || authorAvatar} alt={author.firstName} size={44} />
             <p className="font-medium text-xl">
               Subleased by{' '}
               <span className="text-primaryOrange">
-                {`${transformedData.author.firstName} ${transformedData.author.lastName}`}
+                {`${author.firstName} ${author.lastName}`}
               </span>
             </p>
           </button>
@@ -248,7 +220,7 @@ export default function PostingPage() {
           <div className="mb-8">
             <h2 className="text-xl font-medium mb-4">About this place</h2>
             <div className="grid grid-cols-2 gap-4">
-              {transformedData.roomInfo.map((info, index) => {
+              {roomInfo.map((info, index) => {
                 const Icon = info.icon;
                 return (
                   <div key={index} className="flex items-center gap-4">
@@ -269,14 +241,14 @@ export default function PostingPage() {
           {/* Who else lives here */}
           <div className="mb-8">
             <h2 className="text-xl font-medium mb-4">Who else lives here</h2>
-            <p>{transformedData.whoElse}</p>
+            <p>{whoElse}</p>
           </div>
 
           {/* What this place offers */}
           <div className="mb-8">
             <h2 className="text-xl font-medium mb-4">What this place offers</h2>
             <div className="grid grid-cols-2 gap-4">
-              {transformedData.amenities.map((amenity, index) => {
+              {amenities.map((amenity, index) => {
                 const Icon = amenity.icon;
                 return (
                   <div key={index} className="flex items-center gap-4">
@@ -292,7 +264,7 @@ export default function PostingPage() {
           <div className="mb-8">
             <h2 className="text-xl font-medium mb-4">Convenience</h2>
             <div className="grid grid-cols-2 gap-4">
-              {transformedData.convenience.map((item, index) => {
+              {convenience.map((item, index) => {
                 const Icon = item.icon;
                 return (
                   <div key={index} className="flex items-center gap-4">
@@ -308,7 +280,7 @@ export default function PostingPage() {
           <div className="mb-8">
             <h2 className="text-xl font-medium mb-4">House Rules</h2>
             <div className="grid grid-cols-2 gap-4">
-              {transformedData.rules.map((rule, index) => {
+              {rules.map((rule, index) => {
                 const Icon = rule.icon;
                 return (
                   <div key={index} className="flex items-center gap-4">
@@ -325,7 +297,7 @@ export default function PostingPage() {
             <h2 className="text-xl font-medium mb-4">Where you'll be</h2>
             <div className="mb-4 mb-2 flex gap-1">
               <MapPin className="w-5 h-5 text-gray-600" />
-              {transformedData.address}
+              {address}
             </div>
             <PostingMap
               post={post}
@@ -353,7 +325,7 @@ export default function PostingPage() {
                   <div>
                     <p className="text-xs text-gray-500">Available from</p>
                     <p className="font-medium">
-                      {transformedData.availability.startDate}
+                      {availability.startDate}
                     </p>
                   </div>
                 </div>
@@ -361,7 +333,7 @@ export default function PostingPage() {
                   <div>
                     <p className="text-xs text-gray-500">Until</p>
                     <p className="font-medium">
-                      {transformedData.availability.endDate}
+                      {availability.endDate}
                     </p>
                   </div>
                 </div>
@@ -369,7 +341,7 @@ export default function PostingPage() {
                   <div>
                     <p className="text-xs text-gray-500">Check-in time</p>
                     <p className="font-medium">
-                      {transformedData.availability.checkinTime}
+                      {availability.checkinTime}
                     </p>
                   </div>
                 </div>
@@ -377,7 +349,7 @@ export default function PostingPage() {
                   <div>
                     <p className="text-xs text-gray-500">Check-out time</p>
                     <p className="font-medium">
-                      {transformedData.availability.checkoutTime}
+                      {availability.checkoutTime}
                     </p>
                   </div>
                 </div>
