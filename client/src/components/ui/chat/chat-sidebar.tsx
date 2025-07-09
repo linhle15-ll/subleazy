@@ -38,7 +38,10 @@ export default function ChatSidebar({
                 ? userMaps[groupId][group.lastMessage?.sender]
                 : group.lastMessage?.sender;
             const isUnread =
-              group.updatedAt! > group.lastRead[currentUser!._id!];
+              group.updatedAt! > group.lastRead[currentUser!._id!] ||
+              (group.lastMessage?.createdAt &&
+                group.lastMessage.createdAt >
+                  group.lastRead[currentUser!._id!]);
             return (
               <div
                 key={groupId}

@@ -12,8 +12,8 @@ import { cn } from '@/lib/utils/cn';
 import { useUserStore } from '@/stores/user.store';
 import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
-import messageService from '@/services/message.service';
 import { User } from '@/lib/types/user.types';
+import messageService from '@/services/message.service';
 
 export default function ChatPage() {
   const [groups, setGroups] = useState<Group[]>([]);
@@ -82,7 +82,8 @@ export default function ChatPage() {
       setGroups((prev) => {
         const idx = prev.findIndex((group) => group._id === groupId);
         const updatedGroup = { ...prev[idx], lastMessage: message };
-        updatedGroup.lastRead[currentUser!._id!] = new Date();
+        if (activeGroup?._id === groupId)
+          updatedGroup.lastRead[currentUser!._id!] = new Date();
         return [updatedGroup, ...prev.filter((group) => group._id !== groupId)];
       });
     });
