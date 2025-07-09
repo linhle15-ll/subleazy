@@ -13,10 +13,14 @@ import { useUserStore } from '@/stores/user.store';
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import messageService from '@/services/message.service';
+import { User } from '@/lib/types/user.types';
 
 export default function ChatPage() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [activeGroup, setActiveGroup] = useState<Group>();
+  const [userMaps, setUserMaps] = useState<Map<string, Map<string, User>>>(
+    new Map()
+  );
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const currentUser = useUserStore((state) => state.user);
@@ -24,18 +28,48 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (isFetching || !result) return;
-    if (result.success) setGroups(result.data!);
+    if (result.success) {
+      const groups = result.data!;
+      setGroups(groups);
+      for (const group of groups) {
+        const userMap = new Map();
+        for (const user of group.members) {
+          userMap.set(user._id, user);
+        }
+        setUserMaps((prev) => new Map([...prev, [group._id!, userMap]]));
+      }
+    }
   }, [result]);
 
   useEffect(() => {
+    if (!currentUser) return;
+
     const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
       withCredentials: true,
     });
 
-    socket.on('connect', () => console.log('connected ' + socket.id));
+    socket.on('connect', () => {
+      console.log(`user ${currentUser._id} connected - ${socket.id}`);
+      socket.emit('join-chat', currentUser._id);
+    });
+
+    socket.on('new-message', (message: Message) => {
+      const groupId = message.group as string;
+      if (activeGroup?._id === groupId)
+        setMessages((prev) => [message, ...prev]);
+      setGroups((prev) => {
+        const idx = prev.findIndex((group) => group._id === groupId);
+        const updatedGroup = { ...prev[idx], lastMessage: message };
+        return [updatedGroup, ...prev.filter((group) => group._id !== groupId)];
+      });
+    });
 
     socket.on('disconnect', () => console.log('disconnected'));
-  }, []);
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [currentUser?._id, activeGroup?._id]);
 
   const handleGroupSelect = async (group: Group) => {
     setActiveGroup(group);
@@ -65,6 +99,7 @@ export default function ChatPage() {
         ) : (
           <ChatSidebar
             groups={groups}
+            userMaps={userMaps}
             activeGroupId={activeGroup?._id}
             onSelect={handleGroupSelect}
           />
@@ -85,7 +120,10 @@ export default function ChatPage() {
         ) : (
           <>
             <ChatHeader groupName={activeGroup.name} />
-            <MessageList messages={messages} />
+            <MessageList
+              messages={messages}
+              userMap={userMaps.get(activeGroup._id!)!}
+            />
             <MessageInput groupId={activeGroup._id!} />
           </>
         )}
