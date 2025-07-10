@@ -10,7 +10,10 @@ const wishService = {
   getWishListByUserId: async (userId: string) => {
     const wishes = await wishModel
       .find({ user: userId })
-      .populate('post')
+      .populate({
+        path: 'post',
+        populate: { path: 'author', select: 'firstName lastName profileImage' },
+      })
       .populate('user');
     return wishes;
   },
