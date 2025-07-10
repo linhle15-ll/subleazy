@@ -35,12 +35,11 @@ const userController = {
 
       const users = await userService.searchUsers(query);
       res.status(200).json(users);
-
     } catch (error) {
       next(error);
     }
   },
-  
+
   // Lifestyle
   createOrUpdateLifestyle: async (
     req: Request,
