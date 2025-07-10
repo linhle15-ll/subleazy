@@ -88,9 +88,9 @@ const wishController = {
         return;
       }
 
-      const lifestyle = currentUser.lifestyle;
+      const currLifestyle = currentUser.lifestyle;
       const vector = currentUser.lifestyleVector;
-      if (!lifestyle || !vector || vector.length === 0) {
+      if (!currLifestyle || !vector || vector.length === 0) {
         const result = matches.map((user) => ({ user, matchPercent: null }));
         res.status(200).json(result);
         return;
@@ -102,16 +102,16 @@ const wishController = {
             user._id!.toString()
           );
 
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { lifestyle, lifestyleVector, ...safeUser } = user;
+
           if (
             detailedUser?.lifestyle &&
-            lifestyleFilter(lifestyle, detailedUser.lifestyle)
+            lifestyleFilter(currLifestyle, detailedUser.lifestyle)
           ) {
             const matchPercent =
               100 *
               cosineSimilarity(vector, detailedUser.lifestyleVector ?? []);
-
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { lifestyle, lifestyleVector, ...safeUser } = user;
 
             return {
               user: safeUser,
@@ -119,13 +119,20 @@ const wishController = {
             };
           }
 
-          return null;
+          return {
+            user: safeUser,
+            matchPercent: null,
+          };
         })
       );
 
-      const filteredResults = matchResults.filter((r) => r !== null);
+      matchResults.sort((a, b) => {
+        if (a.matchPercent === null) return 1;
+        if (b.matchPercent === null) return -1;
+        return b.matchPercent - a.matchPercent;
+      });
 
-      res.status(200).json(filteredResults);
+      res.status(200).json(matchResults);
     } catch (error) {
       next(error);
     }
