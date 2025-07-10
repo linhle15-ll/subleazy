@@ -1,3 +1,4 @@
+'use client'
 import Link from 'next/link';
 import {
   Card,
@@ -8,29 +9,31 @@ import {
 } from '@/components/ui/card/card';
 import { Button } from '@/components/ui/button';
 import { ScanLine, PenTool, ArrowRight } from 'lucide-react';
-
-const options = [
-  {
-    label: 'Scan your contract',
-    description:
-      "Upload your PDF/DOCX contract or scan a paper contract. We'll help you digitize and process it quickly.",
-    link: '/contract/scan',
-    icon: ScanLine,
-    color: 'bg-blue-50 border-blue-200 hover:bg-blue-100',
-    iconColor: 'text-blue-600',
-  },
-  {
-    label: 'Write your contract',
-    description:
-      'Create a new contract from scratch using our guided template system and legal frameworks.',
-    link: '/contract/edit',
-    icon: PenTool,
-    color: 'bg-green-50 border-green-200 hover:bg-green-100',
-    iconColor: 'text-green-600',
-  },
-];
+import { useParams } from 'next/navigation';
 
 export default function ContractScanPage() {
+  const { contractId } = useParams<{ contractId: string}>()
+  
+  const options = [
+    {
+      label: 'Scan your contract',
+      description:
+        "Upload your PDF/DOCX contract or scan a paper contract. We'll help you digitize and process it quickly.",
+      link: `/contract/${contractId}/edit/`, // TODO: edit contract with contract ID
+      icon: ScanLine,
+      color: 'bg-blue-50 border-blue-200 hover:bg-blue-100',
+      iconColor: 'text-blue-600',
+    },
+    {
+      label: 'Write your contract',
+      description:
+        'Create a new contract from scratch using our guided template system and legal frameworks.',
+      link: `/contract/${contractId}/edit`, // TODO: edit contract with contract ID
+      icon: PenTool,
+      color: 'bg-green-50 border-green-200 hover:bg-green-100',
+      iconColor: 'text-green-600',
+    },
+  ];
   return (
     <div className="min-h-screen">
       <div className="flex flex-col items-center justify-center px-6 py-12 lg:px-20 gap-12 lg:gap-16 w-full max-w-5xl mx-auto">

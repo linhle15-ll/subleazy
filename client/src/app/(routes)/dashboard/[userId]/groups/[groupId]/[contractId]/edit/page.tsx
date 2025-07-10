@@ -1,12 +1,11 @@
 'use client';
 import React from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useDocumentData, useHasDocument } from '@/stores/editor.store';
 import Editor from '@/components/editor/editor';
 
 export default function ContractEditPage() {
-  const searchParams = useSearchParams();
-  const contractId = searchParams.get('contractId');
+  const { contractId } = useParams<{ contractId: string}>()
   const documentData = useDocumentData();
   const hasDocument = useHasDocument();
 
@@ -28,7 +27,7 @@ export default function ContractEditPage() {
       )}
 
       <Editor
-        initialContent={documentData?.content || null}
+        initialContent={documentData?.content}
         contractId={contractId || undefined}
       />
     </div>

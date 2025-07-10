@@ -1,7 +1,6 @@
 'use client';
 
-import { ArrowDownWideNarrow, Filter, Trash2, X } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '../commons/popover';
+import { ArrowDownWideNarrow, ArrowUpNarrowWide, Trash2, X } from 'lucide-react';
 import { TextSearch } from '../map/text-search';
 import { useSortPlaces } from '@/hooks/use-sort-places';
 import { useSortStore } from '@/stores/sort.store';
@@ -9,6 +8,14 @@ import { Button } from '../button';
 import { cn } from '@/lib/utils/cn';
 import { Post } from '@/lib/types/post.types';
 import { scoreAndSortPosts } from '@/lib/utils/sorting';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/commons/dialog"
 
 const SortButton = ({
   text,
@@ -83,22 +90,20 @@ export function SortMenu({
   };
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <button className="btn-primary">
-          <Filter />
+    <Dialog>
+      <DialogTrigger asChild>
+        <button className="btn-secondary">
+          <ArrowUpNarrowWide />
           <span>Sort by preferences</span>
         </button>
-      </PopoverTrigger>
-      <PopoverContent
-        align="end"
-        className="flex w-[90vw] sm:w-[28vw] flex-col bg-white space-y-2 p-2 focus:outline-none"
-      >
-        <div className="flex flex-col items-center border-b border-gray-300 pb-2">
-          <span className="text-xl font-semibold">Sort by preferences</span>
-          <span>Find your most suitable postings</span>
-        </div>
-
+      </DialogTrigger>
+      <DialogContent className="bg-white w-full sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Sort by preferences</DialogTitle>
+          <DialogDescription>
+            Find your most suitable places to sublease
+          </DialogDescription>
+        </DialogHeader>
         <div className="flex flex-col gap-2 p-4">
           <span>
             Enter at most 5 places that you care about around your sublease
@@ -139,7 +144,8 @@ export function SortMenu({
             <span className="font-medium text-left text-xs px-1">Sort</span>
           </div>
         </div>
-      </PopoverContent>
-    </Popover>
+      </DialogContent>
+    </Dialog>
+  
   );
 }

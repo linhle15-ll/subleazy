@@ -1,3 +1,4 @@
+'use client'
 import {
   LogOut,
   MessageSquare,
@@ -21,7 +22,12 @@ import {
   DropdownMenuTrigger,
 } from './index';
 
+import { useUserStore } from "@/stores/user.store";
+
 export function DropdownUser() {
+  const currentUser = useUserStore((state) => state.user);
+  const userId = currentUser?._id
+  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -35,7 +41,7 @@ export function DropdownUser() {
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <User />
-            <a href="/profile">Profile</a>
+            <a href={`/dashboard/${userId}`}>Profile</a>
           </DropdownMenuItem>
 
           <DropdownMenuItem>

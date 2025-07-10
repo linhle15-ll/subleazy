@@ -43,23 +43,19 @@ import { ThreadsProvider } from './context';
 
 // Editor store
 import { useEditorStore } from '@/stores/editor.store';
+import { useUserStore } from '@/stores/user.store'
 
 // Services
 import contractService from '@/services/contract.service';
 
-const DOCUMENT_ID = 'contract-editor-v1';
-const doc = new Y.Doc();
-
-const isDev = process.env.NODE_ENV === 'development';
-
-const id = isDev ? 'dev' : uuid();
+// const isDev = process.env.NODE_ENV === 'development';
 
 // only for testing purpose before Matching feature merged
 const contractCreateTest = {
   post: '686dee83e51e1a9f103d7e62',
   sublessor: '686b9238652b52b4a4ce0e74',
   sublessees: ['6840175954de852613cfe2b0', '685fbd6570eba18985ff3361'],
-  group: '686b961d3205181c6a549c1c',
+  group: '686ffe55cfc8d6b7353bf4da',
 };
 
 export default function Editor({
@@ -69,9 +65,16 @@ export default function Editor({
   initialContent?: string | null;
   contractId?: string;
 }) {
-  const user = useUser();
+  const DOCUMENT_ID = `contract-${contractId}`;
+  const doc = new Y.Doc();
+
+  const storedUser = useUserStore((state) => state.user);
+  const { data: userData } = useUser(storedUser?._id ?? '');
+  const currentUser = userData?.data;
+  
+  const { color } = useUser(currentUser?._id ?? '');
   const [showUnresolved, setShowUnresolved] = React.useState<boolean>(true);
-  const [selectedThread, setSelectedThread] = React.useState(null);
+  const [selectedThread, setSelectedThread] = React .useState(null);
   const [hasInitialized, setHasInitialized] = React.useState(false);
   const [contractData, setContractData] = React.useState<any>(null);
   const [fetchingContract, setFetchingContract] = React.useState(false);
@@ -80,6 +83,7 @@ export default function Editor({
     setIsLoading,
     updateContent,
     contractName,
+    documentData,
     setContractName,
   } = useEditorStore();
 
@@ -115,6 +119,13 @@ export default function Editor({
         console.log('Fetching contract for group ID:', testGroupId);
         const result = await contractService.getContractByGroupId(testGroupId);
 
+        // TODO: groupId and contractId
+        // if (contractId) {
+        //   const result = await contractService.getContractById(contractId);
+        // } else if (groupId) {
+        //   const result = await contractService.getContractByGroupId(groupId);
+        // }
+
         if (result.success && result.data) {
           console.log('Contract fetched successfully:', result.data);
           setContractData(result.data);
@@ -131,7 +142,9 @@ export default function Editor({
     fetchContractByGroup();
   }, []);
 
-  const editorContent = contractData?.content || initialContent || content;
+  // Initially set content, by order of priority: uploaded doc from scan > default template > null editor
+
+  const editorContent = documentData?.content || contractData?.content || content;
 
   const editor = useEditor({
     extensions: [
@@ -186,8 +199,8 @@ export default function Editor({
       CollaborationCursor.configure({
         provider,
         user: {
-          name: user.name,
-          color: user.color,
+          name: `${currentUser?.firstName?? ''} ${currentUser?.lastName ?? ''}`.trim(),
+          color: color
         },
       }),
 
@@ -229,12 +242,17 @@ export default function Editor({
     ],
     immediatelyRender: false,
     shouldRerenderOnTransaction: false,
-    onCreate: ({ editor }) => {
+    content: editorContent,
+    onCreate: ({ }) => {
       setHasInitialized(true);
     },
 
     onUpdate: ({ editor }) => {
       updateContent(editor.getHTML());
+
+      // contractService.updateContract(contractId, {
+      //   content: editor.getHTML()
+      // });
     },
   });
 
@@ -290,7 +308,7 @@ export default function Editor({
     onHoverThread,
     onLeaveThread,
     updateComment,
-  } = useThreads(provider, editor, user);
+  } = useThreads(provider, editor, currentUser);
 
   if (!editor || fetchingContract) {
     return (
@@ -400,7 +418,7 @@ export default function Editor({
                 setOption={setShowUnresolved}
               />
             </div>
-            <ThreadsList provider={provider} threads={filteredThreads} />
+            <ThreadsList provider={provider} threads={filteredThreads} user={currentUser}/>
           </div>
         </div>
       </div>

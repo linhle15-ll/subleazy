@@ -78,7 +78,7 @@ export function PostingCard({
 
   return (
     <div
-      className={`bg-white rounded-lg overflow-hidden hover:shadow-2xl transition-shadow duration-700 flex shadow-md ${isVertical ? 'flex-col' : 'flex-row h-[220px]'}`}
+      className={`bg-white rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-700 flex shadow-md ${isVertical ? 'flex-col' : 'flex-row h-[220px]'}`}
     >
       <div className={`relative ${isVertical ? '' : 'w-2/5'}`}>
         <Image
