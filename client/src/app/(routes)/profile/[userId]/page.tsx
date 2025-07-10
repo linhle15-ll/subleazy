@@ -17,7 +17,7 @@ export default function ProfilePage() {
 
   const { data: result, isFetching } = useQuery({
     queryKey: ['user', userId],
-    queryFn: () => userService.getUser(userId!),
+    queryFn: () => userService.getUserById(userId!),
     enabled: !!userId,
   });
 
