@@ -1,5 +1,6 @@
 'use client';
 
+import ChatInfo from '@/components/ui/chat/chat-info';
 import ChatHeader from '@/components/ui/chat/chat-header';
 import ChatSidebar from '@/components/ui/chat/chat-sidebar';
 import MessageInput from '@/components/ui/chat/message-input';
@@ -24,6 +25,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [socket, setSocket] = useState<Socket>();
+  const [infoShown, setInfoShown] = useState(false);
   const currentUser = useUserStore((state) => state.user);
   const { result, isFetching } = useGroups(currentUser?._id);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -110,12 +112,15 @@ export default function ChatPage() {
     }
   };
 
+  const handleShowInfo = () => setInfoShown((prev) => !prev);
+
   return (
     <div className="h-screen flex p-8 gap-4" ref={bottomRef}>
       <div
         className={cn(
-          'chat-outer-border flex flex-col w-1/3 h-full',
-          (isFetching || !result) && 'items-center justify-center'
+          'chat-outer-border flex flex-col h-full',
+          (isFetching || !result) && 'items-center justify-center',
+          infoShown ? 'w-1/4' : 'w-1/3'
         )}
       >
         {isFetching || !result ? (
@@ -133,8 +138,9 @@ export default function ChatPage() {
       </div>
       <div
         className={cn(
-          'chat-outer-border flex flex-col justify-between w-2/3 h-full gap-4',
-          (isFetching || !result || loading) && 'items-center justify-center'
+          'chat-outer-border flex flex-col justify-between h-full gap-4',
+          (isFetching || !result || loading) && 'items-center justify-center',
+          infoShown ? 'w-1/2' : 'w-2/3'
         )}
       >
         {isFetching || !result || loading ? (
@@ -145,7 +151,7 @@ export default function ChatPage() {
           <div className="screen-message h-full">No chat selected</div>
         ) : (
           <>
-            <ChatHeader groupName={activeGroup.name} />
+            <ChatHeader groupName={activeGroup.name} onClick={handleShowInfo} />
             <MessageList
               messages={messages}
               userMap={userMaps[activeGroup._id!]}
@@ -154,6 +160,7 @@ export default function ChatPage() {
           </>
         )}
       </div>
+      {infoShown && activeGroup && <ChatInfo group={activeGroup} />}
     </div>
   );
 }
