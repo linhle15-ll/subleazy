@@ -12,14 +12,14 @@ export default function Header() {
       <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex-1 md:flex md:items-center md:gap-12">
-            <a className="block text-teal-600" href="/">
+            <a className="block text-teal-600 outline-none" href="/">
               <span className="sr-only">Home</span>
               <Image
                 src={logo}
                 alt="Subleazy Logo"
                 width={120}
                 height={28}
-                className="h-7 w-auto"
+                className="h-7 w-auto outline-none"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
             </a>
