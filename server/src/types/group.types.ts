@@ -2,7 +2,6 @@ import { ObjectId, Types } from 'mongoose';
 import { Base, Timestamps } from './common.types';
 import { Post } from './post.types';
 import { User } from './user.types';
-import { Message } from './message.types';
 
 export interface Group extends Base, Timestamps {
   name?: string;
@@ -11,5 +10,4 @@ export interface Group extends Base, Timestamps {
   contracts: (Types.ObjectId | ObjectId)[]; // TODO: add Contract
   members: (Types.ObjectId | ObjectId | User)[];
   lastRead: Map<string, Date>;
-  lastMessage?: Types.ObjectId | ObjectId | Message;
 }

@@ -3,8 +3,6 @@ import { getAuthRequest } from '../utils/common.utils';
 import { Group } from '../types/group.types';
 import { ObjectId, Types } from 'mongoose';
 import groupService from '../services/group.service';
-import { User } from '../types/user.types';
-import { io } from '../server';
 
 const groupController = {
   createGroup: async (req: Request, res: Response, next: NextFunction) => {
@@ -34,12 +32,7 @@ const groupController = {
       }
 
       const group = await groupService.createGroup(data);
-      await groupService.markRead(group._id.toString(), authReq.user.id);
       res.status(201).json(group);
-
-      for (const member of data.members) {
-        io.to(member.toString()).emit('new-group', group);
-      }
     } catch (error) {
       next(error);
     }
@@ -49,29 +42,7 @@ const groupController = {
     try {
       const authReq = getAuthRequest(req);
       const groups = await groupService.getUserGroups(authReq.user.id);
-      const transformedData = groups.map((group) => {
-        let name = group.name || '';
-        if (group.isDM) {
-          const otherUser = group.members.find(
-            (member) => (member as User)?._id?.toString() !== authReq.user.id
-          );
-          if (otherUser)
-            name =
-              (otherUser as User).firstName +
-              ' ' +
-              (otherUser as User).lastName;
-        } else if (!group.name) {
-          const firstNames = group.members.map(
-            (member) => (member as User).firstName
-          );
-          name = firstNames.join(', ');
-        }
-        return {
-          ...group,
-          name,
-        };
-      });
-      res.status(200).json(transformedData);
+      res.status(200).json(groups);
     } catch (error) {
       next(error);
     }
@@ -103,10 +74,6 @@ const groupController = {
       const updatedGroup = await groupService.updateGroup(groupId, {
         members: group.members,
       });
-      await groupService.markRead(groupId, authReq.user.id);
-
-      // io.to(groupId).emit('members-added', updatedGroup);
-
       res.status(200).json(updatedGroup);
     } catch (error) {
       next(error);
@@ -117,10 +84,8 @@ const groupController = {
     try {
       const authReq = getAuthRequest(req);
       const groupId = authReq.params.groupId;
-
-      io.to(groupId).emit('member-left', groupId, authReq.user.id);
-
       const group = await groupService.getGroup(groupId);
+
       if (!group) {
         res.status(404).json({ error: 'Group not found' });
         return;
@@ -153,11 +118,8 @@ const groupController = {
     try {
       const authReq = getAuthRequest(req);
       const groupId = authReq.params.groupId;
-      const name = authReq.body.name;
-
-      io.to(groupId).emit('group-renamed', groupId, name);
-
       const group = await groupService.getGroup(groupId);
+
       if (!group) {
         res.status(404).json({ error: 'Group not found' });
         return;
@@ -168,8 +130,8 @@ const groupController = {
         return;
       }
 
+      const name = authReq.body.name;
       const updatedGroup = await groupService.updateGroup(groupId, { name });
-      await groupService.markRead(groupId, authReq.user.id);
       res.status(200).json(updatedGroup);
     } catch (error) {
       next(error);
