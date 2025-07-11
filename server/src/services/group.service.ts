@@ -41,7 +41,6 @@ const groupService = {
       .populate('post')
       .sort({ updatedAt: -1 })
       .lean();
-    // TODO: populate contracts in here
     return groups;
   },
 
