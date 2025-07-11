@@ -5,8 +5,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/commons/accordion';
-import { FileText, HousePlus } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { FileText } from 'lucide-react';
 import { PostingCard } from '@/components/ui/posting/posting-card';
 import { useUserStore } from '@/stores/user.store';
 import MembersAddDialog from './members-add-dialog';
@@ -15,6 +14,7 @@ import Image from 'next/image';
 import defaultProfileImage from '@/public/placeholder-image-person.webp';
 import Link from 'next/link';
 import GroupLeaveDialog from './group-leave-dialog';
+import PostLinkDialog from './post-link-dialog';
 
 export const UserCard = ({ user }: { user: User }) => {
   return (
@@ -41,7 +41,6 @@ export default function ChatInfo({
   group: Group;
   user: User;
 }) {
-  const router = useRouter();
   const currentUser = useUserStore((state) => state.user);
 
   return (
@@ -52,23 +51,11 @@ export default function ChatInfo({
           <AccordionTrigger>Linked posting</AccordionTrigger>
           <AccordionContent className="flex flex-col gap-1 px-1">
             {group.post ? (
-              <PostingCard
-                post={group.post}
-                onViewDetails={() => router.push(`/posts/${group.post!._id}`)}
-                isVertical={true}
-                isFavorite={true}
-              />
+              <PostingCard post={group.post} isVertical={true} />
             ) : (
               <div className="p-2 font-medium">No linked posting</div>
             )}
-            <button
-              className="chat-info-button"
-              title={'Link a post'}
-              aria-label={'Link a post'}
-            >
-              <HousePlus className="w-5 h-5" />
-              Link a post
-            </button>
+            <PostLinkDialog group={group} user={user} />
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="contracts">
@@ -83,15 +70,27 @@ export default function ChatInfo({
             ) : (
               <div className="p-2 font-medium">No contracts found</div>
             )}
-            {group.post && group.post.author === currentUser?._id && (
-              <button
-                className="chat-info-button"
-                title={'Create a new contract'}
-                aria-label={'Create a new contract'}
-              >
+            {group.post ? (
+              group.post.author === currentUser?._id ? (
+                <button
+                  className="chat-info-button"
+                  title={'Create a new contract'}
+                  aria-label={'Create a new contract'}
+                >
+                  <FileText className="w-5 h-5" />
+                  Create a new contract
+                </button>
+              ) : (
+                <div className="chat-info-button hover:bg-white cursor-default">
+                  <FileText className="w-5 h-5" />
+                  Wait for the sublessor to create a new contract
+                </div>
+              )
+            ) : (
+              <div className="chat-info-button hover:bg-white cursor-default">
                 <FileText className="w-5 h-5" />
-                Create a new contract
-              </button>
+                Link a posting to create a new contract
+              </div>
             )}
           </AccordionContent>
         </AccordionItem>
