@@ -3,6 +3,7 @@ import { Group } from '@/lib/types/group.types';
 import { User } from '@/lib/types/user.types';
 import api from './api';
 import { AxiosError } from 'axios';
+import { Post } from '@/lib/types/post.types';
 
 const groupService = {
   getGroups: async (): Promise<Result<Group[]>> => {
@@ -115,6 +116,28 @@ const groupService = {
       return {
         success: true,
         data: response.data.data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: (error as AxiosError<{ error: string }>).response?.data.error,
+      };
+    }
+  },
+
+  linkPost: async (
+    groupId: string,
+    post: Post,
+    name: string
+  ): Promise<Result<Group>> => {
+    try {
+      const response = await api.put(`/groups/${groupId}/link-post`, {
+        post,
+        name,
+      });
+      return {
+        success: true,
+        data: response.data,
       };
     } catch (error) {
       return {

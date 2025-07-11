@@ -15,6 +15,7 @@ import { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import { User } from '@/lib/types/user.types';
 import messageService from '@/services/message.service';
+import { Post } from '@/lib/types/post.types';
 
 export default function ChatPage() {
   const [groups, setGroups] = useState<Group[]>([]);
@@ -111,9 +112,10 @@ export default function ChatPage() {
       const group = groups.find((group) => group._id === groupId);
       if (!group || group.isDM) return;
 
+      group.members = [...group.members, ...users];
+
       if (activeGroup?._id === groupId) setActiveGroup(group);
 
-      group.members = [...group.members, ...users];
       setGroups((prev) => prev.map((g) => (g._id === groupId ? group : g)));
       setUserMaps((prev) => ({
         ...prev,
@@ -137,6 +139,15 @@ export default function ChatPage() {
       }));
       setGroups((prev) => [group, ...prev]);
       socket.emit('join-group', group._id);
+    });
+
+    socket.on('post-linked', (groupId: string, post: Post) => {
+      const group = groups.find((group) => group._id === groupId);
+      if (!group) return;
+
+      group.post = post;
+      if (activeGroup?._id === groupId) setActiveGroup(group);
+      setGroups((prev) => prev.map((g) => (g._id === groupId ? group : g)));
     });
 
     return () => {
