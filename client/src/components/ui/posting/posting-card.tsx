@@ -96,7 +96,7 @@ export function PostingCard({ post, isVertical }: PostingCardProps) {
             className="absolute top-3 right-3 transition-colors hover:scale-110"
           >
             <Link href={`/posts/edit/${post._id}`}>
-              <SquarePen className="text-white" size={30} />
+              <SquarePen className="text-white" size={60} />
             </Link>
           </Button>
         ) : (
