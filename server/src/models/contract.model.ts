@@ -41,10 +41,7 @@ const contractSchema = new Schema<Contract>(
       enum: Object.values(ContractStatus),
       default: ContractStatus.PENDING,
     },
-    sublessorSignature: {
-      type: String,
-      required: true,
-    },
+    sublessorSignature: { type: String, required: false, default: '' },
     sublesseesSignatures: {
       type: [String],
       required: true,

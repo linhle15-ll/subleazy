@@ -36,6 +36,17 @@ const contractService = {
       .populate('group', '_id name');
   },
 
+  updateContractByGroupId: async (
+    groupId: string,
+    updates: Partial<ContractType>
+  ): Promise<ContractType | null> => {
+    return await Contract.findOneAndUpdate(
+      { group: groupId },
+      { $set: updates },
+      { new: true, runValidators: true }
+    );
+  },
+
   getContractByGroupId: async (
     groupId: string
   ): Promise<ContractType | null> => {

@@ -60,6 +60,11 @@ const groupService = {
     return group;
   },
 
+  getPostIdByGroupId: async (groupId: string | ObjectId) => {
+    const group = await groupModel.findById(groupId).select('post');
+    return group?.post || null;
+  },
+
   updateGroup: async (
     groupId: string | ObjectId,
     data: Partial<Group>,

@@ -3,6 +3,7 @@ import mongoose, { Types } from 'mongoose';
 import { getAuthRequest } from '../utils/common.utils';
 import contractService from '../services/contract.service';
 import { ContractStatus } from '../types/contract.types';
+import { User } from '../types/user.types';
 
 const contractController = {
   createContract: async (req: Request, res: Response, next: NextFunction) => {
@@ -61,15 +62,16 @@ const contractController = {
         return;
       }
 
-      // Only sublessor can create contract
-      if (sublessor.toString() !== authReq.user.id) {
-        res.status(403).json({ error: 'Unauthorized to create contract' });
-        return;
-      }
+      // // Only sublessor can create contract
+      // if (sublessor.toString() !== authReq.user.id) {
+      //   res.status(403).json({ error: 'Unauthorized to create contract' });
+      //   return;
+      // }
 
       // validate sublessorSignature and sublesseesSignatures
       if (
-        !sublessorSignature ||
+        sublessorSignature === undefined ||
+        sublesseesSignatures === undefined ||
         sublesseesSignatures.length !== sublessees.length
       ) {
         res.status(400).json({
@@ -87,6 +89,8 @@ const contractController = {
         group: new Types.ObjectId(group),
         content,
         status: ContractStatus.PENDING,
+        sublessorSignature,
+        sublesseesSignatures,
       };
 
       const contract = await contractService.createContract(contractData);
@@ -140,6 +144,83 @@ const contractController = {
         success: true,
         message: 'Contract retrieved successfully',
         data: contract,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  updateContractByGroupId: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const authReq = getAuthRequest(req);
+      const groupId = req.params.groupId;
+      const updates = req.body;
+
+      if (!groupId || !mongoose.isValidObjectId(groupId)) {
+        res.status(400).json({ error: 'Invalid group ID' });
+        return;
+      }
+
+      // Get existing contract to check authorization
+      const existingContract =
+        await contractService.getContractByGroupId(groupId);
+
+      if (!existingContract) {
+        res.status(404).json({ error: 'Contract not found for this group' });
+        return;
+      }
+
+      // Check authorization - only involved parties can update
+      const isSublessor =
+        (existingContract.sublessor as any)._id.toString() === authReq.user.id;
+      const isSublessee = existingContract.sublessees.some(
+        (sublessee) =>
+          (sublessee as User)._id?.toString() ||
+          sublessee.toString() === authReq.user.id
+      );
+
+      if (!isSublessor && !isSublessee) {
+        res.status(403).json({ error: 'Unauthorized to update this contract' });
+        return;
+      }
+
+      // Define allowed fields that can be updated
+      const allowedFields = [
+        'title',
+        'content',
+        'sublessorSignature',
+        'sublesseesSignatures',
+        'status',
+      ];
+
+      // Filter updates to only include allowed fields
+      const filteredUpdates: Partial<typeof existingContract> = {};
+      for (const field of allowedFields) {
+        if (updates[field] !== undefined) {
+          filteredUpdates[field as keyof typeof existingContract] =
+            updates[field];
+        }
+      }
+
+      // Update the contract
+      const updatedContract = await contractService.updateContractByGroupId(
+        groupId,
+        filteredUpdates
+      );
+
+      if (!updatedContract) {
+        res.status(500).json({ error: 'Failed to update contract' });
+        return;
+      }
+
+      res.status(200).json({
+        success: true,
+        message: 'Contract updated successfully',
+        data: updatedContract,
       });
     } catch (error) {
       next(error);
