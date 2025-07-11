@@ -135,7 +135,7 @@ export default function PostingPage() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Heart
-                  className={`${isFavorite && 'fill-primaryOrange text-primaryOrange text-transparent'} text-white`}size={30}
+                  className={`${isFavorite && 'fill-primaryOrange text-primaryOrange text-transparent'} text-white`} size={30}
                   onClick={() => {
                     if (postId) {
                       handleToggleFavorite(postId);

@@ -25,7 +25,6 @@ import { Collaboration } from '@tiptap/extension-collaboration';
 import { CollaborationCursor } from '@tiptap/extension-collaboration-cursor';
 import Placeholder from '@tiptap/extension-placeholder';
 import { CommentsKit } from '@tiptap-pro/extension-comments';
-import { v4 as uuid } from 'uuid';
 import * as Y from 'yjs';
 
 // Hooks
@@ -43,35 +42,36 @@ import { ThreadsProvider } from './context';
 
 // Editor store
 import { useEditorStore } from '@/stores/editor.store';
+import { useUserStore } from '@/stores/user.store'
 
 // Services
 import contractService from '@/services/contract.service';
 
-const DOCUMENT_ID = 'contract-editor-v1';
-const doc = new Y.Doc();
-
-const isDev = process.env.NODE_ENV === 'development';
-
-const id = isDev ? 'dev' : uuid();
-
-// only for testing purpose before Matching feature merged
+// TODO:  only for testing purpose before Matching feature merged
 const contractCreateTest = {
   post: '686dee83e51e1a9f103d7e62',
   sublessor: '686b9238652b52b4a4ce0e74',
   sublessees: ['6840175954de852613cfe2b0', '685fbd6570eba18985ff3361'],
-  group: '686b961d3205181c6a549c1c',
+  group: '686ffe55cfc8d6b7353bf4da',
 };
 
 export default function Editor({
   initialContent,
-  contractId,
+  groupId,
 }: {
   initialContent?: string | null;
-  contractId?: string;
+  groupId?: string;
 }) {
-  const user = useUser();
+  const DOCUMENT_ID = `contract-${groupId}`;
+  const [doc] = React.useState(() => new Y.Doc())
+
+  const storedUser = useUserStore((state) => state.user);
+  const { data: userData } = useUser(storedUser?._id ?? '');
+  const currentUser = userData?.data;
+  
+  const { color } = useUser(currentUser?._id ?? '');
   const [showUnresolved, setShowUnresolved] = React.useState<boolean>(true);
-  const [selectedThread, setSelectedThread] = React.useState(null);
+  const [selectedThread, setSelectedThread] = React .useState(null);
   const [hasInitialized, setHasInitialized] = React.useState(false);
   const [contractData, setContractData] = React.useState<any>(null);
   const [fetchingContract, setFetchingContract] = React.useState(false);
@@ -80,16 +80,18 @@ export default function Editor({
     setIsLoading,
     updateContent,
     contractName,
+    documentData,
     setContractName,
   } = useEditorStore();
 
   type Thread = { id: string; resolvedAt?: Date | null; [key: string]: any };
   const threadsRef = React.useRef<Thread[]>([]);
-  const providerRef = React.useRef<TiptapCollabProvider | null>(null);
+  const [provider, setProvider] = React.useState<TiptapCollabProvider | null>(null);
 
   // Create provider ONCE
-  if (!providerRef.current) {
-    providerRef.current = new TiptapCollabProvider({
+  React.useEffect(() => {
+    if (!groupId) return 
+    const newProvider = new TiptapCollabProvider({
       name: DOCUMENT_ID,
       appId: process.env.NEXT_PUBLIC_TIPTAP_PRO_APPID!,
       token: process.env.NEXT_PUBLIC_TIPTAP_PRO_TOKEN!,
@@ -101,25 +103,32 @@ export default function Editor({
         console.log('Connected to the server.');
       },
     });
-  }
+    setProvider(newProvider)
 
-  const provider = providerRef.current;
+    return () => {
+      console.log(`Cleaning up provider for ${DOCUMENT_ID}`)
+      newProvider.destroy()
+    }
+
+  }, [groupId]) 
+  {
+  }
 
   // Fetch contract data on component mount
   React.useEffect(() => {
     const fetchContractByGroup = async () => {
-      const testGroupId = '686b95c73205181c6a549c15'; // Hardcoded for testing
       setFetchingContract(true);
 
       try {
-        console.log('Fetching contract for group ID:', testGroupId);
-        const result = await contractService.getContractByGroupId(testGroupId);
+        const result = await contractService.getContractByGroupId(groupId ?? '');
 
         if (result.success && result.data) {
           console.log('Contract fetched successfully:', result.data);
           setContractData(result.data);
+          setContractName(result.data.title || '')
         } else {
           console.log('No contract found for group or error:', result.error);
+          setContractName('')
         }
       } catch (error) {
         console.error('Error fetching contract:', error);
@@ -129,9 +138,14 @@ export default function Editor({
     };
 
     fetchContractByGroup();
-  }, []);
+  }, [groupId, setContractName]);
 
-  const editorContent = contractData?.content || initialContent || content;
+  // Initially set content, by order of priority: uploaded doc from scan > default template > null editor
+
+  const editorContent = documentData?.content || contractData?.content || content;
+
+  // React will re-create the component (and the editor) from scratch if its key changes 
+  const editorKey = React.useMemo(() => `editor-${groupId}`, [groupId]);
 
   const editor = useEditor({
     extensions: [
@@ -179,45 +193,46 @@ export default function Editor({
       TableRow,
       TableHeader,
       TableCell,
-      // Collaboration and CommentsKit extensions
-      Collaboration.configure({
-        document: doc,
-      }),
-      CollaborationCursor.configure({
-        provider,
-        user: {
-          name: user.name,
-          color: user.color,
-        },
-      }),
+      // Conditionally add collaboration extensions only when provider is ready
+      ...(provider ? [
+        Collaboration.configure({
+          document: doc,
+        }),
+        CollaborationCursor.configure({
+          provider,
+          user: {
+            name: `${currentUser?.firstName ?? ''} ${currentUser?.lastName ?? ''}`.trim(),
+            color: color,
+          },
+        }),
+        CommentsKit.configure({
+          provider,
+          useLegacyWrapping: false,
+          onClickThread: (threadId: any) => {
+            try {
+              const isResolved = threadsRef.current.find(
+                (t) => t.id === threadId
+              )?.resolvedAt;
 
-      CommentsKit.configure({
-        provider,
-        useLegacyWrapping: false,
-        onClickThread: (threadId: any) => {
-          try {
-            const isResolved = threadsRef.current.find(
-              (t) => t.id === threadId
-            )?.resolvedAt;
-
-            if (!threadId || isResolved || !editor || !editor.isEditable) {
-              setSelectedThread(null);
-              if (editor) {
-                editor.chain().unselectThread().run();
+              if (!threadId || isResolved || !editor || !editor.isEditable) {
+                setSelectedThread(null);
+                if (editor) {
+                  editor.chain().unselectThread().run();
+                }
+                return;
               }
-              return;
+              setSelectedThread(threadId);
+              editor
+                .chain()
+                .selectThread({ id: threadId, updateSelection: false })
+                .run();
+            } catch (error) {
+              console.warn('Failed to handle thread click:', error);
+              setSelectedThread(null);
             }
-            setSelectedThread(threadId);
-            editor
-              .chain()
-              .selectThread({ id: threadId, updateSelection: false })
-              .run();
-          } catch (error) {
-            console.warn('Failed to handle thread click:', error);
-            setSelectedThread(null);
-          }
-        },
-      }),
+          },
+        }),
+      ] : []),
       Placeholder.configure({
         placeholder: contractData?.content
           ? 'Edit your contract...'
@@ -229,18 +244,23 @@ export default function Editor({
     ],
     immediatelyRender: false,
     shouldRerenderOnTransaction: false,
-    onCreate: ({ editor }) => {
+    content: editorContent,
+    onCreate: ({ }) => {
       setHasInitialized(true);
     },
 
     onUpdate: ({ editor }) => {
       updateContent(editor.getHTML());
+
+      // contractService.updateContract(contractId, {
+      //   content: editor.getHTML()
+      // });
     },
-  });
+  }, [provider, currentUser, color]);
 
   // Meoww, fixed bug editor content got duplicated every reload
   React.useEffect(() => {
-    if (!editor || !hasInitialized) return;
+    if (!editor || !provider || !hasInitialized) return;
 
     // Wait for provider to sync first
     const handleSynced = () => {
@@ -250,19 +270,8 @@ export default function Editor({
       // Only set initial content if the collaborative document is empty
       if (currentLength === 0) {
         if (contractData?.content) {
-          console.log('Setting contract content from database');
-          yText.insert(0, contractData.content);
-        } else if (initialContent) {
-          console.log('Setting initial content');
-          yText.insert(0, initialContent);
-        } else {
-          console.log('Setting default template content');
-          yText.insert(0, content);
-        }
-      } else {
-        console.log(
-          'Document already has content, skipping initial content setting'
-        );
+          yText.insert(0, contractData?.content ?? initialContent ?? content);
+        } 
       }
     };
 
@@ -270,7 +279,6 @@ export default function Editor({
     if (provider.isSynced) {
       handleSynced();
     } else {
-      // Wait for sync
       provider.on('synced', handleSynced);
     }
 
@@ -290,7 +298,7 @@ export default function Editor({
     onHoverThread,
     onLeaveThread,
     updateComment,
-  } = useThreads(provider, editor, user);
+  } = useThreads(provider, editor, currentUser);
 
   if (!editor || fetchingContract) {
     return (
@@ -386,7 +394,7 @@ export default function Editor({
               contractName={contractName}
               setContractName={setContractName}
             />
-            <EditorContent editor={editor} />
+            <EditorContent editor={editor} key={editorKey} />
           </div>
         </div>
 
@@ -400,7 +408,7 @@ export default function Editor({
                 setOption={setShowUnresolved}
               />
             </div>
-            <ThreadsList provider={provider} threads={filteredThreads} />
+            <ThreadsList provider={provider} threads={filteredThreads} user={currentUser}/>
           </div>
         </div>
       </div>
