@@ -146,6 +146,28 @@ const groupService = {
       };
     }
   },
+
+  renameGroup: async (
+    groupId: string,
+    name: string,
+    username: string
+  ): Promise<Result<Group>> => {
+    try {
+      const response = await api.put(`/groups/${groupId}/rename`, {
+        name,
+        username,
+      });
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: (error as AxiosError<{ error: string }>).response?.data.error,
+      };
+    }
+  },
 };
 
 export default groupService;
