@@ -6,12 +6,12 @@ import { SquarePen } from 'lucide-react';
 export default function ChatSidebar({
   groups,
   userMaps,
-  activeGroupId,
+  activeGroup,
   onSelect,
 }: {
   groups: Group[];
   userMaps: Record<string, Record<string, User>>;
-  activeGroupId?: string;
+  activeGroup?: Group;
   onSelect: (group: Group) => void;
 }) {
   const currentUser = useUserStore((state) => state.user);
@@ -47,7 +47,7 @@ export default function ChatSidebar({
               <div
                 key={groupId}
                 title={groupName}
-                className={`flex items-center justify-between gap-2 p-2 rounded-lg min-h-20 h-20 cursor-pointer ${activeGroupId === groupId ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
+                className={`flex items-center justify-between gap-2 p-2 rounded-lg min-h-20 h-20 cursor-pointer ${activeGroup?._id === groupId ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
                 onClick={() => onSelect(group)}
               >
                 <div

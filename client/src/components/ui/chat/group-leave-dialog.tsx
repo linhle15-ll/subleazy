@@ -31,7 +31,7 @@ export default function GroupLeaveDialog({
           Leave group
         </button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md bg-white border-none">
+      <DialogContent className="sm:max-w-md bg-white border-none outline-none">
         <DialogHeader>
           <DialogTitle>Leave group</DialogTitle>
           <DialogDescription>
