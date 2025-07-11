@@ -39,27 +39,21 @@ export default function GroupLeaveDialog({
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <DialogClose className="w-full flex items-center justify-around">
-            <div
+          <DialogClose asChild>
+            <button
               onClick={() =>
                 groupService.leaveGroup(
                   groupId,
                   `${user.firstName} ${user.lastName}`
                 )
               }
-              className="chat-info-button text-red-500 w-20 rounded-3xl justify-center border border-2 border-red-500"
+              className="chat-info-button bg-red-500 hover:bg-red-600 text-white"
               title={'Leave'}
               aria-label={'Leave'}
             >
+              <LogOut className="w-5 h-5" />
               Leave
-            </div>
-            <div
-              className="chat-info-button w-20 rounded-3xl justify-center border border-2 border-gray-500"
-              title={'Stay'}
-              aria-label={'Stay'}
-            >
-              Stay
-            </div>
+            </button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

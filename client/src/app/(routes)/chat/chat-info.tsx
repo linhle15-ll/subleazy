@@ -9,7 +9,7 @@ import { FileText, HousePlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { PostingCard } from '@/components/ui/posting/posting-card';
 import { useUserStore } from '@/stores/user.store';
-import AddMembersDialog from './add-members-dialog';
+import MembersAddDialog from './members-add-dialog';
 import { User } from '@/lib/types/user.types';
 import Image from 'next/image';
 import defaultProfileImage from '@/public/placeholder-image-person.webp';
@@ -108,7 +108,7 @@ export default function ChatInfo({
               </Link>
             ))}
             {!group.isDM && (
-              <AddMembersDialog groupId={group._id!} user={user} />
+              <MembersAddDialog groupId={group._id!} user={user} />
             )}
           </AccordionContent>
         </AccordionItem>

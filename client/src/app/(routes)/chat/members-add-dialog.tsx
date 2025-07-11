@@ -16,7 +16,7 @@ import { UserCard } from './chat-info';
 import Link from 'next/link';
 import groupService from '@/services/group.service';
 
-export default function AddMembersDialog({
+export default function MembersAddDialog({
   groupId,
   user,
 }: {
@@ -34,6 +34,8 @@ export default function AddMembersDialog({
   };
 
   const handleSubmit = async () => {
+    if (users.length === 0) return;
+
     await groupService.addMembers(
       groupId,
       `${user.firstName} ${user.lastName}`,
@@ -85,7 +87,7 @@ export default function AddMembersDialog({
           ))}
         <DialogFooter>
           <DialogClose asChild>
-            <div
+            <button
               onClick={handleSubmit}
               className="chat-info-button"
               title={'Add'}
@@ -93,7 +95,7 @@ export default function AddMembersDialog({
             >
               <UserPlus className="w-5 h-5" />
               Add
-            </div>
+            </button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>
