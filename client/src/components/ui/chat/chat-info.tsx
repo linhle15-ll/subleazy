@@ -107,7 +107,9 @@ export default function ChatInfo({
                 <UserCard user={member} />
               </Link>
             ))}
-            {!group.isDM && <AddMembersDialog />}
+            {!group.isDM && (
+              <AddMembersDialog groupId={group._id!} user={user} />
+            )}
           </AccordionContent>
         </AccordionItem>
       </Accordion>
