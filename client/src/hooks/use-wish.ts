@@ -2,10 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import wishService from '@/services/wish.services';
 
 export const useWish = (userId: string) => {
-  const { data, isLoading, error } = useQuery({
+  const { data, isFetching } = useQuery({
     queryKey: ['wishlist', userId],
     queryFn: () => wishService.getWishListByUserId(userId!),
     enabled: !!userId,
   });
-  return { data, isLoading, error };
+  return { result: data, isFetching };
 };

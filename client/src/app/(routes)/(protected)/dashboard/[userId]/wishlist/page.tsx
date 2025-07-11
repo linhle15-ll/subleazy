@@ -24,9 +24,9 @@ export default function WishlistPage() {
   const currentUser = useUserStore((state) => state.user);
   const isOwner = currentUser?._id === userId;
 
-  const { data, isLoading, error } = useWish(userId ?? '');
+  const { result, isFetching } = useWish(userId);
 
-  const wishList = Array.isArray(data?.data) ? data.data : [];
+  const wishList = Array.isArray(result?.data) ? result.data : [];
   const posts = wishList
     .map((wish: Wish) => wish.post)
     .filter(
@@ -34,8 +34,9 @@ export default function WishlistPage() {
         typeof post === 'object' && post !== null
     );
 
-  if (isLoading) return <Loading />;
-  if (error) return <div className="text-red-500">Failed to load wishlist</div>;
+  if (isFetching || !result) return <Loading />;
+  if (!result.success)
+    return <div className="text-red-500">Failed to load wishlist</div>;
 
   return (
     <div className="flex">
