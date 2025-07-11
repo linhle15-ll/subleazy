@@ -218,18 +218,32 @@ const groupController = {
 
       io.to(groupId).emit('group-renamed', groupId, name);
 
-      const group = await groupService.getGroup(groupId);
-      if (!group) {
+      const content = `${authReq.body.username} renamed the group to ${name}`;
+      io.to(groupId).emit('new-message', {
+        group: groupId,
+        content,
+        createdAt: new Date(),
+      });
+
+      const message = await messageService.sendMessage({
+        group: new Types.ObjectId(groupId),
+        content,
+      });
+
+      const updatedGroup = await groupService.updateGroup(groupId, {
+        name,
+        lastMessage: message,
+      });
+      if (!updatedGroup) {
         res.status(404).json({ error: 'Group not found' });
         return;
       }
 
-      if (group.isDM) {
+      if (updatedGroup.isDM) {
         res.status(400).json({ error: 'Cannot rename a DM' });
         return;
       }
 
-      const updatedGroup = await groupService.updateGroup(groupId, { name });
       await groupService.markRead(groupId, authReq.user.id);
       res.status(200).json(updatedGroup);
     } catch (error) {
