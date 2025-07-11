@@ -20,8 +20,8 @@ const groupSchema = new Schema<Group>(
     lastRead: {
       type: Map,
       of: Date,
-      default: {},
     },
+    lastMessage: { type: Schema.Types.ObjectId, ref: 'Message' },
   },
   { timestamps: true }
 );

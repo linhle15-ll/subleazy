@@ -23,12 +23,13 @@ const groupService = {
   },
 
   sieveUsers: async (userIds: (string | ObjectId)[]) => {
-    const seen = new Set<string | ObjectId>();
+    const seen = new Set<string>();
     const validUserIds: typeof userIds = [];
 
     for (const userId of userIds) {
-      if (seen.has(userId)) continue;
-      seen.add(userId);
+      const strUserId = userId.toString();
+      if (seen.has(strUserId)) continue;
+      seen.add(strUserId);
 
       const user = await userService.getUserById(userId);
       if (user) validUserIds.push(userId);
@@ -41,8 +42,16 @@ const groupService = {
     const groups = await groupModel
       .find({ members: userId })
       .populate('members', 'firstName lastName profileImage')
-      .sort({ updatedAt: -1 });
-    // TODO: possibly populate post and contracts in here
+      .populate('lastMessage')
+      .populate('post')
+      .sort({ updatedAt: -1 })
+      .lean();
+    // TODO: populate contracts in here
+    return groups;
+  },
+
+  getUserGroupsSimple: async (userId: string | ObjectId) => {
+    const groups = await groupModel.find({ members: userId });
     return groups;
   },
 
@@ -51,11 +60,26 @@ const groupService = {
     return group;
   },
 
-  updateGroup: async (groupId: string | ObjectId, data: Partial<Group>) => {
+  updateGroup: async (
+    groupId: string | ObjectId,
+    data: Partial<Group>,
+    updateTimestamp = true
+  ) => {
     const group = await groupModel
-      .findByIdAndUpdate(groupId, data, { new: true })
+      .findByIdAndUpdate(groupId, data, {
+        new: true,
+        timestamps: updateTimestamp,
+      })
       .populate('members', 'firstName lastName profileImage');
     return group;
+  },
+
+  markRead: async (groupId: string, userId: string) => {
+    await groupService.updateGroup(
+      groupId,
+      { [`lastRead.${userId}`]: new Date() },
+      false
+    );
   },
 
   deleteGroup: async (groupId: string | ObjectId) => {
