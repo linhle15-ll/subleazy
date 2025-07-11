@@ -33,7 +33,7 @@ export default function ChatSidebar({
                 ? userMaps[groupId][group.lastMessage?.sender]
                 : group.lastMessage?.sender;
             const userLastRead = new Date(
-              group.lastRead ? group.lastRead[currentUser!._id!] : 0
+              group.lastRead ? group.lastRead[currentUser!._id!] : '2021-11-16'
             ).toISOString();
             const updatedAt = new Date(group.updatedAt!).toISOString();
             const lastMessage = new Date(
