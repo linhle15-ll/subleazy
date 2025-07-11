@@ -87,6 +87,11 @@ export default function ChatInfo({
               <button
                 className="chat-info-button"
                 title={'Create a new contract'}
+                onClick={() => {
+                  router.push(
+                    `/dashboard/${user._id}/groups/${group._id}/contract`
+                  );
+                }}
                 aria-label={'Create a new contract'}
               >
                 <FileText className="w-5 h-5" />

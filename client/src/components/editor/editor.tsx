@@ -31,6 +31,7 @@ import * as Y from 'yjs';
 import { useUser } from '@/hooks/use-user';
 import { useThreads } from '@/hooks/use-threads';
 import { useGroupMembers } from '@/hooks/use-groups';
+import { useRouter } from 'next/navigation';
 
 // Components and Styling
 import EditorMenuBar from './menu-bar';
@@ -57,6 +58,7 @@ export default function Editor({
 }) {
   const DOCUMENT_ID = `contract-${groupId}`;
   const [doc] = React.useState(() => new Y.Doc());
+  const router = useRouter();
 
   const storedUser = useUserStore((state) => state.user);
   const { data: userData } = useUser(storedUser?._id ?? '');
@@ -525,6 +527,11 @@ export default function Editor({
         // Update local contract data, ensuring result.data is defined
         if (result.data) {
           setContractData(result.data);
+          // Navigate to the final contract page
+          const userId = storedUser?._id;
+          if (userId && groupId) {
+            router.push(`/dashboard/${userId}/groups/final-contract?contractId=${result.data._id}&groupId=${groupId}`);
+          }
         } else {
           console.error('No contract data returned after finishing contract.');
         }

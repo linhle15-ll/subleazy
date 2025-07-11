@@ -8,14 +8,37 @@ import {
   CardTitle,
 } from '@/components/ui/card/card';
 import { Button } from '@/components/ui/button';
-import { ScanLine, PenTool, ArrowRight } from 'lucide-react';
+import { ScanLine, PenTool, ArrowRight, FileText } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useUserStore } from '@/stores/user.store';
+import { useEffect, useState } from 'react';
+import contractService from '@/services/contract.service';
 
 export default function ContractScanPage() {
   const { groupId } = useParams<{ groupId: string }>();
   const currentUser = useUserStore((state) => state.user);
   const userId = currentUser?._id;
+  const [existingContract, setExistingContract] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkExistingContract = async () => {
+      if (!groupId) return;
+      
+      try {
+        const result = await contractService.getContractByGroupId(groupId);
+        if (result.success && result.data) {
+          setExistingContract(result.data);
+        }
+      } catch (error) {
+        console.error('Error checking existing contract:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkExistingContract();
+  }, [groupId]);
 
   const options = [
     {
@@ -37,6 +60,19 @@ export default function ContractScanPage() {
       iconColor: 'text-green-600',
     },
   ];
+
+  // Add option to view final contract if one exists
+  if (existingContract && !loading) {
+    options.push({
+      label: 'View Final Contract',
+      description:
+        'View the completed contract with all signatures and final content.',
+      link: `/dashboard/${userId}/groups/final-contract?contractId=${existingContract._id}&groupId=${groupId}`,
+      icon: FileText,
+      color: 'bg-purple-50 border-purple-200 hover:bg-purple-100',
+      iconColor: 'text-purple-600',
+    });
+  }
   return (
     <div className="min-h-screen">
       <div className="flex flex-col items-center justify-center px-6 py-12 lg:px-20 gap-12 lg:gap-16 w-full max-w-5xl mx-auto">
@@ -80,7 +116,7 @@ export default function ContractScanPage() {
           </div>
 
           {/* Option Cards */}
-          <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
+          <div className={`grid gap-6 lg:gap-8 ${existingContract && !loading ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>
             {options.map((option, index) => {
               const IconComponent = option.icon;
               return (

@@ -2,14 +2,21 @@ import { Result } from '@/lib/types/common.types';
 import { AxiosError } from 'axios';
 import api from './api';
 
+interface User {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
 interface Contract {
   _id: string;
   title: string;
   content: string;
   status: 'pending' | 'completed' | 'terminated';
   post: string;
-  sublessor: string;
-  sublessees: string[];
+  sublessor: string | User;
+  sublessees: (string | User)[];
   group: string;
   sublessorSignature?: string;
   sublesseesSignatures?: string[];

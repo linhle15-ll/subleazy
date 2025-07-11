@@ -66,7 +66,7 @@ export default function PotentialMatches() {
           </div>
           <Button asChild className="btn-primary">
             <Link href={`/dashboard/${user?._id}/lifestyle`}>
-              Complete Lifestyle Formn
+              Complete Lifestyle Form
             </Link>
           </Button>
         </div>

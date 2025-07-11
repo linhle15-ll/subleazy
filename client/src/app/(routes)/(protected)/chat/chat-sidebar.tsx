@@ -32,17 +32,18 @@ export default function ChatSidebar({
               typeof group.lastMessage?.sender === 'string'
                 ? userMaps[groupId][group.lastMessage?.sender]
                 : group.lastMessage?.sender;
-            const userLastRead = new Date(
-              group.lastRead ? group.lastRead[currentUser!._id!] : 0
-            ).toISOString();
-            const updatedAt = new Date(group.updatedAt!).toISOString();
-            const lastMessage = new Date(
-              group.lastMessage?.createdAt
-                ? group.lastMessage?.createdAt
-                : group.updatedAt!
-            ).toISOString();
-            const isUnread =
-              lastMessage > userLastRead || updatedAt > userLastRead;
+            // const userLastRead = new Date(
+            //   group.lastRead ? group.lastRead[currentUser!._id!] : '2020-11-16'
+            // ).toISOString();
+            // const updatedAt = new Date(group.updatedAt!).toISOString();
+            // const lastMessage = new Date(
+            //   group.lastMessage?.createdAt
+            //     ? group.lastMessage?.createdAt
+            //     : group.updatedAt!
+            // ).toISOString();
+            // const isUnread =
+            //   lastMessage > userLastRead || updatedAt > userLastRead;
+            const isUnread = false;
             return (
               <div
                 key={groupId}
