@@ -4,7 +4,7 @@ import React from 'react';
 import NextLink from 'next/link';
 import { useParams } from 'next/navigation';
 import Loading from '@/components/ui/commons/loading';
-import { usePosts } from '@/hooks/use-posts';
+import { usePostsByAuthor } from '@/hooks/use-posts-by-author';
 import { useUserStore } from '@/stores/user.store';
 import { ProfileAvatar } from '@/components/ui/commons/avatar'
 import { useUser } from '@/hooks/use-user';
@@ -19,7 +19,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
-import { useRouter } from 'next/navigation';
 
 export default function ProfilePage() {
   const { userId } = useParams<{ userId: string }>();
@@ -28,7 +27,7 @@ export default function ProfilePage() {
   const isOwner = currentUser?._id === userId
 
   const userData = user?.data;
-  const userPosts = usePosts(userId ?? undefined);
+  const userPosts = usePostsByAuthor(userId);
 
   if (isLoading)
     return (
@@ -83,8 +82,8 @@ export default function ProfilePage() {
                 : `${userData?.firstName}’s places for sublet`}
             </h3>
             {isOwner && (
-              <NextLink href="/sublease">
-                <div className='flex gap-2 items-center'> <PlusCircle size={20} /> <span className='font-medium'> New Post </span> </div>
+              <NextLink href="/sublease/step-1">
+                  <div className='flex gap-2 items-center'> <PlusCircle size={20} /> <span className='font-medium'> New Post </span> </div>
               </NextLink>
             )}
           </div>

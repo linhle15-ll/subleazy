@@ -27,3 +27,24 @@ export const authenticate = (
     return;
   }
 };
+
+export const optionalAuthenticate = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (token) {
+    try {
+      const decoded = jwt.verify(
+        token,
+        process.env.ACCESS_TOKEN_SECRET as string
+      ) as UserPayload;
+      req.user = decoded;
+    } catch (err) {
+      // ignore error
+      console.log(err);
+    }
+  }
+  next();
+};

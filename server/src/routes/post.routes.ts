@@ -1,10 +1,13 @@
 import { Router } from 'express';
 import postController from '../controllers/post.controller';
-import { authenticate } from '../middleware/auth.middleware';
+import {
+  authenticate,
+  optionalAuthenticate,
+} from '../middleware/auth.middleware';
 
 const router = Router();
 
-router.get('/', postController.getAllPosts);
+router.get('/', optionalAuthenticate, postController.getAllPosts);
 
 router.use(authenticate);
 
