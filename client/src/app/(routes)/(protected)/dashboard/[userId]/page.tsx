@@ -4,7 +4,7 @@ import React from 'react';
 import NextLink from 'next/link'; // <-- Import NextLink
 import { useParams } from 'next/navigation';
 import Loading from '@/components/ui/commons/loading';
-import { usePosts } from '@/hooks/use-posts';
+import { usePostsByAuthor } from '@/hooks/use-posts-by-author';
 import { useUserStore } from '@/stores/user.store';
 import { PostingGrid } from '@/components/ui/posting/posting-grid';
 import { ProfileAvatar } from '@/components/ui/commons/avatar'
@@ -20,7 +20,7 @@ export default function ProfilePage() {
   const isOwner = currentUser?._id === userId
 
   const userData = user?.data;
-  const userPosts = usePosts(userId ?? undefined);
+  const userPosts = usePostsByAuthor(userId);
 
   if (isLoading)
     return (
@@ -75,7 +75,7 @@ export default function ProfilePage() {
                 : `${userData?.firstName}’s places for sublet`}
             </h3>
             {isOwner && (
-              <NextLink href="/sublease">
+              <NextLink href="/sublease/step-1">
                   <div className='flex gap-2 items-center'> <PlusCircle size={20} /> <span className='font-medium'> New Post </span> </div>
               </NextLink>
             )}
