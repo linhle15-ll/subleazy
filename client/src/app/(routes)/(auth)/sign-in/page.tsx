@@ -2,11 +2,12 @@ import '@/app/globals.css';
 import AuthForm from '../auth-form';
 import Image from 'next/image';
 import authenImg from '@/public/authenImg.jpg';
-// import authen
+import RedirectIfAuthenticated from '@/components/auth/redirect-if-auth';
 
 export default function SignInPage() {
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
+      <RedirectIfAuthenticated />
       {/* Left: Form */}
       <div className="flex items-center justify-center bg-white px-4 py-8">
         <div className="w-full max-w-md">

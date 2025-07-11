@@ -6,9 +6,12 @@ import { PostingGrid } from '@/components/ui/posting/posting-grid';
 import { SearchBarLg } from '@/components/ui/search/search-bar';
 import Loading from '@/components/ui/commons/loading';
 import { usePosts } from '@/hooks/use-posts';
+import { useUserStore } from '@/stores/user.store';
 
 export default function LandingPage() {
-  const { posts, loading, error } = usePosts();
+  const { posts, loading, error, total, loadMore, hasMore, initialLoaded } =
+    usePosts();
+  const { user } = useUserStore();
 
   return (
     <div className="flex flex-col gap-12 justify-center pb-5">
@@ -22,8 +25,8 @@ export default function LandingPage() {
 
           <p className="text-base lg:text-lg text-center lg:text-left">
             Find your next sublease in just a few clicks. <br />
-            We make it easy to connect with the right sublessors and sublessees and find
-            the perfect place to stay.
+            We make it easy to connect with the right sublessors and sublessees
+            and find the perfect place to stay.
           </p>
 
           <a className="btn-primary md:hidden" href="/sublease">
@@ -61,15 +64,39 @@ export default function LandingPage() {
       </section>
 
       {/* Featured Listings Section */}
-      <section className="px-6 lg:px-12 mb-11 mt-15">
-        {loading ? (
-          <Loading />
+      <section className="px-6 lg:px-12">
+        {loading && !initialLoaded ? (
+          <div>
+            {' '}
+            <Loading />{' '}
+          </div>
         ) : error ? (
-          <div className="text-red-500 screen-message">{error}</div>
+          <div>Error: {error}</div>
         ) : posts && posts.length > 0 ? (
-          <PostingGrid isVertical={true} posts={posts} />
+          <div>
+            <p className="flex justify-end mb-10 mr-3 pb-4 text-sm">
+              Showing {posts.length} of {total} listings
+            </p>
+            <PostingGrid isVertical={true} posts={posts} />
+            <div className="flex flex-col justify-center items-center m-11">
+              <p className="mb-10 mr-3 pb-4 text-sm">
+                Showing {posts.length} of {total} listings
+              </p>
+              {hasMore && (
+                <button
+                  className="btn-secondary"
+                  onClick={loadMore}
+                  disabled={loading}
+                >
+                  {user ? 'Load More' : 'Sign in to view more listings'}
+                </button>
+              )}
+            </div>
+          </div>
         ) : (
-          <div className="screen-message">No postings available</div>
+          <div className="font-medium text-2xl text-grey">
+            No posts available
+          </div>
         )}
       </section>
     </div>
