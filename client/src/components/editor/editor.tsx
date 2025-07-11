@@ -25,6 +25,8 @@ import { Collaboration } from '@tiptap/extension-collaboration';
 import { CollaborationCursor } from '@tiptap/extension-collaboration-cursor';
 import Placeholder from '@tiptap/extension-placeholder';
 import { CommentsKit } from '@tiptap-pro/extension-comments';
+import { Decoration } from '@tiptap/pm/view'
+import AiSuggestion from '@tiptap-pro/extension-ai-suggestion'
 import * as Y from 'yjs';
 
 // Hooks
@@ -39,6 +41,18 @@ import Loading from '@/components/ui/commons/loading';
 import ToggleButton from '@/components/ui/button/toogle-btn';
 import './styles.scss';
 import { ThreadsProvider } from './context';
+import { SidebarRulesSection } from './AI-suggestion-extension/sidebar-rules-section'
+import { LoadingState } from './AI-suggestion-extension/loading-state'
+import { ErrorState } from './AI-suggestion-extension/error-state'
+import { RulesModal } from './AI-suggestion-extension/rules-modal';
+import { SuggestionTooltip } from './AI-suggestion-extension/suggestion-tooltip'
+import { MessageSquareMore } from 'lucide-react'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/commons/tooltip';
+import { X } from 'lucide-react'
 
 // Editor store
 import { useEditorStore } from '@/stores/editor.store';
@@ -46,6 +60,7 @@ import { useUserStore } from '@/stores/user.store'
 
 // Services
 import contractService from '@/services/contract.service';
+import { initialRules } from './AI-suggestion-extension/initial-rules';
 
 // TODO:  only for testing purpose before Matching feature merged
 const contractCreateTest = {
@@ -68,13 +83,18 @@ export default function Editor({
   const storedUser = useUserStore((state) => state.user);
   const { data: userData } = useUser(storedUser?._id ?? '');
   const currentUser = userData?.data;
-  
+
   const { color } = useUser(currentUser?._id ?? '');
   const [showUnresolved, setShowUnresolved] = React.useState<boolean>(true);
-  const [selectedThread, setSelectedThread] = React .useState(null);
+  const [selectedThread, setSelectedThread] = React.useState(null);
   const [hasInitialized, setHasInitialized] = React.useState(false);
   const [contractData, setContractData] = React.useState<any>(null);
   const [fetchingContract, setFetchingContract] = React.useState(false);
+  const [isModalOpen, setIsModalOpen] = React.useState(false)
+  const [rules, setRules] = React.useState(initialRules)
+  const [tooltipElement, setTooltipElement] = React.useState<HTMLSpanElement | null>(null)
+  const [isAISuggestion, setIsAISuggestion] = React.useState(false)
+
   const {
     isLoading,
     setIsLoading,
@@ -84,13 +104,13 @@ export default function Editor({
     setContractName,
   } = useEditorStore();
 
-  type Thread = { id: string; resolvedAt?: Date | null; [key: string]: any };
+  type Thread = { id: string; resolvedAt?: Date | null;[key: string]: any };
   const threadsRef = React.useRef<Thread[]>([]);
   const [provider, setProvider] = React.useState<TiptapCollabProvider | null>(null);
 
   // Create provider ONCE
   React.useEffect(() => {
-    if (!groupId) return 
+    if (!groupId) return
     const newProvider = new TiptapCollabProvider({
       name: DOCUMENT_ID,
       appId: process.env.NEXT_PUBLIC_TIPTAP_PRO_APPID!,
@@ -110,7 +130,7 @@ export default function Editor({
       newProvider.destroy()
     }
 
-  }, [groupId]) 
+  }, [groupId])
   {
   }
 
@@ -149,16 +169,6 @@ export default function Editor({
 
   const editor = useEditor({
     extensions: [
-      Underline,
-      Highlight.configure({ multicolor: true }),
-      Color.configure({ types: [TextStyle.name, ListItem.name] }),
-      TextStyle.configure({ mergeNestedSpanStyles: true }),
-      TextAlign.configure({ types: ['heading', 'paragraph'] }),
-      TaskList,
-      TaskItem.configure({
-        nested: true,
-      }),
-      Image,
       StarterKit.configure({
         history: false, // IMPORTANT: Disable history for collaboration
         bulletList: {
@@ -170,6 +180,40 @@ export default function Editor({
           keepAttributes: false,
         },
       }),
+
+      AiSuggestion.configure({
+        appId: process.env.NEXT_PUBLIC_TIPTAP_PRO_APPID!,
+        token: process.env.NEXT_PUBLIC_TIPTAP_PRO_TOKEN!,
+        // baseUrl: process.env.NEXT_PUBLIC_AI_BASE_URL!,
+        rules,
+        getCustomSuggestionDecoration({ suggestion, isSelected, getDefaultDecorations }) {
+          const decorations = getDefaultDecorations()
+
+          if (isSelected && !suggestion.isRejected) {
+            decorations.push(
+              Decoration.widget(suggestion.deleteRange.to, () => {
+                const element = document.createElement('span')
+
+                setTooltipElement(element)
+                return element
+              })
+            )
+          }
+          return decorations
+        }
+
+
+      }),
+      Underline,
+      Highlight.configure({ multicolor: true }),
+      Color.configure({ types: [TextStyle.name, ListItem.name] }),
+      TextStyle.configure({ mergeNestedSpanStyles: true }),
+      TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      TaskList,
+      TaskItem.configure({
+        nested: true,
+      }),
+      Image,
 
       ExportDocx.configure({
         onCompleteExport: (result: any | Buffer<ArrayBufferLike> | Blob) => {
@@ -243,7 +287,7 @@ export default function Editor({
       }),
     ],
     immediatelyRender: false,
-    shouldRerenderOnTransaction: false,
+    shouldRerenderOnTransaction: true,
     content: editorContent,
     onCreate: ({ }) => {
       setHasInitialized(true);
@@ -251,10 +295,12 @@ export default function Editor({
 
     onUpdate: ({ editor }) => {
       updateContent(editor.getHTML());
+    },
 
-      // contractService.updateContract(contractId, {
-      //   content: editor.getHTML()
-      // });
+    editorProps: {
+      attributes: {
+        spellcheck: "false",
+      },
     },
   }, [provider, currentUser, color]);
 
@@ -271,7 +317,7 @@ export default function Editor({
       if (currentLength === 0) {
         if (contractData?.content) {
           yText.insert(0, contractData?.content ?? initialContent ?? content);
-        } 
+        }
       }
     };
 
@@ -365,53 +411,120 @@ export default function Editor({
   };
 
   return (
-    <ThreadsProvider
-      onClickThread={selectThreadInEditor}
-      onDeleteThread={deleteThread}
-      onHoverThread={onHoverThread}
-      onLeaveThread={onLeaveThread}
-      onResolveThread={resolveThread}
-      onUpdateComment={updateComment}
-      onUnresolveThread={unresolveThread}
-      selectedThreads={editor.storage.comments?.focusedThreads || []}
-      selectedThread={selectedThread}
-      setSelectedThread={setSelectedThread}
-      threads={threads}
-    >
-      <div
-        className="col-group flex flex-row gap-5"
-        data-viewmode={showUnresolved ? 'open' : 'resolved'}
+    <div className="col-group flex flex-row gap-5">
+      <ThreadsProvider
+        onClickThread={selectThreadInEditor}
+        onDeleteThread={deleteThread}
+        onHoverThread={onHoverThread}
+        onLeaveThread={onLeaveThread}
+        onResolveThread={resolveThread}
+        onUpdateComment={updateComment}
+        onUnresolveThread={unresolveThread}
+        selectedThreads={editor.storage.comments?.focusedThreads || []}
+        selectedThread={selectedThread}
+        setSelectedThread={setSelectedThread}
+        threads={threads}
       >
-        <div className="main">
-          {/* Editor with MenuBar */}
-          <div className="editor-container">
-            <EditorMenuBar
-              isLoading={isLoading}
-              setIsLoading={setIsLoading}
-              editor={editor}
-              createThread={createThread}
-              finishContract={finishContract}
-              contractName={contractName}
-              setContractName={setContractName}
-            />
-            <EditorContent editor={editor} key={editorKey} />
+
+        <div
+          className="col-group flex flex-row gap-5"
+          data-viewmode={showUnresolved ? 'open' : 'resolved'}
+        >
+          <div className="main">
+            {/* Editor with MenuBar */}
+            <div className="editor-container">
+              <EditorMenuBar
+                isLoading={isLoading}
+                setIsLoading={setIsLoading}
+                editor={editor}
+                createThread={createThread}
+                finishContract={finishContract}
+                contractName={contractName}
+                setContractName={setContractName}
+              />
+              <EditorContent editor={editor} key={editorKey} />
+              <SuggestionTooltip element={tooltipElement} editor={editor} />
+            </div>
+          </div>
+
+          {/* Sidebar for comments */}
+          <div className="lg:w-[40%] flex-shrink border border-lightGray rounded-md p-3">
+            <div className="sidebar-options">
+              <div className="option-group">
+                <div className="text-lg font-medium mb-2">Comments</div>
+                <ToggleButton
+                  option={showUnresolved}
+                  setOption={setShowUnresolved}
+                />
+              </div>
+              <ThreadsList provider={provider} threads={filteredThreads} user={currentUser} />
+            </div>
           </div>
         </div>
+      </ThreadsProvider>
+      {!isAISuggestion && (
+        <button className='text-primaryOrange mt-6 flex items-start'onClick={() => setIsAISuggestion(!isAISuggestion)}> 
+          <Tooltip>
+            <TooltipTrigger asChild>
+                <MessageSquareMore size={30}/>  
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Easier Contract process with AI!</p>
+            </TooltipContent>
+          </Tooltip>
+        </button>
+      )}
 
-        {/* Sidebar for comments */}
-        <div className="lg:w-[40%] flex-shrink border border-lightGray rounded-md p-3">
-          <div className="sidebar-options">
-            <div className="option-group">
-              <div className="text-lg font-medium mb-2">Comments</div>
-              <ToggleButton
-                option={showUnresolved}
-                setOption={setShowUnresolved}
-              />
-            </div>
-            <ThreadsList provider={provider} threads={filteredThreads} user={currentUser}/>
+      {isAISuggestion && (
+        <>
+        <RulesModal
+        rules={rules}
+        onSae={(newRules: any) => {
+          setRules(newRules)
+          editor.chain().setAiSuggestionRules(newRules).loadAiSuggestions().run()
+          setIsModalOpen(false)
+        }}
+        onClose={() => {
+          setIsModalOpen(false)
+        }}
+        isOpen={isModalOpen}
+      />
+
+      <div>
+        <LoadingState show={editor.extensionStorage.aiSuggestion.isLoading} />
+        <ErrorState
+          show={
+            !editor.extensionStorage.aiSuggestion.isLoading
+            && editor.extensionStorage.aiSuggestion.error
+          }
+          onReload={() => editor.commands.loadAiSuggestions()}
+        />
+      </div>
+      <div className="sidebar">
+        <div className="sidebar-header">
+          <button onClick={() => setIsAISuggestion(false)}>
+            <X size={20} />
+          </button>
+          <div className="text-lg font-medium mb-2">Suggestion rules</div>
+          <div className="flex gap-2">
+            <button type="button" onClick={() => setIsModalOpen(true)} className='btn-secondary p-1 border border-gray-400 hover:border-gray-600'>
+              Manage rules
+            </button>
+            <button type="button" onClick={() => editor.commands.applyAllAiSuggestions()} className='btn-secondary p-1 border border-gray-400 hover:border-gray-600'>
+              Apply all suggestions
+            </button>
           </div>
+        </div>
+        <div className="sidebar-scroll">
+          <SidebarRulesSection
+            rules={rules}
+            suggestions={editor.extensionStorage.aiSuggestion.getSuggestions()}
+          />
         </div>
       </div>
-    </ThreadsProvider>
+      </>
+      )}
+      
+    </div>
   );
 }

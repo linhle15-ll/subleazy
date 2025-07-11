@@ -146,6 +146,5 @@ export function SortMenu({
         </div>
       </DialogContent>
     </Dialog>
-  
   );
 }

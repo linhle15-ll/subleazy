@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card/card';
 import { Button } from '@/components/ui/button';
-import { ScanLine, PenTool, ArrowRight } from 'lucide-react';
+import { ScanLine, PenTool, ArrowRight, BrainCircuitIcon } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useUserStore } from '@/stores/user.store';
 
@@ -22,7 +22,7 @@ export default function ContractScanPage() {
       label: 'Scan your contract',
       description:
         "Upload your DOCX contract or scan a paper contract. We'll help you digitize and process it quickly.",
-      link: `dashboard/${userId}/groups/${groupId}/contract/edit`, // TODO: Edit contract with group ID
+      link: `dashboard/${userId}/groups/${groupId}/contract/edit`,
       icon: ScanLine,
       color: 'bg-blue-50 border-blue-200 hover:bg-blue-100',
       iconColor: 'text-blue-600',
@@ -31,15 +31,25 @@ export default function ContractScanPage() {
       label: 'Write your contract',
       description:
         'Create a new contract from scratch using our guided template system and legal frameworks.',
-      link: `dashboard/${userId}/groups/${groupId}/contract`, // TODO: Edit contract with group ID
+      link: `dashboard/${userId}/groups/${groupId}/contract`, 
       icon: PenTool,
       color: 'bg-green-50 border-green-200 hover:bg-green-100',
       iconColor: 'text-green-600',
     },
+    {
+      label: 'Use AI Assistant',
+      description:
+        'Leverage our smart contract editor powered by AI to get suggestions to improve your contract.',
+      link: `dashboard/${userId}/groups/${groupId}/contract/edit`,
+      icon: BrainCircuitIcon,
+      color: 'bg-purple-50 border-purple-200 hover:bg-purple-100',
+      iconColor: 'text-purple-600',
+    },
+
   ];
   return (
-    <div className="min-h-screen">
-      <div className="flex flex-col items-center justify-center px-6 py-12 lg:px-20 gap-12 lg:gap-16 w-full max-w-5xl mx-auto">
+    <div className="min-h-screen ">
+      <div className="max-w-7xl flex flex-col items-center justify-center px-6 py-12 lg:px-20 gap-12 lg:gap-16 w-full mx-auto">
         {/* Heading Section */}
         <div className="text-center space-y-6 max-w-3xl leading-normal">
           <div className="space-y-2">
@@ -80,7 +90,7 @@ export default function ContractScanPage() {
           </div>
 
           {/* Option Cards */}
-          <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
+          <div className="grid lg:grid-cols-3 gap-5 lg:gap-9">
             {options.map((option, index) => {
               const IconComponent = option.icon;
               return (
