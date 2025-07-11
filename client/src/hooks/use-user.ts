@@ -1,3 +1,8 @@
+import userService from '@/services/user.service';
+import { useQuery } from '@tanstack/react-query';
+import React from 'react';
+
+// for chat and thread
 const colors = [
   '#958DF1',
   '#F98181',
@@ -7,20 +12,37 @@ const colors = [
   '#94FADB',
   '#B9F18D',
 ];
-const names = ['Lea Thompson', 'Cyndi Lauper'];
 
-const getRandomElement = (list: string | any[]) =>
-  list[Math.floor(Math.random() * list.length)];
+/**
+ * Assigns a deterministic color based on the user's ID.
+ * This ensures a user always has the same color, but different users have different colors.
+ * @param userId The user's unique identifier.
+ * @returns A color string from the predefined list.
+ */
+export const getUserColor = (userId: string) => {
+  if (!userId) {
+    return '#808080';
+  }
+  let hash = 0;
+  for (let i = 0; i < userId.length; i++) {
+    hash = userId.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash % colors.length);
+  return colors[index];
+};
 
-const getRandomColor = () => getRandomElement(colors);
-const getRandomName = () => getRandomElement(names);
+export const useUser = (userId: string) => {
+  const {
+    data: user,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['user', userId],
+    queryFn: () => userService.getUserById(userId!),
+    enabled: !!userId,
+  });
 
-export const userName = getRandomName();
-export const userColor = getRandomColor();
+  const color = React.useMemo(() => getUserColor(userId), [userId]);
 
-export const useUser = () => {
-  return {
-    name: userName,
-    color: userColor,
-  };
+  return { data: user, isLoading, error, color };
 };

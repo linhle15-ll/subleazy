@@ -15,11 +15,11 @@ const authController = {
         return;
       }
 
-      const isAcademicEmail = await authService.validateAcademicEmail(email);
-      if (!isAcademicEmail) {
-        res.status(400).json({ error: 'Invalid academic email' });
-        return;
-      }
+      // const isAcademicEmail = await authService.validateAcademicEmail(email);
+      // if (!isAcademicEmail) {
+      //   res.status(400).json({ error: 'Invalid academic email' });
+      //   return;
+      // }
 
       // Send verification email
       const user = await User.create({

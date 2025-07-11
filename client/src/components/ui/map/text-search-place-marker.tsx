@@ -46,16 +46,18 @@ export function TextSearchPlaceMarker({ place }: { place: TextSearchPlace }) {
       </AdvancedMarker>
       {infoShown && (
         <InfoWindow anchor={marker} headerDisabled={true}>
-          <div className="bg-white font-medium">{place.displayName}</div>
-          {place.photo && (
-            <Image
-              src={place.photo}
-              alt={place.query}
-              width={150}
-              height={150}
-              className="mt-1"
-            />
-          )}
+          <div className='flex flex-col items-center justify-center'>
+            <div className="bg-white font-medium">{place.displayName}</div>
+            {place.photo && (
+              <Image
+                src={place.photo}
+                alt={place.query}
+                width={150}
+                height={150}
+                className="mt-1 rounded-md w-full h-auto"
+              />
+            )}
+          </div>
         </InfoWindow>
       )}
     </>

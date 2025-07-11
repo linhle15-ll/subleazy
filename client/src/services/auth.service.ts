@@ -14,7 +14,10 @@ const authService = {
     } catch (error) {
       return {
         success: false,
-        error: (error as AxiosError<{ error: string }>).response?.data.error,
+        error:
+          (error as AxiosError<{ error: string }>).response?.data.error ||
+          JSON.stringify((error as AxiosError<{ error: string }>).response?.data) ||
+          'Failed to sign up', 
       };
     }
   },
@@ -31,7 +34,10 @@ const authService = {
     } catch (error) {
       return {
         success: false,
-        error: (error as AxiosError<{ error: string }>).response?.data.error,
+        error:
+          (error as AxiosError<{ error: string }>).response?.data.error ||
+          JSON.stringify((error as AxiosError<{ error: string }>).response?.data) ||
+          'Failed to sign in', 
       };
     }
   },

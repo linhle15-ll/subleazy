@@ -4,54 +4,29 @@ import {
   DropdownUser,
   DropdownHeader,
 } from '@/components/ui/dropdown/dropdown-menu';
+import { MainNavBar } from '@/components/ui/navigation-menu/main-navbar'
 
 export default function Header() {
   return (
     <div className="bg-white py-5">
-      <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-15">
         <div className="flex h-16 items-center justify-between">
           <div className="flex-1 md:flex md:items-center md:gap-12">
-            <a className="block text-teal-600" href="/">
+            <a className="block text-teal-600 outline-none" href="/">
               <span className="sr-only">Home</span>
               <Image
                 src={logo}
                 alt="Subleazy Logo"
                 width={120}
                 height={28}
-                className="h-7 w-auto"
+                className="h-7 w-auto outline-none"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
             </a>
           </div>
 
           <div className="md:flex md:items-center md:gap-12">
-            <nav aria-label="Global" className="hidden md:block">
-              <ul className="flex items-center gap-6 text-sm">
-                <li>
-                  <a className="navbar-text" href="/about">
-                    About
-                  </a>
-                </li>
-
-                <li>
-                  <a className="navbar-text" href="/">
-                    Home
-                  </a>
-                </li>
-
-                <li>
-                  <a className="navbar-text" href="/community">
-                    Community
-                  </a>
-                </li>
-
-                <li>
-                  <a className="btn-primary" href="/sublease/step-1">
-                    Sublease your space
-                  </a>
-                </li>
-              </ul>
-            </nav>
+            <MainNavBar />
             <div className="flex flex-row items-center gap-4">
               {/* Dropdown Menu for Small Screens */}
               <div className="block md:hidden">

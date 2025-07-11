@@ -6,8 +6,8 @@ const router = Router();
 
 router.use(authenticate);
 
-router.get('/:userId', userController.getUser);
 router.get('/search', userController.searchUsers);
+router.get('/:userId', userController.getUser);
 
 // Lifestyle
 router.get('/:userId/lifestyle', userController.getLifestyle);
