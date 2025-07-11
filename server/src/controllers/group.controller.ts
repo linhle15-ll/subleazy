@@ -6,6 +6,7 @@ import groupService from '../services/group.service';
 import { User } from '../types/user.types';
 import { io } from '../server';
 import messageService from '../services/message.service';
+import { Post } from '../types/post.types';
 
 const groupController = {
   createGroup: async (req: Request, res: Response, next: NextFunction) => {
@@ -217,18 +218,32 @@ const groupController = {
 
       io.to(groupId).emit('group-renamed', groupId, name);
 
-      const group = await groupService.getGroup(groupId);
-      if (!group) {
+      const content = `${authReq.body.username} renamed the group to ${name}`;
+      io.to(groupId).emit('new-message', {
+        group: groupId,
+        content,
+        createdAt: new Date(),
+      });
+
+      const message = await messageService.sendMessage({
+        group: new Types.ObjectId(groupId),
+        content,
+      });
+
+      const updatedGroup = await groupService.updateGroup(groupId, {
+        name,
+        lastMessage: message,
+      });
+      if (!updatedGroup) {
         res.status(404).json({ error: 'Group not found' });
         return;
       }
 
-      if (group.isDM) {
+      if (updatedGroup.isDM) {
         res.status(400).json({ error: 'Cannot rename a DM' });
         return;
       }
 
-      const updatedGroup = await groupService.updateGroup(groupId, { name });
       await groupService.markRead(groupId, authReq.user.id);
       res.status(200).json(updatedGroup);
     } catch (error) {
@@ -303,34 +318,67 @@ const groupController = {
 
       // Check if group exists and user is a member
       const group = await groupService.getGroup(groupId);
-      if (!group) {
+      if (group) {
+        const isMember = group.members.some(
+          (member) => member.toString() === authReq.user.id
+        );
+        if (!isMember) {
+          res.status(403).json({ error: 'Unauthorized to modify this group' });
+          return;
+        }
+
+        const updatedGroup = await groupService.addContractToGroup(
+          groupId,
+          contractId
+        );
+
+        if (!updatedGroup) {
+          res.status(500).json({ error: 'Failed to add contract to group' });
+          return;
+        }
+
+        res.status(200).json({
+          success: true,
+          message: 'Contract added to group successfully',
+          data: updatedGroup,
+        });
+      }
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  linkPost: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const authReq = getAuthRequest(req);
+      const groupId = authReq.params.groupId;
+      const post: Post = authReq.body.post;
+
+      io.to(groupId).emit('post-linked', groupId, post);
+
+      const content = `${authReq.body.name} selected post ${post.title}`;
+      io.to(groupId).emit('new-message', {
+        group: groupId,
+        content,
+        createdAt: new Date(),
+      });
+
+      const message = await messageService.sendMessage({
+        group: new Types.ObjectId(groupId),
+        content,
+      });
+
+      const updatedGroup = await groupService.updateGroup(groupId, {
+        post,
+        lastMessage: message,
+      });
+      if (!updatedGroup) {
         res.status(404).json({ error: 'Group not found' });
         return;
       }
 
-      const isMember = group.members.some(
-        (member) => member.toString() === authReq.user.id
-      );
-      if (!isMember) {
-        res.status(403).json({ error: 'Unauthorized to modify this group' });
-        return;
-      }
-
-      const updatedGroup = await groupService.addContractToGroup(
-        groupId,
-        contractId
-      );
-
-      if (!updatedGroup) {
-        res.status(500).json({ error: 'Failed to add contract to group' });
-        return;
-      }
-
-      res.status(200).json({
-        success: true,
-        message: 'Contract added to group successfully',
-        data: updatedGroup,
-      });
+      await groupService.markRead(groupId, authReq.user.id);
+      res.status(200).json(updatedGroup);
     } catch (error) {
       next(error);
     }

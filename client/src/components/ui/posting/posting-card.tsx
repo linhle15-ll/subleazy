@@ -91,14 +91,11 @@ export function PostingCard({ post, isVertical }: PostingCardProps) {
           }}
         />
         {isOwner ? (
-          <Button
-            asChild
-            className="absolute top-3 right-3 transition-colors hover:scale-110"
-          >
+          <button className="absolute top-3 right-3 transition-colors hover:scale-110">
             <Link href={`/posts/edit/${post._id}`}>
-              <SquarePen className="text-white" size={60} />
+              <SquarePen className="text-white" />
             </Link>
-          </Button>
+          </button>
         ) : (
           <button
             onClick={(e) => {
@@ -118,8 +115,7 @@ export function PostingCard({ post, isVertical }: PostingCardProps) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Heart
-                  className={`${isFavorite && 'fill-primaryOrange text-primaryOrange text-transparent'} text-white`}
-                  size={30}
+                  className={`${isFavorite ? 'fill-primaryOrange text-primaryOrange text-transparent' : 'text-white'}`}
                 />
               </TooltipTrigger>
               <TooltipContent>
@@ -174,9 +170,7 @@ export function PostingCard({ post, isVertical }: PostingCardProps) {
             title={'View details'}
             aria-label={'View details'}
           >
-            <Link href={viewDetailsLink}>
-              <SquarePen className="text-white" size={30} /> View details{' '}
-            </Link>
+            <Link href={viewDetailsLink}>View details</Link>
           </Button>
         </div>
       </div>
