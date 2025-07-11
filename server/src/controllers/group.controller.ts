@@ -5,6 +5,7 @@ import { ObjectId, Types } from 'mongoose';
 import groupService from '../services/group.service';
 import { User } from '../types/user.types';
 import { io } from '../server';
+import messageService from '../services/message.service';
 
 const groupController = {
   createGroup: async (req: Request, res: Response, next: NextFunction) => {
@@ -119,6 +120,10 @@ const groupController = {
       const groupId = authReq.params.groupId;
 
       io.to(groupId).emit('member-left', groupId, authReq.user.id);
+      io.to(groupId).emit('new-message', {
+        group: groupId,
+        content: `${authReq.body.name} left the group`,
+      });
 
       const group = await groupService.getGroup(groupId);
       if (!group) {
@@ -130,6 +135,11 @@ const groupController = {
         res.status(400).json({ error: 'Cannot leave a DM' });
         return;
       }
+
+      await messageService.sendMessage({
+        group: new Types.ObjectId(groupId),
+        content: `${authReq.body.name} left the group`,
+      });
 
       group.members = group.members.filter(
         (member) => member.toString() !== authReq.user.id

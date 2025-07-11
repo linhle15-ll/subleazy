@@ -29,6 +29,10 @@ io.on('connection', (socket) => {
   socket.on('join-chat', (userId: string) =>
     chatService.joinChat(userId, socket)
   );
+
+  socket.on('leave-group', (groupId: string) =>
+    chatService.leaveGroup(groupId, socket)
+  );
 });
 
 server.listen(PORT, () => {

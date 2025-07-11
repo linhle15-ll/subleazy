@@ -10,14 +10,14 @@ const groupService = {
         members: userIds,
         isDM: true,
       })
-      .populate('members', 'firstName lastName profileImage');
+      .populate('members', 'firstName lastName email profileImage');
     return group;
   },
 
   createGroup: async (data: Group) => {
     const group = (await groupModel.create(data)).populate(
       'members',
-      'firstName lastName profileImage'
+      'firstName lastName email profileImage'
     );
     return group;
   },
@@ -41,7 +41,7 @@ const groupService = {
   getUserGroups: async (userId: string | ObjectId) => {
     const groups = await groupModel
       .find({ members: userId })
-      .populate('members', 'firstName lastName profileImage')
+      .populate('members', 'firstName lastName email profileImage')
       .populate('lastMessage')
       .populate('post')
       .sort({ updatedAt: -1 })
@@ -70,7 +70,7 @@ const groupService = {
         new: true,
         timestamps: updateTimestamp,
       })
-      .populate('members', 'firstName lastName profileImage');
+      .populate('members', 'firstName lastName email profileImage');
     return group;
   },
 

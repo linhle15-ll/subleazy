@@ -7,6 +7,10 @@ const chatService = {
     const groups = await groupService.getUserGroupsSimple(userId);
     for (const group of groups) socket.join(group._id.toString());
   },
+
+  leaveGroup: async (groupId: string, socket: Socket) => {
+    socket.leave(groupId);
+  },
 };
 
 export default chatService;
