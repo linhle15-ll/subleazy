@@ -16,16 +16,16 @@ const userService = {
         success: false,
         error:
           (error as AxiosError<{ error: string }>).response?.data.error ||
-          JSON.stringify((error as AxiosError<{ error: string }>).response?.data) ||
-          'Failed to get user by id', 
+          JSON.stringify(
+            (error as AxiosError<{ error: string }>).response?.data
+          ) ||
+          'Failed to get user by id',
       };
     }
   },
   getPostsByUserId: async (id: string): Promise<Result<User>> => {
     try {
-      const response = await api.get(
-        `/posts/getByUserId/${id}`
-      );
+      const response = await api.get(`/posts/getByUserId/${id}`);
       return {
         success: true,
         data: response.data,
@@ -35,8 +35,10 @@ const userService = {
         success: false,
         error:
           (error as AxiosError<{ error: string }>).response?.data.error ||
-          JSON.stringify((error as AxiosError<{ error: string }>).response?.data) ||
-          'Failed to get posts by user id', 
+          JSON.stringify(
+            (error as AxiosError<{ error: string }>).response?.data
+          ) ||
+          'Failed to get posts by user id',
       };
     }
   },
@@ -78,6 +80,23 @@ const userService = {
         error:
           (error as AxiosError<{ error: string }>).response?.data.error ||
           'Failed to get lifestyle form',
+      };
+    }
+  },
+
+  searchUsers: async (query: string): Promise<Result<User[]>> => {
+    try {
+      const response = await api.get(`/users/search?q=${query}`);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          (error as AxiosError<{ error: string }>).response?.data.error ||
+          'Failed to search users',
       };
     }
   },
