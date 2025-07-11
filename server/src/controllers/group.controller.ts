@@ -280,6 +280,61 @@ const groupController = {
       next(error);
     }
   },
+
+  addContractToGroup: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const authReq = getAuthRequest(req);
+      const groupId = authReq.params.groupId;
+      const { contractId } = authReq.body;
+
+      if (!groupId) {
+        res.status(400).json({ error: 'Group ID is required' });
+        return;
+      }
+
+      if (!contractId) {
+        res.status(400).json({ error: 'Contract ID is required' });
+        return;
+      }
+
+      // Check if group exists and user is a member
+      const group = await groupService.getGroup(groupId);
+      if (!group) {
+        res.status(404).json({ error: 'Group not found' });
+        return;
+      }
+
+      const isMember = group.members.some(
+        (member) => member.toString() === authReq.user.id
+      );
+      if (!isMember) {
+        res.status(403).json({ error: 'Unauthorized to modify this group' });
+        return;
+      }
+
+      const updatedGroup = await groupService.addContractToGroup(
+        groupId,
+        contractId
+      );
+
+      if (!updatedGroup) {
+        res.status(500).json({ error: 'Failed to add contract to group' });
+        return;
+      }
+
+      res.status(200).json({
+        success: true,
+        message: 'Contract added to group successfully',
+        data: updatedGroup,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 };
 
 export default groupController;

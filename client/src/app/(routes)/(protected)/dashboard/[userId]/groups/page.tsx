@@ -3,12 +3,18 @@ import React from 'react';
 import { useParams } from 'next/navigation';
 import { DashboardMenu } from '@/components/ui/navigation-menu/dashboard-menu';
 import { useUserStore } from '@/stores/user.store';
+import { useGroups } from '@/hooks/use-groups';
+import GroupCard from '@/components/ui/group/group-card';
 import PotentialMatches from './matches/potential-matches';
 
 export default function GroupsPage() {
   const { userId } = useParams<{ userId: string }>();
   const currentUser = useUserStore((state) => state.user);
   const isOwner = currentUser?._id === userId;
+
+  // Fetch groups for the current user
+  const { result: groupsData, isFetching } = useGroups(currentUser?._id);
+  const groups = groupsData?.success ? groupsData.data || [] : [];
 
   return (
     <div className="flex">
@@ -32,10 +38,10 @@ export default function GroupsPage() {
           </div>
 
           {/* Sections Wrapper */}
-          <div className="grid grid-cols-1 gap-12">
+          <div className="grid grid-cols-1 gap-12 ml-2">
             {/* Your Groups Section */}
             <section aria-labelledby="your-groups-heading">
-              <div className="bg-white shadow-md rounded-lg p-6">
+              <div className="bg-white">
                 <h2
                   id="your-groups-heading"
                   className="text-2xl font-semibold text-gray-900 mb-2"
@@ -46,16 +52,32 @@ export default function GroupsPage() {
                   Here are the groups you’re currently part of. Stay in, leave,
                   or move forward to sign together.
                 </p>
-                {/* TODO: Get groups by userId and render them here */}
-                <div className="text-center text-gray-500 py-8">
-                  <p>You are not part of any groups yet.</p>
-                </div>
+
+                {isFetching ? (
+                  <div className="text-center text-gray-500 py-8">
+                    <p>Loading your groups...</p>
+                  </div>
+                ) : groups.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                    {groups.map((group) => (
+                      <GroupCard
+                        key={group._id}
+                        group={group}
+                        userId={currentUser?._id || ''}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center text-gray-500 py-8">
+                    <p>You are not part of any groups yet.</p>
+                  </div>
+                )}
               </div>
             </section>
 
             {/* Potential Matches Section */}
             <section aria-labelledby="potential-matches-heading">
-              <div className="bg-white shadow-md rounded-lg p-6">
+              <div className="bg-white">
                 <h2
                   id="potential-matches-heading"
                   className="text-2xl font-semibold text-gray-900 mb-2"

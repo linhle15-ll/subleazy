@@ -103,6 +103,26 @@ const groupService = {
       };
     }
   },
+
+  addContractToGroup: async (
+    groupId: string,
+    contractId: string
+  ): Promise<Result<Group>> => {
+    try {
+      const response = await api.put(`/groups/${groupId}/add-contract`, {
+        contractId,
+      });
+      return {
+        success: true,
+        data: response.data.data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: (error as AxiosError<{ error: string }>).response?.data.error,
+      };
+    }
+  },
 };
 
 export default groupService;

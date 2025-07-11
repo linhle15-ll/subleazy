@@ -1,5 +1,5 @@
 'use client';
-import { HomeIcon, CheckCircle2, Share2 } from 'lucide-react';
+import { HomeIcon, CheckCircle2, Share2, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useEditorStore } from '@/stores/editor.store';
@@ -56,8 +56,15 @@ export default function FinishContractPage() {
             Share
           </Button>
 
-          <Link href="/" className="flex-1">
+          <Link href={`/dashboard/${userId}/groups/final-contract?contractId=${documentData?.contractId}&groupId=${groupId}`} className="flex-1">
             <Button className="btn-primary w-50">
+              <FileText size={20} />
+              View Final Contract
+            </Button>
+          </Link>
+
+          <Link href="/" className="flex-1">
+            <Button className="btn-secondary w-50">
               <HomeIcon size={20} />
               Back to Home
             </Button>
