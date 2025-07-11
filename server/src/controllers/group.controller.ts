@@ -14,33 +14,47 @@ const groupController = {
       const data: Group = authReq.body;
 
       if (!('isDM' in (data as object))) data.isDM = true;
-      data.members.push(new Types.ObjectId(authReq.user.id));
+      const memberIds = (data.members as User[]).map((member) => member._id);
+      memberIds.push(new Types.ObjectId(authReq.user.id));
 
-      data.members = await groupService.sieveUsers(data.members as ObjectId[]);
+      const members = await groupService.sieveUsers(memberIds as ObjectId[]);
 
       if (data.isDM) {
-        if (data.members.length !== 2) {
+        if (members.length !== 2) {
           res.status(400).json({ error: 'DMs must have exactly 2 members' });
           return;
         }
 
-        data.members.sort();
-        const dm = await groupService.findExistingDM(
-          data.members as ObjectId[]
-        );
+        members.sort();
+        const dm = await groupService.findExistingDM(members as ObjectId[]);
         if (dm) {
           res.status(200).json(dm);
           return;
         }
       }
 
-      const group = await groupService.createGroup(data);
+      const group = await groupService.createGroup({ ...data, members });
       await groupService.markRead(group._id.toString(), authReq.user.id);
-      res.status(201).json(group);
 
-      for (const member of data.members) {
+      if (group.isDM) {
+        const otherUser = group.members.find(
+          (member) => (member as User)?._id?.toString() !== authReq.user.id
+        );
+        if (otherUser)
+          group.name =
+            (otherUser as User).firstName + ' ' + (otherUser as User).lastName;
+      } else if (!group.name) {
+        const firstNames = group.members.map(
+          (member) => (member as User).firstName
+        );
+        group.name = firstNames.join(', ');
+      }
+
+      for (const member of members) {
         io.to(member.toString()).emit('new-group', group);
       }
+
+      res.status(201).json(group);
     } catch (error) {
       next(error);
     }
