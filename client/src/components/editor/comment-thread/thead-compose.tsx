@@ -1,7 +1,9 @@
 'use client'
 import React from 'react'
+import { useUser } from '@/hooks/use-user'
 
-export const ThreadComposer = ({ threadId, provider, user } : { threadId: string, provider: any, user: any }) => {
+export const ThreadComposer = ({ threadId, provider } : { threadId: string, provider: any}) => {
+    const user = useUser()
     const [comment, setComment] = React.useState<string>('')
 
     const handleSubmit = React.useCallback(
@@ -17,17 +19,14 @@ export const ThreadComposer = ({ threadId, provider, user } : { threadId: string
                     content: comment,
                     createdAt: Date.now(),
                     updatedAt: Date.now(),
-                    data: { userName: `${user?.firstName} ${user?.lastName}`.trim() || 'Anonymous' }
+                    data: { userName: user.name }
                 })
 
                 setComment('')
-                console.log(provider)
             }
         },
-        [comment, provider, user]
+        [comment, provider]
     )
-
-    
 
     return (
         <form onSubmit={handleSubmit}>

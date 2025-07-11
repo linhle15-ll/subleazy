@@ -132,9 +132,3 @@ export enum CleanAfterCooking {
   ONCE_A_DAY = 'Once a day',
   WHENEVER_HAVE_TIME = 'Whenever I get to it',
 }
-
-export enum ContractStatus {
-  ACTIVE = 'active',
-  PENDING = 'pending',
-  CLOSED = 'closed',
-}

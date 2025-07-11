@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { devtools, subscribeWithSelector, persist} from 'zustand/middleware';
+import { devtools, subscribeWithSelector } from 'zustand/middleware';
 
 interface DocumentData {
   content: string;
@@ -33,59 +33,58 @@ interface EditorStore {
 
 export const useEditorStore = create<EditorStore>()(
   devtools(
-    subscribeWithSelector(
-      persist(
-        (set, get) => ({
-          documentData: null,
-          setDocumentData: (data: DocumentData) => {
-            console.log('Setting document data in store:', {
-              filename: data.filename,
-              contentLength: data.content.length,
-              contentType: data.contentType,
-              uploadedAt: data.uploadedAt,
-            });
-            set({
-              documentData: data,
-              error: null,
-            });
-          },
-          clearDocumentData: () => set({ documentData: null}),
-          hasDocument: () => get().documentData !== null,
-
-          contractName: '',
-          setContractName: (name: string) => set({ contractName: name }),
-
-          isLoading: false,
-          setIsLoading: (loading: boolean) => set({ isLoading: loading }),
-
+    subscribeWithSelector((set, get) => ({
+      documentData: null,
+      setDocumentData: (data: DocumentData) => {
+        console.log('Setting document data in store:', {
+          filename: data.filename,
+          contentLength: data.content.length,
+          contentType: data.contentType,
+          uploadedAt: data.uploadedAt,
+        });
+        set({
+          documentData: data,
           error: null,
-          setError: (error: string | null) => set({ error }),
-          clearError: () => set({ error: null }),
+        });
+      },
+      clearDocumentData: () => {
+        console.log('Clearing document data from store');
+        set({ documentData: null });
+      },
+      hasDocument: () => get().documentData !== null,
 
-          updateContent: (content: string) => {
-            const currentData = get().documentData;
-            if (currentData) {
-              set({
-                documentData: {
-                  ...currentData,
-                  content,
-                  uploadedAt: new Date(),
-                },
-              });
-            }
-          },
-          getContent: () => {
-            const data = get().documentData;
-            return data ? data.content : null;
-          },
-        }),
-        {
-          name: 'editor-store',
+      contractName: '',
+      setContractName: (name: string) => set({ contractName: name }),
+
+      isLoading: false,
+      setIsLoading: (loading: boolean) => set({ isLoading: loading }),
+
+      error: null,
+      setError: (error: string | null) => set({ error }),
+      clearError: () => set({ error: null }),
+
+      updateContent: (content: string) => {
+        const currentData = get().documentData;
+        if (currentData) {
+          set({
+            documentData: {
+              ...currentData,
+              content,
+              uploadedAt: new Date(),
+            },
+          });
         }
-      )
-    )
+      },
+      getContent: () => {
+        const data = get().documentData;
+        return data ? data.content : null;
+      },
+    })),
+    {
+      name: 'editor-store',
+    }
   )
-)
+);
 
 export const useDocumentData = () =>
   useEditorStore((state) => state.documentData);

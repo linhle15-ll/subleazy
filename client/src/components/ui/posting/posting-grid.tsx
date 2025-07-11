@@ -15,6 +15,7 @@ export function PostingGrid({
   posts,
   className,
 }: PostingGridProps) {
+  const router = useRouter();
 
   return (
     <div
@@ -25,6 +26,7 @@ export function PostingGrid({
           <PostingCard
             key={post._id}
             post={post}
+            onViewDetails={() => router.push(`/posts/${post._id}`)}
             isVertical={isVertical}
           />
         ))}

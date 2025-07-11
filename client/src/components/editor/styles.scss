@@ -356,8 +356,6 @@
     top: -1.5rem;
     white-space: nowrap;
   }
-  
-
   }
 
   /* Heading styles */
@@ -589,9 +587,7 @@
     flex-direction: column;
     transition: all 0.2s cubic-bezier(0.65,0.05,0.36,1);
 
-    &.is-active {
-    } 
-
+    &.is-active,
     &:hover {
       box-shadow: 0px 0px 0px 1px var(--gray-4) inset;
     }
@@ -1027,58 +1023,7 @@
   }
 
   &.selected {
-    background: #ffedd5;
+    background: #dbeafe;
     border-left-color: #3b82f6;
   }
 }
-
-
-/* Thread highlighting in editor */
-.tiptap-thread[data-type="inline"] {
-  background: #fef3c7;
-  border-bottom: 2px dashed var(--yellow-contrast);
-  border-radius: 4px;
-  padding: 2px 4px;
-  margin: 0 2px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  &[data-state='hovered'] {
-    background: #fde68a;
-  }
-
-  &[data-state='selected'] {
-    background: #ffedd5;
-  }
-}
-
-[data-viewmode="resolved"] .tiptap {
-  .tiptap-thread[data-status="closed"] {
-    &[data-type="block"] {
-      > :not(p, h1, h2, h3, h4, h5, h6, ul, li) {
-        background-color: var(--yellow);
-        outline-color: var(--yellow);
-      }
-  
-      &:hover,
-      &[data-state="selected"],
-      &[data-state="hovered"] {
-        > :not(p, h1, h2, h3, h4, h5, h6, ul, li) {
-          background-color: var(--yellow-contrast);
-          outline-color: var(--yellow-contrast);
-        }
-      }
-    }
-
-    &[data-type="inline"] {
-      border-bottom: 2px dashed var(--yellow-contrast);
-
-      &:hover,
-      &[data-state="selected"],
-      &[data-state="hovered"] {
-        background-color: var(--yellow);
-      }
-    }
-  }
-}
-  

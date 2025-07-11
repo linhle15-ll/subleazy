@@ -32,7 +32,7 @@ export function PlaceAutocomplete({
   const handleSelect = async (
     suggestion: google.maps.places.AutocompleteSuggestion
   ) => {
-    if (!placesLib || !suggestion?.placePrediction) return;
+    if (!placesLib || !suggestion.placePrediction) return;
 
     const { place } = await suggestion.placePrediction.toPlace().fetchFields({
       fields: ['location', 'formattedAddress', 'addressComponents'],

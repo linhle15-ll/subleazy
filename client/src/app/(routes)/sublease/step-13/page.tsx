@@ -8,7 +8,6 @@ import { usePostCreateStore } from '@/stores/post-create.store';
 import { usePostSetters } from '@/hooks/use-post-setters';
 import { DatePickerButton } from '@/components/ui/date/date-picker';
 
-
 const hours = Array.from({ length: 12 }, (_, i) => i + 1);
 const minutes = ['00', '15', '30', '45'];
 const ampm = ['AM', 'PM'];
@@ -235,13 +234,13 @@ export default function SubleaseStep13() {
             text="Move-in date"
             date={availability?.startDate as Date}
             setDate={(date) => setDate('startDate', date)}
-            className="flex-grow h-24 border-2 rounded-xl text-lg text-center font-medium border-gray-400"
+            className="flex-grow h-28 border-2 rounded-xl text-lg text-center font-medium border-gray-400"
           />
           <DatePickerButton
             text="Move-out date"
             date={availability?.endDate as Date}
             setDate={(date) => setDate('endDate', date)}
-            className="flex-grow h-24 border-2 rounded-xl text-lg text-center font-medium border-gray-400"
+            className="flex-grow h-28 border-2 rounded-xl text-lg text-center font-medium border-gray-400"
           />
         </div>
         <div className="flex flex-row items-center justify-center gap-4 w-full h-28 pl-5 pr-5 border-2 rounded-xl text-lg text-center font-medium border-gray-400">

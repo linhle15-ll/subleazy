@@ -55,7 +55,7 @@ const postService = {
         success: false,
         error:
           (error as AxiosError<{ error: string }>).response?.data.error ||
-          'Failed to edit post by ID',
+          'Failed to get post by ID',
       };
     }
   },

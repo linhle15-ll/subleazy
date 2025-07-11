@@ -12,14 +12,12 @@ export const ThreadsListItem = ({
     thread,
     provider,
     active,
-    open,
-    user
+    open
 }: {
     thread: any,
     provider: any,
     active: boolean,
-    open: boolean,
-    user: any
+    open: boolean
 }) => {
     const {
         onClickThread,
@@ -109,7 +107,7 @@ export const ThreadsListItem = ({
                             ))}
                         </div>
                         <div className="reply-group">
-                            <ThreadComposer threadId={thread.id} provider={provider} user={user} />
+                            <ThreadComposer threadId={thread.id} provider={provider} />
                         </div>
                     </>
                 ) : null}
