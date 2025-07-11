@@ -2,16 +2,25 @@
 import React from 'react';
 import { useParams } from 'next/navigation';
 import Loading from '@/components/ui/commons/loading';
-import { PostingGrid } from '@/components/ui/posting/posting-grid';
+import { useRouter } from 'next/navigation';
 import { Wish } from '@/lib/types/wish.types';
 import { PostRequestBody } from '@/lib/types/post.types';
 import WishlistTable from './wistlist-table';
 import { DashboardMenu } from '@/components/ui/navigation-menu/dashboard-menu'
 import { useWish } from '@/hooks/use-wish';
 import { useUserStore } from '@/stores/user.store'
+import { PostingCard } from '@/components/ui/posting/posting-card';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 
 export default function WishlistPage() {
   const [tableView, setTableView] = React.useState(false);
+  const router = useRouter()
 
   const { userId } = useParams<{ userId: string }>();
   const currentUser = useUserStore((state) => state.user);
@@ -54,7 +63,24 @@ export default function WishlistPage() {
           tableView ? (
             <WishlistTable posts={posts} />
           ) : (
-            <PostingGrid posts={posts} isVertical={true} />
+            <Carousel
+              opts={{
+                align: "start",
+              }}
+              className="w-[100%]"
+            >
+              <CarouselContent>
+                {posts.map((post, index) => (
+                  <CarouselItem key={index} className="md:basis-1/4 lg:basis-1/4">
+                    <div className="p-1">
+                      <PostingCard post={post} isVertical={true} />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
           )
         ) : (
           <div className="text-gray-500">No wishlisted posts yet.</div>

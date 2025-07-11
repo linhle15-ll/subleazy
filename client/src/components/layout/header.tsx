@@ -9,7 +9,7 @@ import { MainNavBar } from '@/components/ui/navigation-menu/main-navbar'
 export default function Header() {
   return (
     <div className="bg-white py-5">
-      <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-15">
         <div className="flex h-16 items-center justify-between">
           <div className="flex-1 md:flex md:items-center md:gap-12">
             <a className="block text-teal-600 outline-none" href="/">

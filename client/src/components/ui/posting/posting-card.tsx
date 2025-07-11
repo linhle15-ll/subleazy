@@ -2,6 +2,8 @@
 
 import Image from 'next/image';
 import React from 'react'
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 import { Heart, SquarePen, Star } from 'lucide-react';
 import { getPlaceTypeIcon, getHouseTypeIcon } from '@/lib/utils/icons';
 import { Post } from '@/lib/types/post.types';
@@ -20,12 +22,10 @@ interface PostingCardProps {
   post: Post;
   isVertical?: boolean;
   isFavorite?: boolean;
-  onViewDetails: () => void;
 }
 
 export function PostingCard({
   post,
-  onViewDetails,
   isVertical,
 }: PostingCardProps) {
 
@@ -35,7 +35,6 @@ export function PostingCard({
     return null;
   }
   const pathname = usePathname();
-  const router = useRouter();
 
   const currentUser = useUserStore((state) => state.user);
   const currentUserId = currentUser?._id
@@ -49,6 +48,7 @@ export function PostingCard({
       ? `${post.city}, ${post.state} ${post.zip}`
       : 'Location not specified';
   const { title, price } = post;
+  const viewDetailsLink = `/posts/${post._id}`;
 
   const PlaceTypeIcon = getPlaceTypeIcon(placeType);
   const HouseTypeIcon = getHouseTypeIcon(houseType);
@@ -75,10 +75,9 @@ export function PostingCard({
       setIsFavorite(false)
     }
   };
-
   return (
     <div
-      className={`bg-white rounded-lg overflow-hidden hover:shadow-2xl transition-shadow duration-700 flex shadow-md ${isVertical ? 'flex-col' : 'flex-row h-[220px]'}`}
+      className={`bg-white rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-700 flex shadow-md ${isVertical ? 'flex-col' : 'flex-row h-[220px]'}`}
     >
       <div className={`relative ${isVertical ? '' : 'w-2/5'}`}>
         <Image
@@ -96,17 +95,12 @@ export function PostingCard({
           }}
         />
         {isOwner ? (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              router.push(`/posts/edit/${post._id}`);
-            }}
+          <Button asChild
             className="absolute top-3 right-3 transition-colors hover:scale-110"
-            title={'Edit post'}
-            aria-label={'Edit post'}
           >
-            <SquarePen className="text-white" size={30} />
-          </button>
+            <Link href={`/posts/edit/${post._id}`}><SquarePen className="text-white" size={30} /></Link>
+          </Button>
+
         ) : (
           <button
             onClick={(e) => {
@@ -176,15 +170,13 @@ export function PostingCard({
         <div className="flex-grow" />
         <div className="flex items-center justify-between pt-2 pb-3">
           <span className="font-medium">${price || 0}/ month</span>
-          <button
+          <Button asChild
             className="text-primaryOrange hover:font-medium focus:outline-none"
-            onClick={(e) => {
-              e.stopPropagation();
-              onViewDetails();
-            }}
+            title={'View details'}
+            aria-label={'View details'}
           >
-            View details
-          </button>
+            <Link href={viewDetailsLink}><SquarePen className="text-white" size={30} /> View details </Link>
+          </Button>
         </div>
       </div>
     </div>
