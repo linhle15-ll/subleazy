@@ -31,7 +31,7 @@ export default function ContractScanPage() {
       label: 'Write your contract',
       description:
         'Create a new contract from scratch using our guided template system and legal frameworks.',
-      link: `dashboard/${userId}/groups/${groupId}/contract`, // TODO: Edit contract with group ID
+      link: `/dashboard/${userId}/groups/${groupId}/contract/edit`, // TODO: Edit contract with group ID
       icon: PenTool,
       color: 'bg-green-50 border-green-200 hover:bg-green-100',
       iconColor: 'text-green-600',

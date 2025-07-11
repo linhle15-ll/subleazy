@@ -18,4 +18,6 @@ export interface Contract extends Base, Timestamps {
   group: Types.ObjectId | ObjectId | Group;
   content: string;
   status: ContractStatus;
+  sublessorSignature: string;
+  sublesseesSignatures: string[];
 }

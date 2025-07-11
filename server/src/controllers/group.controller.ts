@@ -235,6 +235,51 @@ const groupController = {
       next(error);
     }
   },
+
+  getGroupMembers: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const authReq = getAuthRequest(req);
+      const groupId = authReq.params.groupId;
+      const group = await groupService.getGroup(groupId);
+      if (!group) {
+        res.status(404).json({ error: 'Group not found' });
+        return;
+      }
+      await group.populate('members', 'firstName lastName');
+      res.status(200).json(group.members);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  getPostIdByGroupId: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const groupId = req.params.groupId;
+
+      if (!groupId) {
+        res.status(400).json({ error: 'Group ID is required' });
+        return;
+      }
+
+      const postId = await groupService.getPostIdByGroupId(groupId);
+
+      if (!postId) {
+        res.status(404).json({ error: 'Post not found for this group' });
+        return;
+      }
+
+      res.status(200).json({
+        success: true,
+        data: { postId: postId.toString() },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 };
 
 export default groupController;
