@@ -2,7 +2,6 @@
 import React from 'react';
 import { useParams } from 'next/navigation';
 import Loading from '@/components/ui/commons/loading';
-import { useRouter } from 'next/navigation';
 import { Wish } from '@/lib/types/wish.types';
 import { PostRequestBody } from '@/lib/types/post.types';
 import WishlistTable from './wistlist-table';
@@ -20,7 +19,6 @@ import {
 
 export default function WishlistPage() {
   const [tableView, setTableView] = React.useState(false);
-  const router = useRouter()
 
   const { userId } = useParams<{ userId: string }>();
   const currentUser = useUserStore((state) => state.user);

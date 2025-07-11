@@ -16,8 +16,10 @@ const authService = {
         success: false,
         error:
           (error as AxiosError<{ error: string }>).response?.data.error ||
-          JSON.stringify((error as AxiosError<{ error: string }>).response?.data) ||
-          'Failed to sign up', 
+          JSON.stringify(
+            (error as AxiosError<{ error: string }>).response?.data
+          ) ||
+          'Failed to sign up',
       };
     }
   },
@@ -36,8 +38,30 @@ const authService = {
         success: false,
         error:
           (error as AxiosError<{ error: string }>).response?.data.error ||
-          JSON.stringify((error as AxiosError<{ error: string }>).response?.data) ||
-          'Failed to sign in', 
+          JSON.stringify(
+            (error as AxiosError<{ error: string }>).response?.data
+          ) ||
+          'Failed to sign in',
+      };
+    }
+  },
+
+  signout: async (): Promise<Result<null>> => {
+    try {
+      const response = await api.post('auth/signout');
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          (error as AxiosError<{ error: string }>).response?.data.error ||
+          JSON.stringify(
+            (error as AxiosError<{ error: string }>).response?.data
+          ) ||
+          'Failed to sign out',
       };
     }
   },

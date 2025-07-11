@@ -1,12 +1,18 @@
+'use client';
+
 import Image from 'next/image';
 import logo from '@/public/subleazy_logo.png';
 import {
   DropdownUser,
   DropdownHeader,
 } from '@/components/ui/dropdown/dropdown-menu';
-import { MainNavBar } from '@/components/ui/navigation-menu/main-navbar'
+import { MainNavBar } from '@/components/ui/navigation-menu/main-navbar';
+import { useUserStore } from '@/stores/user.store';
+import Link from 'next/link';
 
 export default function Header() {
+  const { user } = useUserStore();
+
   return (
     <div className="bg-white py-5">
       <div className="mx-auto max-w-7xl px-15">
@@ -27,14 +33,21 @@ export default function Header() {
 
           <div className="md:flex md:items-center md:gap-12">
             <MainNavBar />
-            <div className="flex flex-row items-center gap-4">
-              {/* Dropdown Menu for Small Screens */}
-              <div className="block md:hidden">
-                <DropdownHeader />
-              </div>
 
-              <DropdownUser />
-            </div>
+            {user === null ? (
+              <button className="btn-secondary hidden md:block">
+                <Link href={'/sign-in'}>Login</Link>
+              </button>
+            ) : (
+              <div className="flex flex-row items-center gap-4">
+                {/* Dropdown Menu for Small Screens */}
+                <div className="block md:hidden">
+                  <DropdownHeader />
+                </div>
+
+                <DropdownUser />
+              </div>
+            )}
           </div>
         </div>
       </div>
