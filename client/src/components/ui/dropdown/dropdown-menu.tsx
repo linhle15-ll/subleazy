@@ -8,7 +8,6 @@ import {
   Bell,
   House,
   Info,
-  Users,
   FilePlus2,
 } from 'lucide-react';
 
@@ -56,7 +55,7 @@ export function DropdownUser() {
 
           <DropdownMenuItem>
             <MessageSquare />
-            <a href="/message">Message</a>
+            <Link href="/chat">Message</Link>
           </DropdownMenuItem>
 
           <DropdownMenuItem>
@@ -92,22 +91,17 @@ export function DropdownHeader() {
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <Info />
-            <a href="/about">About</a>
+            <Link href="/about">About</Link>
           </DropdownMenuItem>
 
           <DropdownMenuItem>
             <House />
-            <a href="/">Home</a>
-          </DropdownMenuItem>
-
-          <DropdownMenuItem>
-            <Users />
-            <a href="/community">Community</a>
+            <Link href="/">Home</Link>
           </DropdownMenuItem>
 
           <DropdownMenuItem>
             <FilePlus2 />
-            <a href="/sublease">Sublease your place</a>
+            <Link href="/sublease">Sublease your place</Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
