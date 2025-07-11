@@ -1,22 +1,22 @@
 'use client';
 
 import Image from 'next/image';
-import React from 'react'
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import React from 'react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 import { Heart, SquarePen, Star } from 'lucide-react';
 import { getPlaceTypeIcon, getHouseTypeIcon } from '@/lib/utils/icons';
 import { Post } from '@/lib/types/post.types';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useFilterStore } from '@/stores/filter.store';
 import { useUserStore } from '@/stores/user.store';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/commons/tooltip"
-import placeHolderImg from '@/public/placeholder.webp'
-import wishService from '@/services/wish.services'
+} from '@/components/ui/commons/tooltip';
+import placeHolderImg from '@/public/placeholder.webp';
+import wishService from '@/services/wish.services';
 
 interface PostingCardProps {
   post: Post;
@@ -24,11 +24,7 @@ interface PostingCardProps {
   isFavorite?: boolean;
 }
 
-export function PostingCard({
-  post,
-  isVertical,
-}: PostingCardProps) {
-
+export function PostingCard({ post, isVertical }: PostingCardProps) {
   const [isFavorite, setIsFavorite] = React.useState(false);
   // If post is not provided, return null to avoid rendering
   if (!post) {
@@ -37,12 +33,12 @@ export function PostingCard({
   const pathname = usePathname();
 
   const currentUser = useUserStore((state) => state.user);
-  const currentUserId = currentUser?._id
+  const currentUserId = currentUser?._id;
   const isOwner = currentUser?._id === post.author;
 
   const placeType = post.houseInfo.placeType;
   const houseType = post.houseInfo.houseType;
-  const imageUrl = post.media?.[0] || placeHolderImg; 
+  const imageUrl = post.media?.[0] || placeHolderImg;
   const location =
     post.city && post.state && post.zip
       ? `${post.city}, ${post.state} ${post.zip}`
@@ -55,8 +51,8 @@ export function PostingCard({
 
   const handleToggleFavorite = async (currentPostId: string) => {
     if (!currentUserId) {
-      alert('Sign in to add this post to your Wishlist')
-      setIsFavorite(false)
+      alert('Sign in to add this post to your Wishlist');
+      setIsFavorite(false);
       return;
     }
     try {
@@ -65,14 +61,14 @@ export function PostingCard({
         user: currentUserId,
       });
       if (result.success) {
-        setIsFavorite(true);  
+        setIsFavorite(true);
       }
     } catch {
       alert('Failed to update favorite');
     }
 
     if (isFavorite) {
-      setIsFavorite(false)
+      setIsFavorite(false);
     }
   };
   return (
@@ -95,12 +91,14 @@ export function PostingCard({
           }}
         />
         {isOwner ? (
-          <Button asChild
+          <Button
+            asChild
             className="absolute top-3 right-3 transition-colors hover:scale-110"
           >
-            <Link href={`/posts/edit/${post._id}`}><SquarePen className="text-white" size={30} /></Link>
+            <Link href={`/posts/edit/${post._id}`}>
+              <SquarePen className="text-white" size={30} />
+            </Link>
           </Button>
-
         ) : (
           <button
             onClick={(e) => {
@@ -120,12 +118,12 @@ export function PostingCard({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Heart
-                  className={`${isFavorite && 'fill-primaryOrange text-primaryOrange text-transparent'} text-white`} size={30}
+                  className={`${isFavorite && 'fill-primaryOrange text-primaryOrange text-transparent'} text-white`}
+                  size={30}
                 />
               </TooltipTrigger>
               <TooltipContent>
-                  <p>Love this? Click to add post to your Wishlist!</p>
-                 
+                <p>Love this? Click to add post to your Wishlist!</p>
               </TooltipContent>
             </Tooltip>
           </button>
@@ -170,12 +168,15 @@ export function PostingCard({
         <div className="flex-grow" />
         <div className="flex items-center justify-between pt-2 pb-3">
           <span className="font-medium">${price || 0}/ month</span>
-          <Button asChild
+          <Button
+            asChild
             className="text-primaryOrange hover:font-medium focus:outline-none"
             title={'View details'}
             aria-label={'View details'}
           >
-            <Link href={viewDetailsLink}><SquarePen className="text-white" size={30} /> View details </Link>
+            <Link href={viewDetailsLink}>
+              <SquarePen className="text-white" size={30} /> View details{' '}
+            </Link>
           </Button>
         </div>
       </div>
