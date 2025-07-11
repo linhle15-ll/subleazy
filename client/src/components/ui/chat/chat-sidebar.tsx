@@ -33,6 +33,7 @@ export default function ChatSidebar({
           groups.map((group) => {
             const groupId = group._id!;
             const groupName = group.name;
+            const isSystem = group.lastMessage && !group.lastMessage.sender;
             const sender =
               typeof group.lastMessage?.sender === 'string'
                 ? userMaps[groupId][group.lastMessage?.sender]
@@ -59,8 +60,12 @@ export default function ChatSidebar({
                   </div>
                   {group.lastMessage && (
                     <div
-                      className={`text-sm text-gray-400 truncate ${isUnread && 'font-medium'}`}
-                    >{`${sender?.firstName}: ${group.lastMessage.content}`}</div>
+                      className={`text-xs text-gray-500 truncate ${isUnread && 'font-medium'}`}
+                    >
+                      {isSystem
+                        ? group.lastMessage.content
+                        : `${sender?.firstName || 'Left user'}: ${group.lastMessage.content}`}
+                    </div>
                   )}
                 </div>
                 {isUnread && (
