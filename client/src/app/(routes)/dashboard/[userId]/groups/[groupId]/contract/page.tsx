@@ -10,16 +10,19 @@ import {
 import { Button } from '@/components/ui/button';
 import { ScanLine, PenTool, ArrowRight } from 'lucide-react';
 import { useParams } from 'next/navigation';
+import { useUserStore } from '@/stores/user.store';
 
 export default function ContractScanPage() {
-  const { contractId } = useParams<{ contractId: string}>()
+  const { groupId } = useParams<{ groupId: string}>()
+    const currentUser = useUserStore((state) => state.user);
+    const userId = currentUser?._id
   
   const options = [
     {
       label: 'Scan your contract',
       description:
-        "Upload your PDF/DOCX contract or scan a paper contract. We'll help you digitize and process it quickly.",
-      link: `/contract/${contractId}/edit/`, // TODO: edit contract with contract ID
+        "Upload your DOCX contract or scan a paper contract. We'll help you digitize and process it quickly.",
+      link: `dashboard/${userId}/groups/${groupId}/contract/edit`, // TODO: Edit contract with group ID
       icon: ScanLine,
       color: 'bg-blue-50 border-blue-200 hover:bg-blue-100',
       iconColor: 'text-blue-600',
@@ -28,7 +31,7 @@ export default function ContractScanPage() {
       label: 'Write your contract',
       description:
         'Create a new contract from scratch using our guided template system and legal frameworks.',
-      link: `/contract/${contractId}/edit`, // TODO: edit contract with contract ID
+      link: `dashboard/${userId}/groups/${groupId}/contract`, // TODO: Edit contract with group ID
       icon: PenTool,
       color: 'bg-green-50 border-green-200 hover:bg-green-100',
       iconColor: 'text-green-600',

@@ -26,7 +26,6 @@ export default function ProfilePage() {
   const { data: user, isLoading, error } = useUser(userId);
   const currentUser = useUserStore((state) => state.user);
   const isOwner = currentUser?._id === userId
-  const router = useRouter()
 
   const userData = user?.data;
   const userPosts = usePosts(userId ?? undefined);
@@ -111,7 +110,7 @@ export default function ProfilePage() {
                 {userPosts.posts.map((post, index) => (
                   <CarouselItem key={index} className="md:basis-1/4 lg:basis-1/4">
                     <div className="p-1">
-                      <PostingCard post={post} onViewDetails={() => router.push(`/posts/${post._id}`)} isVertical={true} />
+                      <PostingCard post={post} isVertical={true} />
                     </div>
                   </CarouselItem>
                 ))}

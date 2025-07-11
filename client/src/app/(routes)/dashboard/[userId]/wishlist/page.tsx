@@ -73,7 +73,7 @@ export default function WishlistPage() {
                 {posts.map((post, index) => (
                   <CarouselItem key={index} className="md:basis-1/4 lg:basis-1/4">
                     <div className="p-1">
-                      <PostingCard post={post} onViewDetails={() => router.push(`/posts/${post._id}`)} isVertical={true} />
+                      <PostingCard post={post} isVertical={true} />
                     </div>
                   </CarouselItem>
                 ))}
