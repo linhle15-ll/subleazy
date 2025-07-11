@@ -21,7 +21,7 @@ export default function MessageInput({ group }: { group: Group }) {
         onChange={(e) => setContent(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && handleSend(group._id!)}
         placeholder="Aa"
-        className="flex-grow resize-none overflow-hidden p-2 border-2 border-gray-300 focus:outline-none focus:border-lightOrange rounded-xl"
+        className="chat-input-field"
       />
       <button
         onClick={() => handleSend(group._id!)}

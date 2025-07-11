@@ -55,7 +55,7 @@ export default function UserSearch({
         onBlur={() => setTimeout(() => setShowUsers(false), 100)}
         onFocus={() => setShowUsers(true)}
         className={className}
-        placeholder="Name or email"
+        placeholder="Enter member's name or email to search"
       />
       {(result?.data?.length || 0) > 0 && showUsers && (
         <ul className="absolute w-full border rounded-md bg-white shadow-md z-50">

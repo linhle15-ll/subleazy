@@ -63,10 +63,7 @@ export default function MembersAddDialog({
             Search for users by their names or emails to add
           </DialogDescription>
         </DialogHeader>
-        <UserSearch
-          onAdd={handleAddMember}
-          className="w-full overflow-hidden p-2 border-2 border-gray-300 focus:outline-none focus:border-lightOrange rounded-xl"
-        />
+        <UserSearch onAdd={handleAddMember} className="chat-input-field" />
         {users.length > 0 &&
           users.map((user, idx) => (
             <Link

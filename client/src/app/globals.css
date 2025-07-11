@@ -79,6 +79,10 @@ body {
     @apply flex items-center gap-2 p-2 rounded-xl hover:bg-gray-100 font-medium outline-none cursor-pointer;
   }
 
+  .chat-input-field {
+    @apply w-full overflow-hidden p-2 border-2 border-gray-300 focus:outline-none focus:border-lightOrange rounded-xl;
+  }
+
   @layer base {
     input[type='number']::-webkit-inner-spin-button,
     input[type='number']::-webkit-outer-spin-button {
