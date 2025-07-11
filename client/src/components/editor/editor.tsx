@@ -32,6 +32,7 @@ import * as Y from 'yjs';
 // Hooks
 import { useUser } from '@/hooks/use-user';
 import { useThreads } from '@/hooks/use-threads';
+import { useGroupMembers } from '@/hooks/use-groups';
 
 // Components and Styling
 import EditorMenuBar from './menu-bar';
@@ -56,19 +57,11 @@ import { X } from 'lucide-react'
 
 // Editor store
 import { useEditorStore } from '@/stores/editor.store';
-import { useUserStore } from '@/stores/user.store'
+import { useUserStore } from '@/stores/user.store';
 
 // Services
 import contractService from '@/services/contract.service';
 import { initialRules } from './AI-suggestion-extension/initial-rules';
-
-// TODO:  only for testing purpose before Matching feature merged
-const contractCreateTest = {
-  post: '686dee83e51e1a9f103d7e62',
-  sublessor: '686b9238652b52b4a4ce0e74',
-  sublessees: ['6840175954de852613cfe2b0', '685fbd6570eba18985ff3361'],
-  group: '686ffe55cfc8d6b7353bf4da',
-};
 
 export default function Editor({
   initialContent,
@@ -78,17 +71,25 @@ export default function Editor({
   groupId?: string;
 }) {
   const DOCUMENT_ID = `contract-${groupId}`;
-  const [doc] = React.useState(() => new Y.Doc())
+  const [doc] = React.useState(() => new Y.Doc());
 
   const storedUser = useUserStore((state) => state.user);
   const { data: userData } = useUser(storedUser?._id ?? '');
   const currentUser = userData?.data;
 
   const { color } = useUser(currentUser?._id ?? '');
+  const { data: groupMembers } = useGroupMembers(groupId);
   const [showUnresolved, setShowUnresolved] = React.useState<boolean>(true);
   const [selectedThread, setSelectedThread] = React.useState(null);
   const [hasInitialized, setHasInitialized] = React.useState(false);
-  const [contractData, setContractData] = React.useState<any>(null);
+  const [contractData, setContractData] = React.useState<{
+    _id: string;
+    title: string;
+    content: string;
+    sublessor: string;
+    sublessees: string[];
+    group: string;
+  } | null>(null);
   const [fetchingContract, setFetchingContract] = React.useState(false);
   const [isModalOpen, setIsModalOpen] = React.useState(false)
   const [rules, setRules] = React.useState(initialRules)
@@ -104,13 +105,106 @@ export default function Editor({
     setContractName,
   } = useEditorStore();
 
-  type Thread = { id: string; resolvedAt?: Date | null;[key: string]: any };
+  type Thread = {
+    id: string;
+    resolvedAt?: Date | null;
+    [key: string]: unknown;
+  };
+
   const threadsRef = React.useRef<Thread[]>([]);
-  const [provider, setProvider] = React.useState<TiptapCollabProvider | null>(null);
+  const [provider, setProvider] = React.useState<TiptapCollabProvider | null>(
+    null
+  );
+
+  const [sublessorSignature, setSublessorSignature] = React.useState('');
+  const [sublessorSigned, setSublessorSigned] = React.useState(false);
+  const [sublesseesSignatures, setSublesseesSignatures] = React.useState<
+    string[]
+  >([]);
+  const [sublesseesSigned, setSublesseesSigned] = React.useState<boolean[]>([]);
+  const handleSublesseeSignatureChange = (idx: number, value: string) => {
+    setSublesseesSignatures((sigs) => {
+      const copy = [...sigs];
+      copy[idx] = value;
+      return copy;
+    });
+  };
+
+  const handleSublesseeSign = async (idx: number) => {
+    if (!groupId || !groupMembers) return;
+
+    try {
+      // Update local state first
+      setSublesseesSigned((signed) => {
+        const copy = [...signed];
+        copy[idx] = true;
+        return copy;
+      });
+
+      // Prepare updated signatures array
+      const updatedSignatures = [...sublesseesSignatures];
+      updatedSignatures[idx] = sublesseesSignatures[idx] || '';
+
+      // Update contract with new signatures
+      const result = await contractService.updateContractByGroupId(groupId, {
+        sublesseesSignatures: updatedSignatures,
+      });
+
+      if (result.success) {
+        console.log('Sublessee signature updated successfully');
+        // Update local contract data
+        setContractData(result.data);
+      } else {
+        console.error('Failed to update sublessee signature:', result.error);
+        // Revert local state on failure
+        setSublesseesSigned((signed) => {
+          const copy = [...signed];
+          copy[idx] = false;
+          return copy;
+        });
+      }
+    } catch (error) {
+      console.error('Error updating sublessee signature:', error);
+      // Revert local state on error
+      setSublesseesSigned((signed) => {
+        const copy = [...signed];
+        copy[idx] = false;
+        return copy;
+      });
+    }
+  };
+
+  const handleSublessorSign = async () => {
+    if (!groupId) return;
+
+    try {
+      // Update local state first
+      setSublessorSigned(true);
+
+      // Update contract with sublessor signature
+      const result = await contractService.updateContractByGroupId(groupId, {
+        sublessorSignature: sublessorSignature || '',
+      });
+
+      if (result.success) {
+        console.log('Sublessor signature updated successfully');
+        // Update local contract data
+        setContractData(result.data);
+      } else {
+        console.error('Failed to update sublessor signature:', result.error);
+        // Revert local state on failure
+        setSublessorSigned(false);
+      }
+    } catch (error) {
+      console.error('Error updating sublessor signature:', error);
+      // Revert local state on error
+      setSublessorSigned(false);
+    }
+  };
 
   // Create provider ONCE
   React.useEffect(() => {
-    if (!groupId) return
+    if (!groupId) return;
     const newProvider = new TiptapCollabProvider({
       name: DOCUMENT_ID,
       appId: process.env.NEXT_PUBLIC_TIPTAP_PRO_APPID!,
@@ -123,32 +217,62 @@ export default function Editor({
         console.log('Connected to the server.');
       },
     });
-    setProvider(newProvider)
+    setProvider(newProvider);
 
     return () => {
-      console.log(`Cleaning up provider for ${DOCUMENT_ID}`)
-      newProvider.destroy()
-    }
+      console.log(`Cleaning up provider for ${DOCUMENT_ID}`);
+      newProvider.destroy();
+    };
+  }, [groupId]);
 
-  }, [groupId])
-  {
-  }
 
   // Fetch contract data on component mount
   React.useEffect(() => {
     const fetchContractByGroup = async () => {
       setFetchingContract(true);
+      console.log('Starting to fetch contract for groupId:', groupId);
 
       try {
-        const result = await contractService.getContractByGroupId(groupId ?? '');
+        const result = await contractService.getContractByGroupId(
+          groupId ?? ''
+        );
+
+        console.log('Contract fetch result:', result);
 
         if (result.success && result.data) {
           console.log('Contract fetched successfully:', result.data);
           setContractData(result.data);
-          setContractName(result.data.title || '')
+          setContractName(result.data.title || '');
+
+          // Initialize signature states based on existing signatures
+          if (result.data.sublessorSignature) {
+            console.log(
+              'Setting sublessor signature:',
+              result.data.sublessorSignature
+            );
+            setSublessorSignature(result.data.sublessorSignature);
+            setSublessorSigned(true);
+          }
+
+          if (
+            result.data.sublesseesSignatures &&
+            result.data.sublesseesSignatures.length > 0
+          ) {
+            console.log(
+              'Setting sublessee signatures:',
+              result.data.sublesseesSignatures
+            );
+            setSublesseesSignatures(result.data.sublesseesSignatures);
+            // Mark as signed if signature is not empty
+            const signedStates = result.data.sublesseesSignatures.map(
+              (sig) => sig && sig.trim() !== ''
+            );
+            console.log('Sublessee signed states:', signedStates);
+            setSublesseesSigned(signedStates);
+          }
         } else {
           console.log('No contract found for group or error:', result.error);
-          setContractName('')
+          setContractName('');
         }
       } catch (error) {
         console.error('Error fetching contract:', error);
@@ -159,8 +283,6 @@ export default function Editor({
 
     fetchContractByGroup();
   }, [groupId, setContractName]);
-
-  // Initially set content, by order of priority: uploaded doc from scan > default template > null editor
 
   const editorContent = documentData?.content || contractData?.content || content;
 
@@ -241,39 +363,35 @@ export default function Editor({
       ...(provider ? [
         Collaboration.configure({
           document: doc,
-        }),
-        CollaborationCursor.configure({
-          provider,
-          user: {
-            name: `${currentUser?.firstName ?? ''} ${currentUser?.lastName ?? ''}`.trim(),
-            color: color,
-          },
-        }),
-        CommentsKit.configure({
-          provider,
-          useLegacyWrapping: false,
-          onClickThread: (threadId: any) => {
-            try {
-              const isResolved = threadsRef.current.find(
-                (t) => t.id === threadId
-              )?.resolvedAt;
 
-              if (!threadId || isResolved || !editor || !editor.isEditable) {
-                setSelectedThread(null);
-                if (editor) {
-                  editor.chain().unselectThread().run();
-                }
-                return;
-              }
-              setSelectedThread(threadId);
-              editor
-                .chain()
-                .selectThread({ id: threadId, updateSelection: false })
-                .run();
-            } catch (error) {
-              console.warn('Failed to handle thread click:', error);
-              setSelectedThread(null);
-            }
+  const editorContent =
+    documentData?.content || contractData?.content || content;
+
+  // React will re-create the component (and the editor) from scratch if its key changes
+  // const editorKey = React.useMemo(() => `editor-${groupId}`, [groupId]);
+
+  const editor = useEditor(
+    {
+      extensions: [
+        Underline,
+        Highlight.configure({ multicolor: true }),
+        Color.configure({ types: [TextStyle.name, ListItem.name] }),
+        TextStyle.configure({ mergeNestedSpanStyles: true }),
+        TextAlign.configure({ types: ['heading', 'paragraph'] }),
+        TaskList,
+        TaskItem.configure({
+          nested: true;
+        }),
+        Image,
+        StarterKit.configure({
+          history: false, // IMPORTANT: Disable history for collaboration
+          bulletList: {
+            keepMarks: true,
+            keepAttributes: false,
+          },
+          orderedList: {
+            keepMarks: true,
+            keepAttributes: false,
           },
         }),
       ] : []),
@@ -300,9 +418,119 @@ export default function Editor({
     editorProps: {
       attributes: {
         spellcheck: "false",
+        ExportDocx.configure({
+          onCompleteExport: (
+            result: unknown | Buffer<ArrayBufferLike> | Blob
+          ) => {
+            setIsLoading(false);
+            const blob = new Blob([result], {
+              type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+
+            a.href = url;
+            a.download = 'export.docx';
+            a.click();
+            URL.revokeObjectURL(url);
+          },
+        }),
+        Link,
+        Table.configure({
+          resizable: true,
+        }),
+        TableRow,
+        TableHeader,
+        TableCell,
+        // Conditionally add collaboration extensions only when provider is ready
+        ...(provider
+          ? [
+              Collaboration.configure({
+                document: doc,
+              }),
+              CollaborationCursor.configure({
+                provider,
+                user: {
+                  name: `${currentUser?.firstName ?? ''} ${currentUser?.lastName ?? ''}`.trim(),
+                  color: color,
+                },
+              }),
+              CommentsKit.configure({
+                provider,
+                useLegacyWrapping: false,
+                onClickThread: (threadId: string) => {
+                  try {
+                    const isResolved = threadsRef.current.find(
+                      (t) => t.id === threadId
+                    )?.resolvedAt;
+
+                    if (
+                      !threadId ||
+                      isResolved ||
+                      !editor ||
+                      !editor.isEditable
+                    ) {
+                      setSelectedThread(null);
+                      if (editor) {
+                        editor.chain().unselectThread().run();
+                      }
+                      return;
+                    }
+                    setSelectedThread(threadId);
+                    editor
+                      .chain()
+                      .selectThread({ id: threadId, updateSelection: false })
+                      .run();
+                  } catch (error) {
+                    console.warn('Failed to handle thread click:', error);
+                    setSelectedThread(null);
+                  }
+                },
+              }),
+            ]
+          : []),
+        Placeholder.configure({
+          placeholder: contractData?.content
+            ? 'Edit your contract...'
+            : initialContent
+              ? 'Edit your imported document...'
+              : 'Start writing your own contract here ...',
+          emptyEditorClass: 'is-editor-empty',
+        }),
+      ],
+      immediatelyRender: false,
+      shouldRerenderOnTransaction: false,
+      content: editorContent,
+      onCreate: () => {
+        setHasInitialized(true);
+      },
+
+      onUpdate: ({ editor }) => {
+        updateContent(editor.getHTML());
+
+        // // Auto-save contract content as user types
+        // if (contractData && groupId) {
+        //   const content = editor.getHTML();
+        //   if (content && content.trim() !== '') {
+        //     // Debounce the save operation
+        //     const timeoutId = setTimeout(async () => {
+        //       try {
+        //         await contractService.updateContractByGroupId(groupId, {
+        //           content,
+        //         });
+        //         console.log('Contract content auto-saved');
+        //       } catch (error) {
+        //         console.error('Failed to auto-save contract content:', error);
+        //       }
+        //     }, 1000); // Save after 2 seconds of inactivity
+
+        //     return () => clearTimeout(timeoutId);
+        //   }
+        // }
       },
     },
-  }, [provider, currentUser, color]);
+    [provider, currentUser, color]
+  );
 
   // Meoww, fixed bug editor content got duplicated every reload
   React.useEffect(() => {
@@ -361,7 +589,7 @@ export default function Editor({
 
   threadsRef.current = threads || [];
 
-  const filteredThreads = threads.filter((t: any) =>
+  const filteredThreads = threads.filter((t: Thread) =>
     showUnresolved ? !t.resolvedAt : !!t.resolvedAt
   );
 
@@ -371,8 +599,8 @@ export default function Editor({
       return;
     }
 
-    if (!contractData) {
-      console.error('No contract data available');
+    if (!contractData || !groupId) {
+      console.error('No contract data or group ID available');
       return;
     }
 
@@ -389,17 +617,40 @@ export default function Editor({
 
       console.log(`Finishing contract`);
 
-      // Save the contract content
-      const contractToCreate = {
-        ...contractCreateTest,
-        title: contractName || contractData.title || 'Contract',
+      // Prepare signatures data
+      const signatures =
+        groupMembers?.map((member, idx) => {
+          if (idx === 0) {
+            // Sublessor signature
+            return sublessorSignature || '';
+          } else {
+            // Sublessee signature
+            return sublesseesSignatures[idx - 1] || '';
+          }
+        }) || [];
+
+      // Update the contract
+      const updateData = {
+        title: contractData.title,
         content,
+        sublessorSignature: signatures[0],
+        sublesseesSignatures: signatures.slice(1),
+        status: 'completed',
       };
-      const result = await contractService.createContract(contractToCreate);
+
+      // Ensure status is typed correctly for ContractUpdateData
+      const result = await contractService.updateContractByGroupId(groupId, {
+        ...updateData,
+        status: 'completed' as const,
+      });
       if (result.success) {
         console.log('Contract finished successfully:', result.data);
-        // Update local contract data
-        setContractData(result.data);
+        // Update local contract data, ensuring result.data is defined
+        if (result.data) {
+          setContractData(result.data);
+        } else {
+          console.error('No contract data returned after finishing contract.');
+        }
       } else {
         console.error('Failed to finish contract:', result.error);
       }
@@ -424,7 +675,133 @@ export default function Editor({
         selectedThread={selectedThread}
         setSelectedThread={setSelectedThread}
         threads={threads}
-      >
+
+        <div className="main">
+          {/* Editor with MenuBar */}
+          <div className="editor-container">
+            <EditorMenuBar
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
+              editor={editor}
+              createThread={createThread}
+              finishContract={finishContract}
+              contractName={contractName}
+              setContractName={setContractName}
+            />
+
+            <div className="flex-col gap-2">
+              <EditorContent editor={editor} />
+
+              {/* Group Members Section */}
+              {groupMembers && groupMembers.length > 0 && (
+                <div className="flex flex-col p-6 border rounded bg-blue-50">
+                  <div className="text-lg font-semibold pb-4 text-gray-800">
+                    Group Members
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {groupMembers.map((member) => (
+                      <div
+                        key={member._id}
+                        className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border"
+                      >
+                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                          {member.profileImage ? (
+                            <img
+                              src={member.profileImage}
+                              alt={`${member.firstName} ${member.lastName}`}
+                              className="w-10 h-10 rounded-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-gray-600 font-medium">
+                              {member.firstName.charAt(0)}
+                              {member.lastName.charAt(0)}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-gray-900 truncate">
+                              {member.firstName} {member.lastName}
+                            </p>
+                            <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800 font-medium">
+                              {groupMembers.indexOf(member) === 0
+                                ? 'Sublessor'
+                                : 'Sublessee'}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-500 truncate">
+                            {member.email}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Signature fields for sublessor and sublessees */}
+              <div className="flex flex-col gap-4 mt-6 p-4 border rounded bg-gray-50">
+                {/* Sublessees & sublessor signatures */}
+                {groupMembers?.map((member, idx) => {
+                  // Use local "signed" state, not the value itself
+                  const isSigned =
+                    idx === 0 ? sublessorSigned : sublesseesSigned[idx - 1];
+
+                  return (
+                    <div
+                      key={member._id}
+                      className="flex flex-row items-center gap-2"
+                    >
+                      <div className="flex flex-col gap-1 w-80">
+                        <label className="font-medium">
+                          {member.firstName} {member.lastName} Signature:
+                        </label>
+                        <span className="text-xs text-gray-500 font-medium">
+                          {idx === 0 ? 'Sublessor' : 'Sublessee'}
+                        </span>
+                      </div>
+                      <input
+                        type="text"
+                        className={`text-field w-full transition-opacity duration-300 ${
+                          isSigned ? 'opacity-50' : 'opacity-100'
+                        }`}
+                        value={
+                          idx === 0
+                            ? sublessorSignature
+                            : sublesseesSignatures[idx - 1] || ''
+                        }
+                        onChange={(e) => {
+                          if (idx === 0) {
+                            setSublessorSignature(e.target.value);
+                          } else {
+                            handleSublesseeSignatureChange(
+                              idx - 1,
+                              e.target.value
+                            );
+                          }
+                        }}
+                        disabled={currentUser?._id !== member._id || isSigned}
+                        placeholder="Enter your signature"
+                      />
+                      <button
+                        className="btn btn-primary"
+                        disabled={currentUser?._id !== member._id || isSigned}
+                        onClick={() => {
+                          if (idx === 0) {
+                            handleSublessorSign();
+                          } else {
+                            handleSublesseeSign(idx - 1);
+                          }
+                        }}
+                      >
+                        {isSigned ? 'Signed' : 'Confirm'}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div
           className="col-group flex flex-row gap-5"
@@ -459,6 +836,13 @@ export default function Editor({
               </div>
               <ThreadsList provider={provider} threads={filteredThreads} user={currentUser} />
             </div>
+
+            <ThreadsList
+              provider={provider}
+              threads={filteredThreads}
+              user={currentUser}
+            />
+
           </div>
         </div>
       </ThreadsProvider>

@@ -1,9 +1,9 @@
 import { Request } from 'express';
-import { ObjectId } from 'mongoose';
+import { ObjectId, Types } from 'mongoose';
 import { UserPayload } from './user.types';
 
 export interface Base {
-  _id?: ObjectId;
+  _id?: Types.ObjectId | ObjectId;
 }
 
 export interface Timestamps {

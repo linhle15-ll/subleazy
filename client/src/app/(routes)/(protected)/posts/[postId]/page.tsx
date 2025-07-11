@@ -2,51 +2,46 @@
 
 import Image from 'next/image';
 import React, { useEffect } from 'react';
-import {
-  Heart,
-  MapPin,
-  Clock,
-  SquarePen,
-} from 'lucide-react';
+import { Heart, MapPin, Clock, SquarePen } from 'lucide-react';
 import authorAvatar from '@/public/placeholder-image-person.webp';
 import Loading from '@/components/ui/commons/loading';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { User } from '@/lib/types/user.types';
-import { postData } from '@/lib/utils/post-data'
+import { postData } from '@/lib/utils/post-data';
 import { PostingMap } from '@/components/ui/map/posting-map';
 import { usePost } from '@/hooks/use-post';
 import { useUserStore } from '@/stores/user.store';
-import wishService from '@/services/wish.services'
+import wishService from '@/services/wish.services';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/commons/tooltip"
-import { ProfileAvatar } from '@/components/ui/commons/avatar'
-import { GalleryModal } from '@/components/ui/commons/image-gallery'
+} from '@/components/ui/commons/tooltip';
+import { ProfileAvatar } from '@/components/ui/commons/avatar';
+import { GalleryModal } from '@/components/ui/commons/image-gallery';
 
 export default function PostingPage() {
   const { postId } = useParams<{ postId: string }>();
   const currentUser = useUserStore((state) => state.user);
-  const currentUserId = currentUser?._id
+  const currentUserId = currentUser?._id;
   const { result, isFetching } = usePost(postId);
   const router = useRouter();
   const [isFavorite, setIsFavorite] = useState(false);
-  const [showAllPhotos, setShowAllPhotos] = useState(false)
+  const [showAllPhotos, setShowAllPhotos] = useState(false);
 
   useEffect(() => {
     if (showAllPhotos) {
-      document.body.style.overflow = 'hidden'
+      document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = 'auto'
+      document.body.style.overflow = 'auto';
     }
 
     // store scroll on component unmount
     return () => {
-      document.body.style.overflow = 'auto'
-    }
-  }, [showAllPhotos])
+      document.body.style.overflow = 'auto';
+    };
+  }, [showAllPhotos]);
 
   if (isFetching || !result) return <Loading />;
 
@@ -71,7 +66,16 @@ export default function PostingPage() {
   const post = result.data!;
   const isOwner = currentUser?._id === (post.author as User)._id;
 
-  const { address, author, amenities, roomInfo, whoElse, rules, convenience, availability } = postData(post)
+  const {
+    address,
+    author,
+    amenities,
+    roomInfo,
+    whoElse,
+    rules,
+    convenience,
+    availability,
+  } = postData(post);
 
   const handleAuthorClick = () => {
     const authorId = (post.author as User)._id;
@@ -81,7 +85,7 @@ export default function PostingPage() {
   const handleToggleFavorite = async (currentPostId: string) => {
     if (!currentUserId) {
       alert('You must be logged in to add to favorites.');
-      setIsFavorite(false)
+      setIsFavorite(false);
       return;
     }
 
@@ -100,7 +104,7 @@ export default function PostingPage() {
     }
 
     if (isFavorite) {
-      setIsFavorite(false)
+      setIsFavorite(false);
     }
   };
 
@@ -135,7 +139,8 @@ export default function PostingPage() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Heart
-                  className={`${isFavorite && 'fill-primaryOrange text-primaryOrange text-transparent'} text-white`} size={30}
+                  className={`${isFavorite && 'fill-primaryOrange text-primaryOrange text-transparent'} text-white`}
+                  size={30}
                   onClick={() => {
                     if (postId) {
                       handleToggleFavorite(postId);
@@ -144,10 +149,9 @@ export default function PostingPage() {
                 />
               </TooltipTrigger>
               <TooltipContent>
-                  <p>Love this? Click to add post to your Wishlist!</p>
+                <p>Love this? Click to add post to your Wishlist!</p>
               </TooltipContent>
             </Tooltip>
-            
           </button>
         )}
       </div>
@@ -165,7 +169,6 @@ export default function PostingPage() {
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
             />
-          
           </div>
 
           {/* Secondary Images */}
@@ -185,7 +188,7 @@ export default function PostingPage() {
           ))}
         </div>
         {post.media.length > 5 && (
-          <button 
+          <button
             onClick={() => setShowAllPhotos(true)}
             className="absolute px-4 py-2 text-sm font-medium transition bg-white bg-opacity-80 rounded-lg shadow-md bottom-4 right-4 hover:bg-gray-100"
           >
@@ -193,7 +196,10 @@ export default function PostingPage() {
           </button>
         )}
         {showAllPhotos && (
-          <GalleryModal data={post.media} onClose={() => setShowAllPhotos(false)} />
+          <GalleryModal
+            data={post.media}
+            onClose={() => setShowAllPhotos(false)}
+          />
         )}
       </div>
 
@@ -207,7 +213,11 @@ export default function PostingPage() {
             className="flex gap-2 mb-4 items-center"
             onClick={handleAuthorClick}
           >
-            <ProfileAvatar src={author.profileImage || authorAvatar} alt={author.firstName} size={44} />
+            <ProfileAvatar
+              src={author.profileImage || authorAvatar}
+              alt={author.firstName}
+              size={44}
+            />
             <p className="font-medium text-xl">
               Subleased by{' '}
               <span className="text-primaryOrange">
@@ -324,33 +334,25 @@ export default function PostingPage() {
                 <div className="flex items-center gap-2">
                   <div>
                     <p className="text-xs text-gray-500">Available from</p>
-                    <p className="font-medium">
-                      {availability.startDate}
-                    </p>
+                    <p className="font-medium">{availability.startDate}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <div>
                     <p className="text-xs text-gray-500">Until</p>
-                    <p className="font-medium">
-                      {availability.endDate}
-                    </p>
+                    <p className="font-medium">{availability.endDate}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <div>
                     <p className="text-xs text-gray-500">Check-in time</p>
-                    <p className="font-medium">
-                      {availability.checkinTime}
-                    </p>
+                    <p className="font-medium">{availability.checkinTime}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <div>
                     <p className="text-xs text-gray-500">Check-out time</p>
-                    <p className="font-medium">
-                      {availability.checkoutTime}
-                    </p>
+                    <p className="font-medium">{availability.checkoutTime}</p>
                   </div>
                 </div>
               </div>

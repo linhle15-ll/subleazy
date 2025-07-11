@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import Link from 'next/link';
 import {
   Card,
@@ -13,10 +13,10 @@ import { useParams } from 'next/navigation';
 import { useUserStore } from '@/stores/user.store';
 
 export default function ContractScanPage() {
-  const { groupId } = useParams<{ groupId: string}>()
-    const currentUser = useUserStore((state) => state.user);
-    const userId = currentUser?._id
-  
+  const { groupId } = useParams<{ groupId: string }>();
+  const currentUser = useUserStore((state) => state.user);
+  const userId = currentUser?._id;
+
   const options = [
     {
       label: 'Scan your contract',
@@ -31,7 +31,7 @@ export default function ContractScanPage() {
       label: 'Write your contract',
       description:
         'Create a new contract from scratch using our guided template system and legal frameworks.',
-      link: `dashboard/${userId}/groups/${groupId}/contract`, 
+      link: `/dashboard/${userId}/groups/${groupId}/contract/edit`,
       icon: PenTool,
       color: 'bg-green-50 border-green-200 hover:bg-green-100',
       iconColor: 'text-green-600',

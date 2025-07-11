@@ -37,7 +37,7 @@ const wishService = {
     }
   },
 
-  getWishListByUserId: async (userId: string): Promise<Result<Wish>> => {
+  getWishListByUserId: async (userId: string): Promise<Result<Wish[]>> => {
     try {
       const response = await api.get(`/wishes/getByUserId/${userId}`);
       return {

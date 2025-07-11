@@ -1,4 +1,4 @@
-import { Ellipsis } from 'lucide-react';
+import { Menu } from 'lucide-react';
 
 export default function ChatHeader({
   groupName,
@@ -18,7 +18,7 @@ export default function ChatHeader({
         title={'More information'}
         aria-label={'More information'}
       >
-        <Ellipsis className={`w-6 h-6`} />
+        <Menu className={`w-6 h-6`} />
       </button>
     </div>
   );

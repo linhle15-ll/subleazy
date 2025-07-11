@@ -47,6 +47,7 @@ import {
 
 import { content } from './content';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 
 const ConfigBar = ({
   isLoading,
@@ -56,6 +57,7 @@ const ConfigBar = ({
   finishContract,
   contractName,
   setContractName,
+  groupId,
 }: {
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
@@ -64,9 +66,11 @@ const ConfigBar = ({
   finishContract: any;
   contractName: string;
   setContractName: (name: string) => void;
+  groupId: string;
 }) => {
   const importRef = React.useRef<HTMLInputElement>(null);
   const [error, setError] = React.useState<Error | null>(null);
+  const [saving, setSaving] = React.useState(false);
 
   if (!editor) return null;
 
@@ -202,7 +206,9 @@ const ConfigBar = ({
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Link href="/contract/finish-contract">
+              <Link
+                href={`/dashboard/{userIdFromParams}/groups/{groupIdFromParams}/contract/finish-contract`}
+              >
                 <button
                   className="flex gap-1 btn-primary"
                   onClick={finishContract}
@@ -231,9 +237,35 @@ const ConfigBar = ({
           className="text-field w-80"
           placeholder="Enter contract name"
         />
+        <button
+          className="btn btn-primary"
+          disabled={saving || !contractName.trim()}
+          onClick={async () => {
+            setSaving(true);
+            try {
+              const result = await (
+                await import('@/services/contract.service')
+              ).default.updateContractByGroupId(groupId, {
+                title: contractName,
+              });
+              console.log('Save contract name result:', result);
+              if (!result.success) {
+                alert('Failed to save contract name: ' + result.error);
+              } else {
+                alert('Contract name saved!');
+              }
+            } catch (err: any) {
+              console.error('Error saving contract name:', err);
+              alert('Error saving contract name: ' + err.message);
+            } finally {
+              setSaving(false);
+            }
+          }}
+        >
+          Save
+        </button>
       </div>
 
-      {isLoading && <div className="hint purple-spinner">Processing...</div>}
       {error && <div className="hint error">{error.message}</div>}
     </div>
   );
@@ -597,6 +629,7 @@ export default function EditorMenuBar({
   finishContract,
   contractName,
   setContractName,
+  groupId,
 }: {
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
@@ -605,7 +638,12 @@ export default function EditorMenuBar({
   finishContract: any;
   contractName: string;
   setContractName: (name: string) => void;
+  groupId: string;
 }) {
+  const params = useParams();
+  const groupIdFromParams = params?.groupId as string;
+  const userIdFromParams = params?.userId as string;
+
   return (
     <div>
       <ConfigBar
@@ -616,6 +654,7 @@ export default function EditorMenuBar({
         finishContract={finishContract}
         contractName={contractName}
         setContractName={setContractName}
+        groupId={groupIdFromParams}
       />
       <MenuBar editor={editor} />
     </div>

@@ -11,5 +11,7 @@ router.get('/', groupController.getAllGroups);
 router.put('/:groupId/add-members', groupController.addMembers);
 router.put('/:groupId/leave', groupController.leaveGroup);
 router.put('/:groupId/rename', groupController.renameGroup);
+router.get('/:groupId/members', groupController.getGroupMembers);
+router.get('/:groupId/post', groupController.getPostIdByGroupId);
 
 export default router;
