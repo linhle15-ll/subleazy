@@ -39,9 +39,23 @@ const groupService = {
       .populate('members', 'firstName lastName email profileImage')
       .populate('lastMessage')
       .populate('post')
+      .populate({
+        path: 'contracts',
+        select: 'status title sublessor sublessees',
+        populate: [
+          {
+            path: 'sublessor',
+            select: 'firstName lastName email profileImage',
+          },
+          {
+            path: 'sublessees',
+            select: 'firstName lastName email profileImage',
+          },
+        ],
+        options: { sort: { createdAt: -1 } },
+      })
       .sort({ updatedAt: -1 })
       .lean();
-    // TODO: populate contracts in here
     return groups;
   },
 
@@ -72,7 +86,22 @@ const groupService = {
       })
       .populate('members', 'firstName lastName email profileImage')
       .populate('lastMessage')
-      .populate('post');
+      .populate('post')
+      .populate({
+        path: 'contracts',
+        select: 'status title sublessor sublessees',
+        populate: [
+          {
+            path: 'sublessor',
+            select: 'firstName lastName email profileImage',
+          },
+          {
+            path: 'sublessees',
+            select: 'firstName lastName email profileImage',
+          },
+        ],
+        options: { sort: { createdAt: -1 } },
+      });
     return group;
   },
 
@@ -86,6 +115,37 @@ const groupService = {
 
   deleteGroup: async (groupId: string | ObjectId) => {
     await groupModel.findByIdAndDelete(groupId);
+  },
+
+  addContractToGroup: async (
+    groupId: string | ObjectId,
+    contractId: string | ObjectId
+  ) => {
+    const group = await groupModel
+      .findByIdAndUpdate(
+        groupId,
+        { $push: { contracts: contractId } },
+        { new: true, timestamps: false }
+      )
+      .populate('members', 'firstName lastName email profileImage')
+      .populate('lastMessage')
+      .populate('post')
+      .populate({
+        path: 'contracts',
+        select: 'status title sublessor sublessees',
+        populate: [
+          {
+            path: 'sublessor',
+            select: 'firstName lastName email profileImage',
+          },
+          {
+            path: 'sublessees',
+            select: 'firstName lastName email profileImage',
+          },
+        ],
+        options: { sort: { createdAt: -1 } },
+      });
+    return group;
   },
 };
 

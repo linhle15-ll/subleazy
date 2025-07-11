@@ -5,6 +5,7 @@ import { useDocumentData } from '@/stores/editor.store';
 import Editor from '@/components/editor/editor';
 import { useGroupMembers, usePostIdByGroupId } from '@/hooks/use-groups';
 import contractService from '@/services/contract.service';
+import groupService from '@/services/group.service';
 
 export default function ContractEditPage() {
   const { groupId } = useParams<{ groupId: string }>();
@@ -19,17 +20,6 @@ export default function ContractEditPage() {
   // Create contract when all data is loaded and members exist (only once)
   useEffect(() => {
     async function maybeCreateContract() {
-      console.log('Contract creation useEffect triggered:', {
-        contractCreated,
-        groupId,
-        membersCount: members?.length,
-        postIdData: postIdData?.postId,
-        members: members?.map((m) => ({
-          id: m._id,
-          name: `${m.firstName} ${m.lastName}`,
-        })),
-      });
-
       if (
         !contractCreated &&
         groupId &&
@@ -83,10 +73,25 @@ export default function ContractEditPage() {
 
         contractService
           .createContract(contractData)
-          .then((result) => {
+          .then(async (result) => {
             console.log('Contract creation result:', result);
-            if (result.success) {
+            if (result.success && result.data) {
               console.log('Contract created successfully:', result.data);
+
+              // Add contract to group
+              const addContractResult = await groupService.addContractToGroup(
+                groupId!,
+                result.data._id
+              );
+
+              if (addContractResult.success) {
+                console.log('Contract added to group successfully');
+              } else {
+                console.error(
+                  'Failed to add contract to group:',
+                  addContractResult.error
+                );
+              }
             } else {
               console.error('Failed to create contract:', result.error);
               setContractCreated(false); // Reset if failed so it can retry
