@@ -116,7 +116,7 @@ export default function ContractEditPage() {
   }, [members, postIdData, postIdData?.postId]);
 
   return (
-    <div className="sm:mx-auto items-center justify-center py-12 gap-10 lg:gap-16 max-w-7xl w-screen pl-9 pr-9">
+    <div className="sm:mx-auto items-center justify-center py-12 gap-10 lg:gap-16 max-w-7xl w-screen">
       <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg w-full">
         <div className="flex items-center gap-2">
           <span className="text-green-600">📄</span>

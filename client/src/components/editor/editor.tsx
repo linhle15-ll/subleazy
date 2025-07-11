@@ -25,6 +25,8 @@ import { Collaboration } from '@tiptap/extension-collaboration';
 import { CollaborationCursor } from '@tiptap/extension-collaboration-cursor';
 import Placeholder from '@tiptap/extension-placeholder';
 import { CommentsKit } from '@tiptap-pro/extension-comments';
+import { Decoration } from '@tiptap/pm/view'
+import AiSuggestion from '@tiptap-pro/extension-ai-suggestion'
 import * as Y from 'yjs';
 
 // Hooks
@@ -41,6 +43,18 @@ import Loading from '@/components/ui/commons/loading';
 import ToggleButton from '@/components/ui/button/toogle-btn';
 import './styles.scss';
 import { ThreadsProvider } from './context';
+import { SidebarRulesSection } from './AI-suggestion-extension/sidebar-rules-section'
+import { LoadingState } from './AI-suggestion-extension/loading-state'
+import { ErrorState } from './AI-suggestion-extension/error-state'
+import { RulesModal } from './AI-suggestion-extension/rules-modal';
+import { SuggestionTooltip } from './AI-suggestion-extension/suggestion-tooltip'
+import { MessageSquareMore } from 'lucide-react'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/commons/tooltip';
+import { X } from 'lucide-react'
 
 // Editor store
 import { useEditorStore } from '@/stores/editor.store';
@@ -48,6 +62,7 @@ import { useUserStore } from '@/stores/user.store';
 
 // Services
 import contractService from '@/services/contract.service';
+import { initialRules } from './AI-suggestion-extension/initial-rules';
 
 export default function Editor({
   initialContent,
@@ -78,6 +93,11 @@ export default function Editor({
     group: string;
   } | null>(null);
   const [fetchingContract, setFetchingContract] = React.useState(false);
+  const [isModalOpen, setIsModalOpen] = React.useState(false)
+  const [rules, setRules] = React.useState(initialRules)
+  const [tooltipElement, setTooltipElement] = React.useState<HTMLSpanElement | null>(null)
+  const [isAISuggestion, setIsAISuggestion] = React.useState(false)
+
   const {
     isLoading,
     setIsLoading,
@@ -92,6 +112,7 @@ export default function Editor({
     resolvedAt?: Date | null;
     [key: string]: unknown;
   };
+
   const threadsRef = React.useRef<Thread[]>([]);
   const [provider, setProvider] = React.useState<TiptapCollabProvider | null>(
     null
@@ -206,6 +227,7 @@ export default function Editor({
     };
   }, [groupId]);
 
+
   // Fetch contract data on component mount
   React.useEffect(() => {
     const fetchContractByGroup = async () => {
@@ -264,7 +286,85 @@ export default function Editor({
     fetchContractByGroup();
   }, [groupId, setContractName]);
 
-  // Initially set content, by order of priority: uploaded doc from scan > default template > null editor
+  const editorContent = documentData?.content || contractData?.content || content;
+
+  // React will re-create the component (and the editor) from scratch if its key changes 
+  const editorKey = React.useMemo(() => `editor-${groupId}`, [groupId]);
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        history: false, // IMPORTANT: Disable history for collaboration
+        bulletList: {
+          keepMarks: true,
+          keepAttributes: false,
+        },
+        orderedList: {
+          keepMarks: true,
+          keepAttributes: false,
+        },
+      }),
+
+      AiSuggestion.configure({
+        appId: process.env.NEXT_PUBLIC_TIPTAP_PRO_APPID!,
+        token: process.env.NEXT_PUBLIC_TIPTAP_PRO_TOKEN!,
+        // baseUrl: process.env.NEXT_PUBLIC_AI_BASE_URL!,
+        rules,
+        getCustomSuggestionDecoration({ suggestion, isSelected, getDefaultDecorations }) {
+          const decorations = getDefaultDecorations()
+
+          if (isSelected && !suggestion.isRejected) {
+            decorations.push(
+              Decoration.widget(suggestion.deleteRange.to, () => {
+                const element = document.createElement('span')
+
+                setTooltipElement(element)
+                return element
+              })
+            )
+          }
+          return decorations
+        }
+
+
+      }),
+      Underline,
+      Highlight.configure({ multicolor: true }),
+      Color.configure({ types: [TextStyle.name, ListItem.name] }),
+      TextStyle.configure({ mergeNestedSpanStyles: true }),
+      TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      TaskList,
+      TaskItem.configure({
+        nested: true,
+      }),
+      Image,
+
+      ExportDocx.configure({
+        onCompleteExport: (result: any | Buffer<ArrayBufferLike> | Blob) => {
+          setIsLoading(false);
+          const blob = new Blob([result], {
+            type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+
+          a.href = url;
+          a.download = 'export.docx';
+          a.click();
+          URL.revokeObjectURL(url);
+        },
+      }),
+      Link,
+      Table.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
+      // Conditionally add collaboration extensions only when provider is ready
+      ...(provider ? [
+        Collaboration.configure({
+          document: doc,
 
   const editorContent =
     documentData?.content || contractData?.content || content;
@@ -282,7 +382,7 @@ export default function Editor({
         TextAlign.configure({ types: ['heading', 'paragraph'] }),
         TaskList,
         TaskItem.configure({
-          nested: true,
+          nested: true;
         }),
         Image,
         StarterKit.configure({
@@ -296,7 +396,30 @@ export default function Editor({
             keepAttributes: false,
           },
         }),
+      ] : []),
+      Placeholder.configure({
+        placeholder: contractData?.content
+          ? 'Edit your contract...'
+          : initialContent
+            ? 'Edit your imported document...'
+            : 'Start writing your own contract here ...',
+        emptyEditorClass: 'is-editor-empty',
+      }),
+    ],
+    immediatelyRender: false,
+    shouldRerenderOnTransaction: true,
+    content: editorContent,
+    onCreate: ({ }) => {
+      setHasInitialized(true);
+    },
 
+    onUpdate: ({ editor }) => {
+      updateContent(editor.getHTML());
+    },
+
+    editorProps: {
+      attributes: {
+        spellcheck: "false",
         ExportDocx.configure({
           onCompleteExport: (
             result: unknown | Buffer<ArrayBufferLike> | Blob
@@ -546,23 +669,20 @@ export default function Editor({
   };
 
   return (
-    <ThreadsProvider
-      onClickThread={selectThreadInEditor}
-      onDeleteThread={deleteThread}
-      onHoverThread={onHoverThread}
-      onLeaveThread={onLeaveThread}
-      onResolveThread={resolveThread}
-      onUpdateComment={updateComment}
-      onUnresolveThread={unresolveThread}
-      selectedThreads={editor.storage.comments?.focusedThreads || []}
-      selectedThread={selectedThread}
-      setSelectedThread={setSelectedThread}
-      threads={threads}
-    >
-      <div
-        className="col-group flex flex-row gap-5"
-        data-viewmode={showUnresolved ? 'open' : 'resolved'}
-      >
+    <div className="col-group flex flex-row gap-5">
+      <ThreadsProvider
+        onClickThread={selectThreadInEditor}
+        onDeleteThread={deleteThread}
+        onHoverThread={onHoverThread}
+        onLeaveThread={onLeaveThread}
+        onResolveThread={resolveThread}
+        onUpdateComment={updateComment}
+        onUnresolveThread={unresolveThread}
+        selectedThreads={editor.storage.comments?.focusedThreads || []}
+        selectedThread={selectedThread}
+        setSelectedThread={setSelectedThread}
+        threads={threads}
+
         <div className="main">
           {/* Editor with MenuBar */}
           <div className="editor-container">
@@ -690,24 +810,112 @@ export default function Editor({
           </div>
         </div>
 
-        {/* Sidebar for comments */}
-        <div className="lg:w-[40%] flex-shrink border border-lightGray rounded-md p-3">
-          <div className="sidebar-options">
-            <div className="option-group">
-              <div className="text-lg font-medium mb-2">Comments</div>
-              <ToggleButton
-                option={showUnresolved}
-                setOption={setShowUnresolved}
+        <div
+          className="col-group flex flex-row gap-5"
+          data-viewmode={showUnresolved ? 'open' : 'resolved'}
+        >
+          <div className="main">
+            {/* Editor with MenuBar */}
+            <div className="editor-container">
+              <EditorMenuBar
+                isLoading={isLoading}
+                setIsLoading={setIsLoading}
+                editor={editor}
+                createThread={createThread}
+                finishContract={finishContract}
+                contractName={contractName}
+                setContractName={setContractName}
               />
+              <EditorContent editor={editor} key={editorKey} />
+              <SuggestionTooltip element={tooltipElement} editor={editor} />
             </div>
+          </div>
+
+          {/* Sidebar for comments */}
+          <div className="lg:w-[40%] flex-shrink border border-lightGray rounded-md p-3">
+            <div className="sidebar-options">
+              <div className="option-group">
+                <div className="text-lg font-medium mb-2">Comments</div>
+                <ToggleButton
+                  option={showUnresolved}
+                  setOption={setShowUnresolved}
+                />
+              </div>
+              <ThreadsList provider={provider} threads={filteredThreads} user={currentUser} />
+            </div>
+
             <ThreadsList
               provider={provider}
               threads={filteredThreads}
               user={currentUser}
             />
+
           </div>
         </div>
+      </ThreadsProvider>
+      {!isAISuggestion && (
+        <button className='text-primaryOrange mt-6 flex items-start'onClick={() => setIsAISuggestion(!isAISuggestion)}> 
+          <Tooltip>
+            <TooltipTrigger asChild>
+                <MessageSquareMore size={30}/>  
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Easier Contract process with AI!</p>
+            </TooltipContent>
+          </Tooltip>
+        </button>
+      )}
+
+      {isAISuggestion && (
+        <>
+        <RulesModal
+        rules={rules}
+        onSae={(newRules: any) => {
+          setRules(newRules)
+          editor.chain().setAiSuggestionRules(newRules).loadAiSuggestions().run()
+          setIsModalOpen(false)
+        }}
+        onClose={() => {
+          setIsModalOpen(false)
+        }}
+        isOpen={isModalOpen}
+      />
+
+      <div>
+        <LoadingState show={editor.extensionStorage.aiSuggestion.isLoading} />
+        <ErrorState
+          show={
+            !editor.extensionStorage.aiSuggestion.isLoading
+            && editor.extensionStorage.aiSuggestion.error
+          }
+          onReload={() => editor.commands.loadAiSuggestions()}
+        />
       </div>
-    </ThreadsProvider>
+      <div className="sidebar">
+        <div className="sidebar-header">
+          <button onClick={() => setIsAISuggestion(false)}>
+            <X size={20} />
+          </button>
+          <div className="text-lg font-medium mb-2">Suggestion rules</div>
+          <div className="flex gap-2">
+            <button type="button" onClick={() => setIsModalOpen(true)} className='btn-secondary p-1 border border-gray-400 hover:border-gray-600'>
+              Manage rules
+            </button>
+            <button type="button" onClick={() => editor.commands.applyAllAiSuggestions()} className='btn-secondary p-1 border border-gray-400 hover:border-gray-600'>
+              Apply all suggestions
+            </button>
+          </div>
+        </div>
+        <div className="sidebar-scroll">
+          <SidebarRulesSection
+            rules={rules}
+            suggestions={editor.extensionStorage.aiSuggestion.getSuggestions()}
+          />
+        </div>
+      </div>
+      </>
+      )}
+      
+    </div>
   );
 }
