@@ -49,6 +49,7 @@ export default function UserSearch({
             );
           } else if (e.key === 'Enter') {
             e.preventDefault();
+            if (activeIndex === -1) return;
             handleSelect(users[activeIndex]);
           }
         }}
