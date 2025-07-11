@@ -74,26 +74,50 @@ const postService = {
         success: false,
         error:
           (error as AxiosError<{ error: string }>).response?.data.error ||
-          JSON.stringify((error as AxiosError<{ error: string }>).response?.data) ||
-          'Failed to search posts', 
+          JSON.stringify(
+            (error as AxiosError<{ error: string }>).response?.data
+          ) ||
+          'Failed to search posts',
       };
     }
   },
 
-  getAllPosts: async (): Promise<Result<Post[]>> => {
+  getAllPosts: async (
+    createdAt?: string,
+    _id?: string
+  ): Promise<
+    Result<{
+      posts: Post[];
+      total: number;
+      nextCursor: { createdAt: string; _id: string };
+    }>
+  > => {
     try {
-      const response = await api.get('/posts/');
+      const params = new URLSearchParams();
+
+      if (createdAt && _id) {
+        params.append('createdAt', createdAt);
+        params.append('_id', _id);
+      }
+
+      const response = await api.get(`/posts?${params.toString()}`);
       return {
         success: true,
-        data: response.data,
+        data: {
+          posts: response.data.posts,
+          total: response.data.total,
+          nextCursor: response.data.nextCursor,
+        },
       };
     } catch (error) {
       return {
         success: false,
         error:
           (error as AxiosError<{ error: string }>).response?.data.error ||
-          JSON.stringify((error as AxiosError<{ error: string }>).response?.data) ||
-          'Failed to get all posts', 
+          JSON.stringify(
+            (error as AxiosError<{ error: string }>).response?.data
+          ) ||
+          'Failed to get all posts',
       };
     }
   },
@@ -110,8 +134,10 @@ const postService = {
         success: false,
         error:
           (error as AxiosError<{ error: string }>).response?.data.error ||
-          JSON.stringify((error as AxiosError<{ error: string }>).response?.data) ||
-          'Failed to get posts by user id', 
+          JSON.stringify(
+            (error as AxiosError<{ error: string }>).response?.data
+          ) ||
+          'Failed to get posts by user id',
       };
     }
   },
