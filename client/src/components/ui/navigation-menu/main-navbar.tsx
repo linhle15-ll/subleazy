@@ -1,6 +1,7 @@
 'use client';
 
 import { useUserStore } from '@/stores/user.store';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export const MainNavBar = () => {
@@ -21,25 +22,25 @@ export const MainNavBar = () => {
     <nav aria-label="Global" className="hidden md:block">
       <ul className="flex items-center gap-6 text-sm">
         <li>
-          <a className="navbar-text" href="/about">
+          <Link className="navbar-text" href="/about">
             About
-          </a>
+          </Link>
         </li>
 
         <li>
-          <a className="navbar-text" href="/">
+          <Link className="navbar-text" href="/">
             Home
-          </a>
+          </Link>
         </li>
 
         <li>
-          <a
+          <Link
             className="btn-primary"
             href="/sublease/step-1"
             onClick={handleProtectedClick('/sublease/step-1')}
           >
             Sublease your space
-          </a>
+          </Link>
         </li>
       </ul>
     </nav>
