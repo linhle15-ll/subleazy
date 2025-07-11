@@ -2,7 +2,6 @@
 
 import { Post } from '@/lib/types/post.types';
 import { PostingCard } from './posting-card';
-import { useRouter } from 'next/navigation';
 
 interface PostingGridProps {
   isVertical?: boolean;
@@ -15,18 +14,13 @@ export function PostingGrid({
   posts,
   className,
 }: PostingGridProps) {
-
   return (
     <div
       className={`grid gap-8 ${className ? className : isVertical ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : 'grid-cols-1  lg:grid-cols-2'}`}
     >
       {Array.isArray(posts) &&
         posts?.map((post) => (
-          <PostingCard
-            key={post._id}
-            post={post}
-            isVertical={isVertical}
-          />
+          <PostingCard key={post._id} post={post} isVertical={isVertical} />
         ))}
     </div>
   );

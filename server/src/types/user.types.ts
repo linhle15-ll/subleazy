@@ -53,6 +53,7 @@ export interface User extends Base, Timestamps {
 
   lifestyle?: Lifestyle;
   lifestyleVector?: number[];
+  color?: string;
 }
 
 export interface UserPayload {
