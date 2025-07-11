@@ -44,7 +44,7 @@ const postController = {
         const supermarkets = parseGoogleMapPlaces(spmkPlaces);
         const publicTransports = parseGoogleMapPlaces(transportPlaces);
 
-        await houseService.updateHouse(house._id, {
+        await houseService.updateHouse(house._id.toString(), {
           nearbyAmenities: {
             supermarkets,
             publicTransports,

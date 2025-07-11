@@ -21,11 +21,11 @@ export default function PotentialMatches() {
     return;
   }
 
-  const { data, isLoading, error } = useWish(user._id);
+  const { result, isFetching } = useWish(user._id);
 
   const posts = useMemo(() => {
-    if (!data?.success || !Array.isArray(data.data)) return [];
-    return data.data
+    if (!result?.success || !Array.isArray(result.data)) return [];
+    return result.data
       .filter(
         (wish): wish is Wish & { post: Post } =>
           typeof wish.post === 'object' &&
@@ -40,7 +40,7 @@ export default function PotentialMatches() {
           post.author !== null &&
           'firstName' in post.author
       );
-  }, [data]);
+  }, [result]);
 
   const handleToggle = (postId: string) => {
     setExpandedPostId((prev) => (prev === postId ? null : postId));
@@ -73,7 +73,7 @@ export default function PotentialMatches() {
       </div>
 
       <div className="p-6">
-        {isLoading && (
+        {isFetching && (
           <div className="space-y-4">
             {[...Array(3)].map((_, i) => (
               <div
@@ -93,7 +93,7 @@ export default function PotentialMatches() {
           </div>
         )}
 
-        {error && (
+        {result && !result.success && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-6">
             <div className="flex items-center gap-3">
               <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
@@ -109,7 +109,7 @@ export default function PotentialMatches() {
           </div>
         )}
 
-        {!isLoading && !error && (
+        {!isFetching && result?.success && (
           <div className="space-y-4">
             {posts.map((post: PostWithAuthor) => (
               <PostRow

@@ -12,7 +12,13 @@ import { PostRequestBody } from '@/lib/types/post.types';
 import { postData } from '@/lib/utils/post-data';
 
 // Helper component to render sections in the details view, reducing repetitive code.
-const DetailSection = ({ title, items }: { title: string; items: { icon: React.ElementType; label: string }[] }) => {
+const DetailSection = ({
+  title,
+  items,
+}: {
+  title: string;
+  items: { icon: React.ElementType; label: string }[];
+}) => {
   if (!items || items.length === 0) return null;
   return (
     <div>
@@ -62,11 +68,15 @@ export default function WishlistTable({ posts }: { posts: PostRequestBody[] }) {
             return (
               <React.Fragment key={post._id}>
                 <tr className="border-t hover:bg-gray-50/50 transition-colors">
-                  <td className="py-3 px-4 font-medium">{processedPost.title}</td>
+                  <td className="py-3 px-4 font-medium">
+                    {processedPost.title}
+                  </td>
                   <td className="py-3 px-4 text-gray-600">
                     {post.city}, {post.state} {processedPost.zip}
                   </td>
-                  <td className="py-3 px-4 text-gray-600">${processedPost.price}/month</td>
+                  <td className="py-3 px-4 text-gray-600">
+                    ${processedPost.price}/month
+                  </td>
                   <td className="py-3 px-4 text-gray-600">
                     {post.houseInfo?.houseType || 'N/A'}
                   </td>
@@ -82,7 +92,9 @@ export default function WishlistTable({ posts }: { posts: PostRequestBody[] }) {
                     <button
                       className="text-primaryOrange flex items-center gap-1"
                       onClick={() =>
-                        setExpanded(expanded === post._id ? null : (post._id ?? null))
+                        setExpanded(
+                          expanded === post._id ? null : (post._id ?? null)
+                        )
                       }
                     >
                       {expanded === post._id ? (
@@ -105,16 +117,26 @@ export default function WishlistTable({ posts }: { posts: PostRequestBody[] }) {
                         {/* Left Column */}
                         <div className="space-y-5">
                           <div>
-                            <h4 className="font-semibold mb-2 text-gray-800">Description</h4>
+                            <h4 className="font-semibold mb-2 text-gray-800">
+                              Description
+                            </h4>
                             <p className="text-gray-600 text-sm">
                               {post.description || 'No description provided.'}
                             </p>
                           </div>
-                          <DetailSection title="Amenities" items={processedPost.amenities} />
-                          <DetailSection title="Conveniences" items={processedPost.convenience} />
+                          <DetailSection
+                            title="Amenities"
+                            items={processedPost.amenities}
+                          />
+                          <DetailSection
+                            title="Conveniences"
+                            items={processedPost.convenience}
+                          />
 
                           <div>
-                            <h4 className="font-semibold mb-2 text-gray-800">Images</h4>
+                            <h4 className="font-semibold mb-2 text-gray-800">
+                              Images
+                            </h4>
                             <div className="flex gap-2 flex-wrap">
                               {post.media?.length > 0 ? (
                                 post.media.map((img: string, idx: number) => (
@@ -126,7 +148,9 @@ export default function WishlistTable({ posts }: { posts: PostRequestBody[] }) {
                                   />
                                 ))
                               ) : (
-                                <span className="text-gray-500 text-sm">No images available</span>
+                                <span className="text-gray-500 text-sm">
+                                  No images available
+                                </span>
                               )}
                             </div>
                           </div>
@@ -134,9 +158,14 @@ export default function WishlistTable({ posts }: { posts: PostRequestBody[] }) {
 
                         {/* Right Column */}
                         <div className="space-y-5">
-                          <DetailSection title="Room Information" items={processedPost.roomInfo} />
-                          <DetailSection title="House Rules" items={processedPost.rules} />
-                        
+                          <DetailSection
+                            title="Room Information"
+                            items={processedPost.roomInfo}
+                          />
+                          <DetailSection
+                            title="House Rules"
+                            items={processedPost.rules}
+                          />
                         </div>
                       </div>
                     </td>

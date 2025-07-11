@@ -1,23 +1,20 @@
 import { ObjectId } from 'mongoose';
 import groupModel from '../models/group.model';
 import { Group } from '../types/group.types';
-import userService from './user.service';
 
 const groupService = {
   findExistingDM: async (userIds: (string | ObjectId)[]) => {
-    const group = await groupModel
-      .findOne({
-        members: userIds,
-        isDM: true,
-      })
-      .populate('members', 'firstName lastName profileImage');
+    const group = await groupModel.findOne({
+      members: userIds,
+      isDM: true,
+    });
     return group;
   },
 
   createGroup: async (data: Group) => {
     const group = (await groupModel.create(data)).populate(
       'members',
-      'firstName lastName profileImage'
+      'firstName lastName email profileImage'
     );
     return group;
   },
@@ -30,9 +27,7 @@ const groupService = {
       const strUserId = userId.toString();
       if (seen.has(strUserId)) continue;
       seen.add(strUserId);
-
-      const user = await userService.getUserById(userId);
-      if (user) validUserIds.push(userId);
+      validUserIds.push(userId);
     }
 
     return validUserIds as ObjectId[];
@@ -41,7 +36,7 @@ const groupService = {
   getUserGroups: async (userId: string | ObjectId) => {
     const groups = await groupModel
       .find({ members: userId })
-      .populate('members', 'firstName lastName profileImage')
+      .populate('members', 'firstName lastName email profileImage')
       .populate('lastMessage')
       .populate('post')
       .sort({ updatedAt: -1 })
@@ -75,7 +70,9 @@ const groupService = {
         new: true,
         timestamps: updateTimestamp,
       })
-      .populate('members', 'firstName lastName profileImage');
+      .populate('members', 'firstName lastName email profileImage')
+      .populate('lastMessage')
+      .populate('post');
     return group;
   },
 

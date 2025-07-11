@@ -18,19 +18,29 @@ export default function MessageList({
     <>
       <div className="flex flex-col-reverse overflow-y-auto gap-4 p-2">
         {messages.map((message, index) => {
+          if (!message.sender)
+            return (
+              <div
+                key={index}
+                className="flex flex-col items-center text-gray-500"
+              >
+                {message.content}
+              </div>
+            );
           const sender =
             typeof message.sender === 'string'
               ? userMap[message.sender]
               : (message.sender as User);
+          const name = sender
+            ? sender.firstName + ' ' + sender.lastName
+            : 'Left user';
           const isOwner = sender._id === currentUser?._id;
           return (
             <div
               key={index}
               className={`flex flex-col ${isOwner ? 'items-end' : 'items-start'}`}
             >
-              <span className="text-gray-500 px-2">
-                {sender.firstName + ' ' + sender.lastName}
-              </span>
+              <span className="text-gray-500 px-2">{name}</span>
               <span
                 title={new Date(message.createdAt!).toLocaleTimeString(
                   'en-US',

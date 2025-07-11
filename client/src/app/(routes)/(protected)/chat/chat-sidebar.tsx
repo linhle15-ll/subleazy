@@ -1,17 +1,17 @@
 import { Group } from '@/lib/types/group.types';
 import { User } from '@/lib/types/user.types';
 import { useUserStore } from '@/stores/user.store';
-import { SquarePen } from 'lucide-react';
+import GroupCreateDialog from './group-create-dialog';
 
 export default function ChatSidebar({
   groups,
   userMaps,
-  activeGroupId,
+  activeGroup,
   onSelect,
 }: {
   groups: Group[];
   userMaps: Record<string, Record<string, User>>;
-  activeGroupId?: string;
+  activeGroup?: Group;
   onSelect: (group: Group) => void;
 }) {
   const currentUser = useUserStore((state) => state.user);
@@ -20,33 +20,34 @@ export default function ChatSidebar({
     <>
       <div className="flex justify-between items-center p-2">
         <div className="text-2xl font-semibold">Chats</div>
-        <button
-          className="p-2 rounded-full hover:bg-gray-100"
-          title={'New group'}
-          aria-label={'New group'}
-        >
-          <SquarePen className={`w-6 h-6`} />
-        </button>
+        <GroupCreateDialog />
       </div>
       <div className="flex flex-col flex-grow overflow-y-auto">
         {groups.length > 0 ? (
           groups.map((group) => {
             const groupId = group._id!;
             const groupName = group.name;
+            const isSystem = group.lastMessage && !group.lastMessage.sender;
             const sender =
               typeof group.lastMessage?.sender === 'string'
                 ? userMaps[groupId][group.lastMessage?.sender]
                 : group.lastMessage?.sender;
+            const userLastRead = new Date(
+              group.lastRead ? group.lastRead[currentUser!._id!] : 0
+            ).toISOString();
+            const updatedAt = new Date(group.updatedAt!).toISOString();
+            const lastMessage = new Date(
+              group.lastMessage?.createdAt
+                ? group.lastMessage?.createdAt
+                : group.updatedAt!
+            ).toISOString();
             const isUnread =
-              group.updatedAt! > group.lastRead[currentUser!._id!] ||
-              (group.lastMessage?.createdAt &&
-                group.lastMessage.createdAt >
-                  group.lastRead[currentUser!._id!]);
+              lastMessage > userLastRead || updatedAt > userLastRead;
             return (
               <div
                 key={groupId}
                 title={groupName}
-                className={`flex items-center justify-between gap-2 p-2 rounded-lg min-h-20 h-20 cursor-pointer ${activeGroupId === groupId ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
+                className={`flex items-center justify-between gap-2 p-2 rounded-lg min-h-20 h-20 cursor-pointer ${activeGroup?._id === groupId ? 'bg-gray-200' : 'hover:bg-gray-100'}`}
                 onClick={() => onSelect(group)}
               >
                 <div
@@ -59,8 +60,12 @@ export default function ChatSidebar({
                   </div>
                   {group.lastMessage && (
                     <div
-                      className={`text-sm text-gray-400 truncate ${isUnread && 'font-medium'}`}
-                    >{`${sender?.firstName}: ${group.lastMessage.content}`}</div>
+                      className={`text-xs text-gray-500 truncate ${isUnread && 'font-medium'}`}
+                    >
+                      {isSystem
+                        ? group.lastMessage.content
+                        : `${sender?.firstName || 'Left user'}: ${group.lastMessage.content}`}
+                    </div>
                   )}
                 </div>
                 {isUnread && (

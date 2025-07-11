@@ -1,10 +1,10 @@
 'use client';
 
-import ChatInfo from '@/components/ui/chat/chat-info';
-import ChatHeader from '@/components/ui/chat/chat-header';
-import ChatSidebar from '@/components/ui/chat/chat-sidebar';
-import MessageInput from '@/components/ui/chat/message-input';
-import MessageList from '@/components/ui/chat/message-list';
+import ChatInfo from './chat-info';
+import ChatHeader from './chat-header';
+import ChatSidebar from './chat-sidebar';
+import MessageInput from './message-input';
+import MessageList from './message-list';
 import Loading from '@/components/ui/commons/loading';
 import { useGroups } from '@/hooks/use-groups';
 import { Group } from '@/lib/types/group.types';
@@ -12,7 +12,7 @@ import { Message } from '@/lib/types/message.types';
 import { cn } from '@/lib/utils/cn';
 import { useUserStore } from '@/stores/user.store';
 import { useEffect, useRef, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { io } from 'socket.io-client';
 import { User } from '@/lib/types/user.types';
 import messageService from '@/services/message.service';
 
@@ -24,7 +24,6 @@ export default function ChatPage() {
   >({});
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
-  const [socket, setSocket] = useState<Socket>();
   const [infoShown, setInfoShown] = useState(false);
   const currentUser = useUserStore((state) => state.user);
   const { result, isFetching } = useGroups(currentUser?._id);
@@ -53,43 +52,97 @@ export default function ChatPage() {
   }, [result]);
 
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser?._id) return;
 
-    const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
+    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
       withCredentials: true,
     });
 
-    setSocket(newSocket);
-
-    newSocket.on('connect', () => {
-      console.log(`user ${currentUser._id} connected - ${newSocket.id}`);
-      newSocket.emit('join-chat', currentUser._id);
+    socket.on('connect', () => {
+      console.log(`user ${currentUser._id} connected - ${socket.id}`);
+      socket.emit('join-chat', currentUser._id);
     });
 
-    newSocket.on('disconnect', () => console.log('disconnected'));
-
-    return () => {
-      newSocket.disconnect();
-      setSocket(undefined);
-    };
-  }, [currentUser?._id]);
-
-  useEffect(() => {
-    if (!socket) return;
+    socket.on('disconnect', () => console.log('disconnected'));
 
     socket.on('new-message', (message: Message) => {
       const groupId = message.group as string;
+
       if (activeGroup?._id === groupId)
         setMessages((prev) => [message, ...prev]);
+
       setGroups((prev) => {
-        const idx = prev.findIndex((group) => group._id === groupId);
-        const updatedGroup = { ...prev[idx], lastMessage: message };
-        if (activeGroup?._id === groupId)
-          updatedGroup.lastRead[currentUser!._id!] = new Date();
-        return [updatedGroup, ...prev.filter((group) => group._id !== groupId)];
+        const group = prev.find((group) => group._id === groupId);
+        if (!group) return prev;
+
+        group.lastMessage = message;
+        if (activeGroup?._id === groupId) {
+          if (!group.lastRead) group.lastRead = {};
+          group.lastRead[currentUser!._id!] = new Date(
+            new Date(message.createdAt!).getTime() + 1
+          );
+          socket.emit('mark-read', groupId, currentUser?._id);
+        }
+        return [group, ...prev.filter((g) => g._id !== groupId)];
       });
     });
-  }, [socket, activeGroup?._id]);
+
+    socket.on('member-left', (groupId: string, userId: string) => {
+      const group = groups.find((group) => group._id === groupId);
+      if (!group || group.isDM) return;
+
+      if (currentUser?._id === userId) {
+        setGroups((prev) => prev.filter((group) => group._id !== groupId));
+        if (activeGroup?._id === groupId) {
+          setActiveGroup(undefined);
+          setInfoShown(false);
+        }
+        socket.emit('leave-group', groupId);
+        return;
+      }
+
+      const members = group.members.filter((user) => user._id !== userId);
+      group.members = members;
+      setGroups((prev) => prev.map((g) => (g._id === groupId ? group : g)));
+      if (activeGroup?._id === groupId) setActiveGroup(group);
+    });
+
+    socket.on('members-added', (groupId: string, users: User[]) => {
+      const group = groups.find((group) => group._id === groupId);
+      if (!group || group.isDM) return;
+
+      if (activeGroup?._id === groupId) setActiveGroup(group);
+
+      group.members = [...group.members, ...users];
+      setGroups((prev) => prev.map((g) => (g._id === groupId ? group : g)));
+      setUserMaps((prev) => ({
+        ...prev,
+        [groupId]: {
+          ...prev[groupId],
+          ...users.reduce((acc, user) => ({ ...acc, [user._id!]: user }), {}),
+        },
+      }));
+    });
+
+    socket.on('new-group', (group: Group) => {
+      const existingGroup = groups.find((g) => g._id === group._id);
+      if (existingGroup) return;
+
+      setUserMaps((prev) => ({
+        ...prev,
+        [group._id!]: group.members.reduce(
+          (acc, user) => ({ ...acc, [user._id!]: user }),
+          {}
+        ),
+      }));
+      setGroups((prev) => [group, ...prev]);
+      socket.emit('join-group', group._id);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [currentUser?._id, activeGroup?._id]);
 
   const handleGroupSelect = async (group: Group) => {
     setActiveGroup(group);
@@ -131,7 +184,7 @@ export default function ChatPage() {
           <ChatSidebar
             groups={groups}
             userMaps={userMaps}
-            activeGroupId={activeGroup?._id}
+            activeGroup={activeGroup}
             onSelect={handleGroupSelect}
           />
         )}
@@ -156,11 +209,16 @@ export default function ChatPage() {
               messages={messages}
               userMap={userMaps[activeGroup._id!]}
             />
-            <MessageInput groupId={activeGroup._id!} />
+            <MessageInput group={activeGroup} />
           </>
         )}
       </div>
-      {infoShown && activeGroup && <ChatInfo group={activeGroup} />}
+      {infoShown && activeGroup && (
+        <ChatInfo
+          group={activeGroup}
+          user={userMaps[activeGroup._id!][currentUser!._id!]}
+        />
+      )}
     </div>
   );
 }
