@@ -86,6 +86,27 @@ export default function Editor({
   const threadsRef = React.useRef<Thread[]>([]);
   const providerRef = React.useRef<TiptapCollabProvider | null>(null);
 
+  const [sublessorSignature, setSublessorSignature] = React.useState('');
+  const [sublessorSigned, setSublessorSigned] = React.useState(false);
+  const [sublesseesSignatures, setSublesseesSignatures] = React.useState<
+    string[]
+  >([]);
+  const [sublesseesSigned, setSublesseesSigned] = React.useState<boolean[]>([]);
+  const handleSublesseeSignatureChange = (idx: number, value: string) => {
+    setSublesseesSignatures((sigs) => {
+      const copy = [...sigs];
+      copy[idx] = value;
+      return copy;
+    });
+  };
+  const handleSublesseeSign = (idx: number) => {
+    setSublesseesSigned((signed) => {
+      const copy = [...signed];
+      copy[idx] = true;
+      return copy;
+    });
+  };
+
   // Create provider ONCE
   if (!providerRef.current) {
     providerRef.current = new TiptapCollabProvider({
@@ -385,7 +406,71 @@ export default function Editor({
               contractName={contractName}
               setContractName={setContractName}
             />
-            <EditorContent editor={editor} />
+            <div className="flex-col gap-2">
+              <EditorContent editor={editor} />
+              {/* Signature fields for sublessor and sublessees */}
+              <div className="flex flex-col gap-4 mt-6 p-4 border rounded bg-gray-50">
+                {/* Sublessor signature */}
+                <div className="flex flex-row items-center gap-2">
+                  <label className="w-40 font-medium">
+                    Sublessor Signature:
+                  </label>
+                  <input
+                    type="text"
+                    className="border rounded px-2 py-1 flex-1"
+                    value={sublessorSignature}
+                    onChange={(e) => setSublessorSignature(e.target.value)}
+                    disabled={
+                      !contractData || user.id !== contractData.sublessor
+                    }
+                    placeholder="Enter your signature"
+                  />
+                  <button
+                    className="btn btn-primary"
+                    disabled={
+                      !contractData ||
+                      user.id !== contractData.sublessor ||
+                      sublessorSigned
+                    }
+                    onClick={() => setSublessorSigned(true)}
+                  >
+                    {sublessorSigned ? 'Signed' : 'Confirm'}
+                  </button>
+                </div>
+                {/* Sublessees signatures */}
+                {contractCreateTest?.sublessees?.map(
+                  (sublesseeId: string, idx: number) => (
+                    <div
+                      key={sublesseeId}
+                      className="flex flex-row items-center gap-2"
+                    >
+                      <label className="w-32 font-medium">
+                        Sublessee {idx + 1} Signature:
+                      </label>
+                      <input
+                        type="text"
+                        className="border rounded px-2 py-1 flex-1"
+                        value={sublesseesSignatures[idx] || ''}
+                        onChange={(e) =>
+                          handleSublesseeSignatureChange(idx, e.target.value)
+                        }
+                        disabled={user.id !== sublesseeId}
+                        placeholder="Enter your signature"
+                      />
+                      <button
+                        className="btn btn-primary"
+                        disabled={
+                          user.id !== sublesseeId || sublesseesSigned[idx]
+                        }
+                        onClick={() => handleSublesseeSign(idx)}
+                      >
+                        {sublesseesSigned[idx] ? 'Signed' : 'Confirm'}
+                      </button>
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
           </div>
         </div>
 

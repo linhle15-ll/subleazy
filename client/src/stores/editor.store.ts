@@ -104,5 +104,6 @@ export const useGetContent = () => useEditorStore((state) => state.getContent);
 
 export const useContractName = () =>
   useEditorStore((state) => state.contractName);
+
 export const useSetContractName = () =>
   useEditorStore((state) => state.setContractName);

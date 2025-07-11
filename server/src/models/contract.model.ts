@@ -34,6 +34,7 @@ const contractSchema = new Schema<Contract>(
       type: String,
       required: true,
       trim: true,
+      default: 'N/A',
     },
     status: {
       type: String,

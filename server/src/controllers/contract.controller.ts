@@ -11,7 +11,16 @@ const contractController = {
       const data = authReq.body;
 
       // Validate required fields
-      const { title, post, sublessor, sublessees, group, content } = data;
+      const {
+        title,
+        post,
+        sublessor,
+        sublessees,
+        group,
+        content,
+        sublessorSignature,
+        sublesseesSignatures,
+      } = data;
       if (!title || !post || !sublessor || !sublessees || !group || !content) {
         res.status(400).json({
           error:
@@ -58,7 +67,16 @@ const contractController = {
         return;
       }
 
-      
+      // validate sublessorSignature and sublesseesSignatures
+      if (
+        !sublessorSignature ||
+        sublesseesSignatures.length !== sublessees.length
+      ) {
+        res.status(400).json({
+          error: 'Sublessor signature and sublessees signatures are required',
+        });
+        return;
+      }
 
       // Create contract data, only sublessor can create contract
       const contractData = {
@@ -105,7 +123,8 @@ const contractController = {
       }
 
       // Check authorization - only involved parties can view
-      const isSublessor = (contract.sublessor as any)._id.toString() === authReq.user.id;
+      const isSublessor =
+        (contract.sublessor as any)._id.toString() === authReq.user.id;
       const isSublessee = contract.sublessees.some(
         (sublessee) =>
           (sublessee as any)._id?.toString() ||

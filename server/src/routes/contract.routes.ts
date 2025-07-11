@@ -8,6 +8,7 @@ router.use(authenticate);
 
 router.post('/create', contractController.createContract);
 router.get('/by-group/:groupId', contractController.getContractByGroupId);
+// router.put('/:groupId', contractController.updateContract);
 router.delete('/:contractId', contractController.deleteContract);
 router.get('/my-contracts', contractController.getMyContracts);
 
