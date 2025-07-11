@@ -73,7 +73,7 @@ export default function AuthForm() {
         setAccessToken(res.data!.accessToken);
         setUser(res.data!.user);
 
-        router.push('/');
+        router.push(`/dashboard/${res.data!.user._id}`);
       } else {
         setError(res.error || 'An error occurred. Please try again.');
       }
@@ -93,7 +93,7 @@ export default function AuthForm() {
           <p className="text-balance font-medium text-sm text-muted-foreground">
             {isSignUp
               ? 'Sign up with your school email to get started.'
-              : 'Sign in with your school email to access your account.'}
+              : 'Sign in with your school email to continue.'}
           </p>
         </div>
         <div className="grid gap-3">

@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import Link from 'next/link';
 import {
   Card,
@@ -13,10 +13,10 @@ import { useParams } from 'next/navigation';
 import { useUserStore } from '@/stores/user.store';
 
 export default function ContractScanPage() {
-  const { groupId } = useParams<{ groupId: string}>()
-    const currentUser = useUserStore((state) => state.user);
-    const userId = currentUser?._id
-  
+  const { groupId } = useParams<{ groupId: string }>();
+  const currentUser = useUserStore((state) => state.user);
+  const userId = currentUser?._id;
+
   const options = [
     {
       label: 'Scan your contract',

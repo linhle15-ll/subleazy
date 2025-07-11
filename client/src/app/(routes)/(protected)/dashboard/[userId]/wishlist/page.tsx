@@ -5,9 +5,9 @@ import Loading from '@/components/ui/commons/loading';
 import { Wish } from '@/lib/types/wish.types';
 import { PostRequestBody } from '@/lib/types/post.types';
 import WishlistTable from './wistlist-table';
-import { DashboardMenu } from '@/components/ui/navigation-menu/dashboard-menu'
+import { DashboardMenu } from '@/components/ui/navigation-menu/dashboard-menu';
 import { useWish } from '@/hooks/use-wish';
-import { useUserStore } from '@/stores/user.store'
+import { useUserStore } from '@/stores/user.store';
 import { PostingCard } from '@/components/ui/posting/posting-card';
 import {
   Carousel,
@@ -15,16 +15,16 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel"
+} from '@/components/ui/carousel';
 
 export default function WishlistPage() {
   const [tableView, setTableView] = React.useState(false);
 
   const { userId } = useParams<{ userId: string }>();
   const currentUser = useUserStore((state) => state.user);
-  const isOwner = currentUser?._id === userId
+  const isOwner = currentUser?._id === userId;
 
-  const { data, isLoading, error } = useWish(userId ?? '')
+  const { data, isLoading, error } = useWish(userId ?? '');
 
   const wishList = Array.isArray(data?.data) ? data.data : [];
   const posts = wishList
@@ -38,9 +38,9 @@ export default function WishlistPage() {
   if (error) return <div className="text-red-500">Failed to load wishlist</div>;
 
   return (
-    <div className='flex'>
+    <div className="flex">
       {isOwner && (
-        <div className='pt-11 h-full'>
+        <div className="pt-11 h-full">
           <DashboardMenu />
         </div>
       )}
@@ -63,13 +63,16 @@ export default function WishlistPage() {
           ) : (
             <Carousel
               opts={{
-                align: "start",
+                align: 'start',
               }}
               className="w-[100%]"
             >
               <CarouselContent>
                 {posts.map((post, index) => (
-                  <CarouselItem key={index} className="md:basis-1/4 lg:basis-1/4">
+                  <CarouselItem
+                    key={index}
+                    className="md:basis-1/4 lg:basis-1/4"
+                  >
                     <div className="p-1">
                       <PostingCard post={post} isVertical={true} />
                     </div>

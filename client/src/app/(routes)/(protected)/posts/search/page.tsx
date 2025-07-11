@@ -2,7 +2,7 @@
 
 import { SearchMap } from '@/components/ui/map/search-map';
 import { PriceMarker } from '@/components/ui/map/price-marker';
-import { ChevronLeft, ChevronRight, Heart} from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import { SortMenu } from '@/components/ui/search/sort-menu';
 import { useEffect, useState } from 'react';
 import { useSortStore } from '@/stores/sort.store';
@@ -45,7 +45,9 @@ export default function SearchPage() {
         <div className="w-[90vw] m-auto mb-11">
           <div className="w-full flex justify-between py-4">
             <div>
-              <div className="font-semibold text-3xl">Places you might like</div>
+              <div className="font-semibold text-3xl">
+                Places you might like
+              </div>
               <div className="flex items-center">
                 Add places with
                 <Heart className="w-4 h-4 fill-primaryOrange text-primaryOrange mx-1" />
@@ -58,7 +60,9 @@ export default function SearchPage() {
             <PostingGrid
               posts={posts}
               isVertical={false}
-              className={mapShown ? 'grid-cols-1 w-1/2 gap-2' : 'grid-cols-2 w-full'}
+              className={
+                mapShown ? 'grid-cols-1 w-1/2 gap-2' : 'grid-cols-2 w-full'
+              }
             />
             {mapShown && (
               <SearchMap

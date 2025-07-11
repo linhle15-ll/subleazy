@@ -2,6 +2,7 @@ import postModel from '../models/post.model';
 import { CustomQuery } from '../types/common.types';
 import { PostStatus } from '../types/enums';
 import { PostRequestBody } from '../types/post.types';
+import { Types } from 'mongoose';
 
 const postService = {
   createPost: async (data: PostRequestBody) => {
@@ -126,9 +127,42 @@ const postService = {
     return posts;
   },
 
-  getAllPosts: async () => {
-    const posts = await postModel.find().sort({ createdAt: -1 }).limit(12);
-    return posts;
+  getAllPostsPaginated: async (createdAt?: string, _id?: string) => {
+    const query: CustomQuery = {
+      status: { $ne: PostStatus.PENDING },
+    };
+
+    if (createdAt && _id) {
+      query.$or = [
+        { createdAt: { $lt: new Date(createdAt) } },
+        {
+          createdAt: new Date(createdAt),
+          _id: { $lt: new Types.ObjectId(_id) },
+        },
+      ];
+    }
+
+    const posts = await postModel
+      .find(query)
+      .sort({ createdAt: -1, _id: -1 })
+      .limit(20);
+
+    const total =
+      !createdAt && !_id
+        ? await postModel.countDocuments({
+            status: { $ne: PostStatus.PENDING },
+          })
+        : undefined;
+
+    const nextCursor =
+      posts.length === 20
+        ? {
+            createdAt: posts[posts.length - 1].createdAt?.toISOString(),
+            _id: posts[posts.length - 1]._id.toString(),
+          }
+        : null;
+
+    return { posts, total, nextCursor };
   },
 
   getPostWithAuthorAndHouse: async (postId: string) => {
