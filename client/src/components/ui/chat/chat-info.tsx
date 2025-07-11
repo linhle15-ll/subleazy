@@ -5,12 +5,42 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '../commons/accordion';
-import { FileText, HousePlus, LogOut, UserPlus } from 'lucide-react';
+import { FileText, HousePlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { PostingCard } from '../posting/posting-card';
 import { useUserStore } from '@/stores/user.store';
+import AddMembersDialog from './add-members-dialog';
+import { User } from '@/lib/types/user.types';
+import Image from 'next/image';
+import defaultProfileImage from '@/public/placeholder-image-person.webp';
+import Link from 'next/link';
+import GroupLeaveDialog from './group-leave-dialog';
 
-export default function ChatInfo({ group }: { group: Group }) {
+export const UserCard = ({ user }: { user: User }) => {
+  return (
+    <div className="flex gap-2">
+      <Image
+        src={user.profileImage || defaultProfileImage}
+        alt={user.email}
+        width={45}
+        height={45}
+        className="rounded-full"
+      />
+      <div>
+        <p className="font-medium">{user.firstName + ' ' + user.lastName}</p>
+        <p className="text-xs">{user.email}</p>
+      </div>
+    </div>
+  );
+};
+
+export default function ChatInfo({
+  group,
+  user,
+}: {
+  group: Group;
+  user: User;
+}) {
   const router = useRouter();
   const currentUser = useUserStore((state) => state.user);
 
@@ -25,7 +55,6 @@ export default function ChatInfo({ group }: { group: Group }) {
               <PostingCard
                 post={group.post}
                 onViewDetails={() => router.push(`/posts/${group.post!._id}`)}
-                onToggleFavorite={() => {}}
                 isVertical={true}
                 isFavorite={true}
               />
@@ -33,7 +62,7 @@ export default function ChatInfo({ group }: { group: Group }) {
               <div className="p-2 font-medium">No linked posting</div>
             )}
             <button
-              className="flex gap-2 p-2 rounded-xl hover:bg-gray-100 font-medium"
+              className="chat-info-button"
               title={'Link a post'}
               aria-label={'Link a post'}
             >
@@ -56,7 +85,7 @@ export default function ChatInfo({ group }: { group: Group }) {
             )}
             {group.post && group.post.author === currentUser?._id && (
               <button
-                className="flex gap-2 p-2 rounded-xl hover:bg-gray-100 font-medium"
+                className="chat-info-button"
                 title={'Create a new contract'}
                 aria-label={'Create a new contract'}
               >
@@ -70,31 +99,23 @@ export default function ChatInfo({ group }: { group: Group }) {
           <AccordionTrigger>Members</AccordionTrigger>
           <AccordionContent className="flex flex-col gap-1 px-1">
             {group.members.map((member) => (
-              <div
+              <Link
                 key={member._id}
-                className="cursor-pointer rounded-xl hover:bg-gray-100 p-2 font-medium"
-                onClick={() => router.push(`/profile/${member._id}`)}
+                href={`/dashboard/${member._id}`}
+                className="flex items-center p-2 rounded-xl hover:bg-gray-100"
               >
-                {member.firstName} {member.lastName}
-              </div>
+                <UserCard user={member} />
+              </Link>
             ))}
-            {!group.isDM && (
-              <button
-                className="flex gap-2 p-2 rounded-xl hover:bg-gray-100 font-medium"
-                title={'Add members'}
-                aria-label={'Add members'}
-              >
-                <UserPlus className="w-5 h-5" />
-                Add members
-              </button>
-            )}
+            {!group.isDM && <AddMembersDialog />}
           </AccordionContent>
         </AccordionItem>
       </Accordion>
-      <div className="flex gap-1 font-medium text-red-500 cursor-pointer p-2">
-        <LogOut className="w-6 h-6" />
-        Leave group
-      </div>
+      {group.isDM ? (
+        <div></div>
+      ) : (
+        <GroupLeaveDialog groupId={group._id!} user={user} />
+      )}
     </div>
   );
 }

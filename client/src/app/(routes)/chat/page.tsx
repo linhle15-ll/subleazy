@@ -89,6 +89,25 @@ export default function ChatPage() {
         return [updatedGroup, ...prev.filter((group) => group._id !== groupId)];
       });
     });
+
+    socket.on('member-left', (groupId: string, userId: string) => {
+      const group = groups.find((group) => group._id === groupId);
+      if (!group || group.isDM) return;
+
+      if (currentUser?._id === userId) {
+        setGroups((prev) => prev.filter((group) => group._id !== groupId));
+        if (activeGroup?._id === groupId) {
+          setActiveGroup(undefined);
+          setInfoShown(false);
+        }
+        socket.emit('leave-group', groupId);
+        return;
+      }
+
+      group.members = group.members.filter((user) => user._id !== userId);
+      setGroups((prev) => prev.map((g) => (g._id === groupId ? group : g)));
+      if (activeGroup?._id === groupId) setActiveGroup(group);
+    });
   }, [socket, activeGroup?._id]);
 
   const handleGroupSelect = async (group: Group) => {
@@ -160,7 +179,12 @@ export default function ChatPage() {
           </>
         )}
       </div>
-      {infoShown && activeGroup && <ChatInfo group={activeGroup} />}
+      {infoShown && activeGroup && (
+        <ChatInfo
+          group={activeGroup}
+          user={userMaps[activeGroup._id!][currentUser!._id!]}
+        />
+      )}
     </div>
   );
 }

@@ -18,6 +18,21 @@ const groupService = {
       };
     }
   },
+
+  leaveGroup: async (groupId: string, name: string): Promise<Result<Group>> => {
+    try {
+      const response = await api.put(`/groups/${groupId}/leave`, { name });
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: (error as AxiosError<{ error: string }>).response?.data.error,
+      };
+    }
+  },
 };
 
 export default groupService;

@@ -75,6 +75,10 @@ body {
     @apply bg-white rounded-3xl border-2 border-primaryOrange shadow-lg p-4;
   }
 
+  .chat-info-button {
+    @apply flex items-center gap-2 p-2 rounded-xl hover:bg-gray-100 font-medium outline-none cursor-pointer;
+  }
+
   @layer base {
     input[type='number']::-webkit-inner-spin-button,
     input[type='number']::-webkit-outer-spin-button {
