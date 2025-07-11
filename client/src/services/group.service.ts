@@ -56,6 +56,21 @@ const groupService = {
       };
     }
   },
+
+  createGroup: async (data: Partial<Group>): Promise<Result<Group>> => {
+    try {
+      const response = await api.post('/groups/create', data);
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: (error as AxiosError<{ error: string }>).response?.data.error,
+      };
+    }
+  },
 };
 
 export default groupService;

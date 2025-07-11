@@ -52,13 +52,15 @@ export default function ChatPage() {
   }, [result]);
 
   useEffect(() => {
+    if (!currentUser?._id) return;
+
     const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
       withCredentials: true,
     });
 
     socket.on('connect', () => {
-      console.log(`user ${currentUser?._id} connected - ${socket.id}`);
-      socket.emit('join-chat', currentUser?._id);
+      console.log(`user ${currentUser._id} connected - ${socket.id}`);
+      socket.emit('join-chat', currentUser._id);
     });
 
     socket.on('disconnect', () => console.log('disconnected'));
@@ -75,7 +77,10 @@ export default function ChatPage() {
 
         group.lastMessage = message;
         if (activeGroup?._id === groupId) {
-          group.lastRead[currentUser!._id!] = new Date();
+          if (!group.lastRead) group.lastRead = {};
+          group.lastRead[currentUser!._id!] = new Date(
+            new Date(message.createdAt!).getTime() + 1
+          );
           socket.emit('mark-read', groupId, currentUser?._id);
         }
         return [group, ...prev.filter((g) => g._id !== groupId)];
@@ -120,6 +125,9 @@ export default function ChatPage() {
     });
 
     socket.on('new-group', (group: Group) => {
+      const existingGroup = groups.find((g) => g._id === group._id);
+      if (existingGroup) return;
+
       setUserMaps((prev) => ({
         ...prev,
         [group._id!]: group.members.reduce(
@@ -134,7 +142,7 @@ export default function ChatPage() {
     return () => {
       socket.disconnect();
     };
-  }, [activeGroup?._id]);
+  }, [currentUser?._id, activeGroup?._id]);
 
   const handleGroupSelect = async (group: Group) => {
     setActiveGroup(group);
