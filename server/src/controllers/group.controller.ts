@@ -6,6 +6,7 @@ import groupService from '../services/group.service';
 import { User } from '../types/user.types';
 import { io } from '../server';
 import messageService from '../services/message.service';
+import { Post } from '../types/post.types';
 
 const groupController = {
   createGroup: async (req: Request, res: Response, next: NextFunction) => {
@@ -276,6 +277,42 @@ const groupController = {
         success: true,
         data: { postId: postId.toString() },
       });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  linkPost: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const authReq = getAuthRequest(req);
+      const groupId = authReq.params.groupId;
+      const post: Post = authReq.body.post;
+
+      io.to(groupId).emit('post-linked', groupId, post);
+
+      const content = `${authReq.body.name} selected post ${post.title}`;
+      io.to(groupId).emit('new-message', {
+        group: groupId,
+        content,
+        createdAt: new Date(),
+      });
+
+      const message = await messageService.sendMessage({
+        group: new Types.ObjectId(groupId),
+        content,
+      });
+
+      const updatedGroup = await groupService.updateGroup(groupId, {
+        post,
+        lastMessage: message,
+      });
+      if (!updatedGroup) {
+        res.status(404).json({ error: 'Group not found' });
+        return;
+      }
+
+      await groupService.markRead(groupId, authReq.user.id);
+      res.status(200).json(updatedGroup);
     } catch (error) {
       next(error);
     }
