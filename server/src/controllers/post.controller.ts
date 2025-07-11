@@ -217,12 +217,21 @@ const postController = {
 
   getAllPosts: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const posts = await postService.getAllPosts();
-      const filteredPosts = posts.filter(
-        (post) => post.status !== PostStatus.PENDING
-      );
+      const { createdAt, _id } = req.query;
+      const user = req.user;
 
-      res.status(200).json(filteredPosts);
+      if (!user && (createdAt || _id)) {
+        res.status(401).json({ error: 'Sign in to view more posts' });
+        return;
+      }
+
+      const { posts, total, nextCursor } =
+        await postService.getAllPostsPaginated(
+          createdAt?.toString(),
+          _id?.toString()
+        );
+
+      res.status(200).json({ posts, total, nextCursor });
     } catch (error) {
       next(error);
     }
