@@ -61,31 +61,16 @@ export default function ChatInfo({
         <AccordionItem value="contracts">
           <AccordionTrigger>Contracts</AccordionTrigger>
           <AccordionContent className="flex flex-col gap-1 px-1">
-            {group.contracts.length > 0 ? (
-              group.contracts.map((contract) => (
-                // TODO: Add contract info display or button something
-                // Note: If you add any contract operations such as delete or create and need to be updated in real-time then lmk
-                <div key={contract} className="" onClick={() => {}}></div>
-              ))
-            ) : (
-              <div className="p-2 font-medium">No contracts found</div>
-            )}
             {group.post ? (
-              group.post.author === currentUser?._id ? (
-                <button
-                  className="chat-info-button"
-                  title={'Create a new contract'}
-                  aria-label={'Create a new contract'}
-                >
-                  <FileText className="w-5 h-5" />
-                  Create a new contract
-                </button>
-              ) : (
-                <div className="chat-info-button hover:bg-white cursor-default">
-                  <FileText className="w-5 h-5" />
-                  Wait for the sublessor to create a new contract
-                </div>
-              )
+              <Link
+                href={`/dashboard/${currentUser!._id}/groups/${group._id}/contract/edit`}
+                className="chat-info-button"
+                title={'Create a new contract'}
+                aria-label={'Create a new contract'}
+              >
+                <FileText className="w-5 h-5" />
+                Create a new contract
+              </Link>
             ) : (
               <div className="chat-info-button hover:bg-white cursor-default">
                 <FileText className="w-5 h-5" />

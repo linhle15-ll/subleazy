@@ -1,16 +1,24 @@
+import { Group } from '@/lib/types/group.types';
 import { Menu } from 'lucide-react';
+import GroupRenameDialog from './group-rename-dialog';
+import { User } from '@/lib/types/user.types';
 
 export default function ChatHeader({
-  groupName,
+  group,
+  user,
   onClick,
 }: {
-  groupName: string;
+  group: Group;
+  user: User;
   onClick: () => void;
 }) {
   return (
-    <div className="flex justify-between items-center p-2">
-      <div title={groupName} className="text-2xl font-medium truncate">
-        {groupName}
+    <div className="flex justify-between gap-2 items-center p-2">
+      <div className="flex gap-2 items-center">
+        <div title={group.name} className="text-2xl font-medium truncate">
+          {group.name}
+        </div>
+        {!group.isDM && <GroupRenameDialog groupId={group._id!} user={user} />}
       </div>
       <button
         onClick={onClick}
