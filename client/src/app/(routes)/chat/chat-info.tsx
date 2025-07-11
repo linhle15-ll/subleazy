@@ -4,10 +4,10 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '../commons/accordion';
+} from '@/components/ui/commons/accordion';
 import { FileText, HousePlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { PostingCard } from '../posting/posting-card';
+import { PostingCard } from '@/components/ui/posting/posting-card';
 import { useUserStore } from '@/stores/user.store';
 import AddMembersDialog from './add-members-dialog';
 import { User } from '@/lib/types/user.types';

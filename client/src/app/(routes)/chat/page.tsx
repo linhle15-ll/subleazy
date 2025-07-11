@@ -1,10 +1,10 @@
 'use client';
 
-import ChatInfo from '@/components/ui/chat/chat-info';
-import ChatHeader from '@/components/ui/chat/chat-header';
-import ChatSidebar from '@/components/ui/chat/chat-sidebar';
-import MessageInput from '@/components/ui/chat/message-input';
-import MessageList from '@/components/ui/chat/message-list';
+import ChatInfo from './chat-info';
+import ChatHeader from './chat-header';
+import ChatSidebar from './chat-sidebar';
+import MessageInput from './message-input';
+import MessageList from './message-list';
 import Loading from '@/components/ui/commons/loading';
 import { useGroups } from '@/hooks/use-groups';
 import { Group } from '@/lib/types/group.types';
