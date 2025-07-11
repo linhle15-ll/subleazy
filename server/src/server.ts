@@ -30,8 +30,16 @@ io.on('connection', (socket) => {
     chatService.joinChat(userId, socket)
   );
 
+  socket.on('mark-read', (groupId: string, userId: string) =>
+    chatService.markRead(groupId, userId)
+  );
+
   socket.on('leave-group', (groupId: string) =>
     chatService.leaveGroup(groupId, socket)
+  );
+
+  socket.on('join-group', (groupId: string) =>
+    chatService.joinGroup(groupId, socket)
   );
 });
 

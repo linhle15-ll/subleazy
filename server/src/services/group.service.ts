@@ -70,7 +70,9 @@ const groupService = {
         new: true,
         timestamps: updateTimestamp,
       })
-      .populate('members', 'firstName lastName email profileImage');
+      .populate('members', 'firstName lastName email profileImage')
+      .populate('lastMessage')
+      .populate('post');
     return group;
   },
 

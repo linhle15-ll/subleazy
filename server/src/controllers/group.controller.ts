@@ -94,19 +94,51 @@ const groupController = {
         return;
       }
 
-      // TODO: add a system message describing who added who to the group
-      const members: typeof group.members = authReq.body.members;
-      group.members.push(...members);
+      const members: User[] = authReq.body.members;
+      const existingMembers = group.members.map((member) => member.toString());
+      const newMembers = members.filter(
+        (member) => !existingMembers.includes(member._id!.toString())
+      );
+
+      if (newMembers.length === 0) {
+        res.status(400).json({ error: 'No new members provided' });
+        return;
+      }
+
+      io.to(groupId).emit('members-added', groupId, newMembers);
+
+      const content = `${authReq.body.name} added ${newMembers.map((member) => member.firstName).join(', ')} to the group`;
+      io.to(groupId).emit('new-message', {
+        group: groupId,
+        content,
+        createdAt: new Date(),
+      });
+
+      group.members.push(...newMembers.map((member) => member._id!));
       group.members = await groupService.sieveUsers(
         group.members as ObjectId[]
       );
 
+      const message = await messageService.sendMessage({
+        group: new Types.ObjectId(groupId),
+        content,
+      });
+
       const updatedGroup = await groupService.updateGroup(groupId, {
         members: group.members,
+        lastMessage: message,
       });
       await groupService.markRead(groupId, authReq.user.id);
 
-      // io.to(groupId).emit('members-added', updatedGroup);
+      if (updatedGroup && !updatedGroup.name) {
+        const firstNames = updatedGroup.members.map(
+          (member) => (member as User).firstName
+        );
+        updatedGroup.name = firstNames.join(', ');
+      }
+      for (const member of newMembers) {
+        io.to(member._id!.toString()).emit('new-group', updatedGroup);
+      }
 
       res.status(200).json(updatedGroup);
     } catch (error) {
@@ -120,9 +152,12 @@ const groupController = {
       const groupId = authReq.params.groupId;
 
       io.to(groupId).emit('member-left', groupId, authReq.user.id);
+
+      const content = `${authReq.body.name} left the group`;
       io.to(groupId).emit('new-message', {
         group: groupId,
-        content: `${authReq.body.name} left the group`,
+        content,
+        createdAt: new Date(),
       });
 
       const group = await groupService.getGroup(groupId);
@@ -136,11 +171,6 @@ const groupController = {
         return;
       }
 
-      await messageService.sendMessage({
-        group: new Types.ObjectId(groupId),
-        content: `${authReq.body.name} left the group`,
-      });
-
       group.members = group.members.filter(
         (member) => member.toString() !== authReq.user.id
       );
@@ -150,8 +180,14 @@ const groupController = {
         return;
       }
 
+      const message = await messageService.sendMessage({
+        group: new Types.ObjectId(groupId),
+        content,
+      });
+
       const updatedGroup = await groupService.updateGroup(groupId, {
         members: group.members,
+        lastMessage: message,
       });
       res.status(200).json(updatedGroup);
     } catch (error) {
