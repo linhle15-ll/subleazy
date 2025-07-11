@@ -20,8 +20,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './index';
+import Link from 'next/link';
+import { useUserStore } from '@/stores/user.store';
+import authService from '@/services/auth.service';
 
 export function DropdownUser() {
+  const { user, reset } = useUserStore();
+  const userId = user?._id;
+
+  const handleLogout = async () => {
+    if (!user) return;
+    const res = await authService.signout();
+    if (res.success) {
+      reset();
+      window.location.href = '/sign-in';
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -35,7 +50,7 @@ export function DropdownUser() {
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <User />
-            <a href="/profile">Profile</a>
+            <Link href={`/dashboard/${userId}`}>Dashboard</Link>
           </DropdownMenuItem>
 
           <DropdownMenuItem>
@@ -45,19 +60,19 @@ export function DropdownUser() {
 
           <DropdownMenuItem>
             <Bell />
-            <a href="/notifications">Notifications</a>
+            <Link href={'/notification'}>Notification</Link>
           </DropdownMenuItem>
 
           <DropdownMenuItem>
             <Settings />
-            <a href="/settings">Settings</a>
+            <Link href={'/settings'}>Settings</Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
 
         <DropdownMenuItem>
           <LogOut />
-          <span>Log out</span>
+          <button onClick={handleLogout}>Logout</button>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
