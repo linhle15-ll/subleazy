@@ -347,6 +347,7 @@ const groupController = {
       next(error);
     }
   },
+
   linkPost: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const authReq = getAuthRequest(req);
