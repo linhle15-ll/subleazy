@@ -3,7 +3,7 @@ import { useThreadsState } from '../context'
 
 import { ThreadsListItem } from './thread-list-item'
 
-export const ThreadsList = ({ provider, threads } : { provider: any, threads: any[]}) => {
+export const ThreadsList = ({ provider, threads, user } : { provider: any, threads: any[], user: any}) => {
     const { selectedThreads, selectedThread } = useThreadsState()
 
     if (threads.length === 0) {
@@ -19,6 +19,7 @@ export const ThreadsList = ({ provider, threads } : { provider: any, threads: an
                     active={selectedThreads.includes(t.id) || selectedThread === t.id}
                     open={selectedThread === t.id}
                     provider={provider}
+                    user={user}
                 />
             ))}
         </div>

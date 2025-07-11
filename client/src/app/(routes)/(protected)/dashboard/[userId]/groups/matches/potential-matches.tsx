@@ -4,6 +4,8 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserStore } from '@/stores/user.store';
 import { useWish } from '@/hooks/use-wish';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 import PostRow, { type PostWithAuthor } from './post-row';
 import type { Post } from '@/lib/types/post.types';
 import type { Wish } from '@/lib/types/wish.types';
@@ -62,13 +64,11 @@ export default function PotentialMatches() {
               </p>
             </div>
           </div>
-          <button
-            onClick={() => router.push(`/profile/${user?._id}/lifestyle`)}
-            className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
-          >
-            <Users className="h-5 w-5" />
-            Complete Lifestyle Form
-          </button>
+          <Button asChild className="btn-primary">
+            <Link href={`/dashboard/${user?._id}/lifestyle`}>
+              Complete Lifestyle Formn
+            </Link>
+          </Button>
         </div>
       </div>
 

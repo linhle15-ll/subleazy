@@ -1,5 +1,9 @@
 'use client';
-import { HomeIcon, CheckCircle2, Share2 } from 'lucide-react';
+import {
+  HomeIcon,
+  CheckCircle2,
+  Share2,
+} from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useEditorStore } from '@/stores/editor.store';
@@ -44,7 +48,7 @@ export default function FinishContractPage() {
         </div>
 
         {/* Contract Summary */}
-
+        
         {/* Navigation Options */}
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
           <Button

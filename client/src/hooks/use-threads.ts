@@ -39,7 +39,7 @@ export const useThreads = (provider: any, editor: Editor | null, user: any) => {
 
             editor.chain().focus().setThread({ 
                 content: input, 
-                commentData: { userName: user?.name || 'Anonymous' } 
+                commentData: { userName: `${user?.firstName} ${user?.lastName}`.trim() || 'Anonymous' }
             }).run()
         } catch (error) {
             console.error('Failed to create thread:', error)
