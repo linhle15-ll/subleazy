@@ -66,13 +66,13 @@ export default function WishlistPage() {
               opts={{
                 align: 'start',
               }}
-              className="w-[100%]"
+              className="w-[98%]"
             >
               <CarouselContent>
                 {posts.map((post, index) => (
                   <CarouselItem
                     key={index}
-                    className="md:basis-1/4 lg:basis-1/4"
+                    className="md:basis-1/3 lg:basis-1/3"
                   >
                     <div className="p-1">
                       <PostingCard post={post} isVertical={true} />
