@@ -514,36 +514,6 @@ export default function Editor({
     };
   }, [editor, hasInitialized, contractData, initialContent, provider]);
 
-  // Meoww, fixed bug editor content got duplicated every reload
-  React.useEffect(() => {
-    if (!editor || !provider || !hasInitialized) return;
-
-    // Wait for provider to sync first
-    const handleSynced = () => {
-      const yText = doc.getText('sync text');
-      const currentLength = yText.length;
-
-      // Only set initial content if the collaborative document is empty
-      if (currentLength === 0) {
-        if (contractData?.content) {
-          yText.insert(0, contractData?.content ?? initialContent ?? content);
-        }
-      }
-    };
-
-    // Check if already synced
-    if (provider.isSynced) {
-      handleSynced();
-    } else {
-      provider.on('synced', handleSynced);
-    }
-
-    // Cleanup
-    return () => {
-      provider.off('synced', handleSynced);
-    };
-  }, [editor, hasInitialized, contractData, initialContent, provider]);
-
   const {
     threads,
     createThread,
