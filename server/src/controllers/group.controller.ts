@@ -35,7 +35,9 @@ const groupController = {
       }
 
       const group = await groupService.createGroup({ ...data, members });
-      await groupService.markRead(group._id.toString(), authReq.user.id);
+      for (const member of members) {
+        await groupService.markRead(group._id.toString(), member.toString());
+      }
 
       if (group.isDM) {
         const otherUser = group.members.find(
@@ -144,6 +146,10 @@ const groupController = {
         lastMessage: message,
       });
       await groupService.markRead(groupId, authReq.user.id);
+
+      for (const member of newMembers) {
+        await groupService.markRead(groupId, member._id!.toString());
+      }
 
       if (updatedGroup && !updatedGroup.name) {
         const firstNames = updatedGroup.members.map(
