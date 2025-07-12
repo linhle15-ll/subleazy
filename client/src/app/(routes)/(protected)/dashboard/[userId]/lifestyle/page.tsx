@@ -73,7 +73,7 @@ export default function LifestylePage() {
     if (res.success) {
       queryClient.invalidateQueries({ queryKey: ['lifestyle', userId] });
       reset();
-      router.push(`/profile/${userId}`);
+      router.push(`/dashboard/${userId}`);
     }
   };
   if (isFetching || !result) return <Loading />;
