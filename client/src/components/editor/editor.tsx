@@ -25,17 +25,14 @@ import { Collaboration } from '@tiptap/extension-collaboration';
 import { CollaborationCursor } from '@tiptap/extension-collaboration-cursor';
 import Placeholder from '@tiptap/extension-placeholder';
 import { CommentsKit } from '@tiptap-pro/extension-comments';
-import { Decoration } from '@tiptap/pm/view'
-import AiSuggestion from '@tiptap-pro/extension-ai-suggestion'
 import * as Y from 'yjs';
 
 // Hooks
 import { useUser } from '@/hooks/use-user';
 import { useThreads } from '@/hooks/use-threads';
 import { useGroupMembers } from '@/hooks/use-groups';
-import { useRouter } from 'next/navigation';
 
-// Components and Styling
+/// Components and Styling
 import EditorMenuBar from './menu-bar';
 import { content } from './content';
 import { ThreadsList } from './comment-thread/thread-list';
@@ -43,18 +40,18 @@ import Loading from '@/components/ui/commons/loading';
 import ToggleButton from '@/components/ui/button/toogle-btn';
 import './styles.scss';
 import { ThreadsProvider } from './context';
-import { SidebarRulesSection } from './AI-suggestion-extension/sidebar-rules-section'
-import { LoadingState } from './AI-suggestion-extension/loading-state'
-import { ErrorState } from './AI-suggestion-extension/error-state'
+import { SidebarRulesSection } from './AI-suggestion-extension/sidebar-rules-section';
+import { LoadingState } from './AI-suggestion-extension/loading-state';
+import { ErrorState } from './AI-suggestion-extension/error-state';
 import { RulesModal } from './AI-suggestion-extension/rules-modal';
-import { SuggestionTooltip } from './AI-suggestion-extension/suggestion-tooltip'
-import { MessageSquareMore } from 'lucide-react'
+import { SuggestionTooltip } from './AI-suggestion-extension/suggestion-tooltip';
+import { MessageSquareMore } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/commons/tooltip';
-import { X } from 'lucide-react'
+import { X } from 'lucide-react';
 
 // Editor store
 import { useEditorStore } from '@/stores/editor.store';
@@ -63,6 +60,9 @@ import { useUserStore } from '@/stores/user.store';
 // Services
 import contractService from '@/services/contract.service';
 import { initialRules } from './AI-suggestion-extension/initial-rules';
+
+import { Decoration } from '@tiptap/pm/view';
+import AiSuggestion from '@tiptap-pro/extension-ai-suggestion';
 
 export default function Editor({
   initialContent,
@@ -73,7 +73,6 @@ export default function Editor({
 }) {
   const DOCUMENT_ID = `contract-${groupId}`;
   const [doc] = React.useState(() => new Y.Doc());
-  const router = useRouter();
 
   const storedUser = useUserStore((state) => state.user);
   const { data: userData } = useUser(storedUser?._id ?? '');
@@ -93,11 +92,11 @@ export default function Editor({
     group: string;
   } | null>(null);
   const [fetchingContract, setFetchingContract] = React.useState(false);
-  const [isModalOpen, setIsModalOpen] = React.useState(false)
-  const [rules, setRules] = React.useState(initialRules)
-  const [tooltipElement, setTooltipElement] = React.useState<HTMLSpanElement | null>(null)
-  const [isAISuggestion, setIsAISuggestion] = React.useState(false)
-
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [rules, setRules] = React.useState(initialRules);
+  const [tooltipElement, setTooltipElement] =
+    React.useState<HTMLSpanElement | null>(null);
+  const [isAISuggestion, setIsAISuggestion] = React.useState(false);
   const {
     isLoading,
     setIsLoading,
@@ -112,7 +111,6 @@ export default function Editor({
     resolvedAt?: Date | null;
     [key: string]: unknown;
   };
-
   const threadsRef = React.useRef<Thread[]>([]);
   const [provider, setProvider] = React.useState<TiptapCollabProvider | null>(
     null
@@ -227,7 +225,6 @@ export default function Editor({
     };
   }, [groupId]);
 
-
   // Fetch contract data on component mount
   React.useEffect(() => {
     const fetchContractByGroup = async () => {
@@ -286,105 +283,9 @@ export default function Editor({
     fetchContractByGroup();
   }, [groupId, setContractName]);
 
-  const editorContent = documentData?.content || contractData?.content || content;
-
-  // React will re-create the component (and the editor) from scratch if its key changes 
-  const editorKey = React.useMemo(() => `editor-${groupId}`, [groupId]);
-
-  const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        history: false, // IMPORTANT: Disable history for collaboration
-        bulletList: {
-          keepMarks: true,
-          keepAttributes: false,
-        },
-        orderedList: {
-          keepMarks: true,
-          keepAttributes: false,
-        },
-      }),
-
-      AiSuggestion.configure({
-        appId: process.env.NEXT_PUBLIC_TIPTAP_PRO_APPID!,
-        token: process.env.NEXT_PUBLIC_TIPTAP_PRO_TOKEN!,
-        // baseUrl: process.env.NEXT_PUBLIC_AI_BASE_URL!,
-        rules,
-        getCustomSuggestionDecoration({ suggestion, isSelected, getDefaultDecorations }) {
-          const decorations = getDefaultDecorations()
-
-          if (isSelected && !suggestion.isRejected) {
-            decorations.push(
-              Decoration.widget(suggestion.deleteRange.to, () => {
-                const element = document.createElement('span')
-
-                setTooltipElement(element)
-                return element
-              })
-            )
-          }
-          return decorations
-        }
-
-
-      }),
-      Underline,
-      Highlight.configure({ multicolor: true }),
-      Color.configure({ types: [TextStyle.name, ListItem.name] }),
-      TextStyle.configure({ mergeNestedSpanStyles: true }),
-      TextAlign.configure({ types: ['heading', 'paragraph'] }),
-      TaskList,
-      TaskItem.configure({
-        nested: true,
-      }),
-      Image,
-
-      ExportDocx.configure({
-        onCompleteExport: (result: any | Buffer<ArrayBufferLike> | Blob) => {
-          setIsLoading(false);
-          const blob = new Blob([result], {
-            type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-          });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-
-          a.href = url;
-          a.download = 'export.docx';
-          a.click();
-          URL.revokeObjectURL(url);
-        },
-      }),
-      Link,
-      Table.configure({
-        resizable: true,
-      }),
-      TableRow,
-      TableHeader,
-      TableCell,
-      // Conditionally add collaboration extensions only when provider is ready
-      ...(provider ? [
-        Collaboration.configure({
-          document: doc,
-
-  const editorContent =
-    documentData?.content || contractData?.content || content;
-
-  // React will re-create the component (and the editor) from scratch if its key changes
-  // const editorKey = React.useMemo(() => `editor-${groupId}`, [groupId]);
-
   const editor = useEditor(
     {
       extensions: [
-        Underline,
-        Highlight.configure({ multicolor: true }),
-        Color.configure({ types: [TextStyle.name, ListItem.name] }),
-        TextStyle.configure({ mergeNestedSpanStyles: true }),
-        TextAlign.configure({ types: ['heading', 'paragraph'] }),
-        TaskList,
-        TaskItem.configure({
-          nested: true;
-        }),
-        Image,
         StarterKit.configure({
           history: false, // IMPORTANT: Disable history for collaboration
           bulletList: {
@@ -396,34 +297,45 @@ export default function Editor({
             keepAttributes: false,
           },
         }),
-      ] : []),
-      Placeholder.configure({
-        placeholder: contractData?.content
-          ? 'Edit your contract...'
-          : initialContent
-            ? 'Edit your imported document...'
-            : 'Start writing your own contract here ...',
-        emptyEditorClass: 'is-editor-empty',
-      }),
-    ],
-    immediatelyRender: false,
-    shouldRerenderOnTransaction: true,
-    content: editorContent,
-    onCreate: ({ }) => {
-      setHasInitialized(true);
-    },
 
-    onUpdate: ({ editor }) => {
-      updateContent(editor.getHTML());
-    },
+        AiSuggestion.configure({
+          appId: process.env.NEXT_PUBLIC_TIPTAP_PRO_APPID!,
+          token: process.env.NEXT_PUBLIC_TIPTAP_PRO_TOKEN!,
+          // baseUrl: process.env.NEXT_PUBLIC_AI_BASE_URL!,
+          rules,
+          getCustomSuggestionDecoration({
+            suggestion,
+            isSelected,
+            getDefaultDecorations,
+          }) {
+            const decorations = getDefaultDecorations();
 
-    editorProps: {
-      attributes: {
-        spellcheck: "false",
+            if (isSelected && !suggestion.isRejected) {
+              decorations.push(
+                Decoration.widget(suggestion.deleteRange.to, () => {
+                  const element = document.createElement('span');
+
+                  setTooltipElement(element);
+                  return element;
+                })
+              );
+            }
+            return decorations;
+          },
+        }),
+        Underline,
+        Highlight.configure({ multicolor: true }),
+        Color.configure({ types: [TextStyle.name, ListItem.name] }),
+        TextStyle.configure({ mergeNestedSpanStyles: true }),
+        TextAlign.configure({ types: ['heading', 'paragraph'] }),
+        TaskList,
+        TaskItem.configure({
+          nested: true,
+        }),
+        Image,
+
         ExportDocx.configure({
-          onCompleteExport: (
-            result: unknown | Buffer<ArrayBufferLike> | Blob
-          ) => {
+          onCompleteExport: (result: any | Buffer<ArrayBufferLike> | Blob) => {
             setIsLoading(false);
             const blob = new Blob([result], {
               type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -460,7 +372,7 @@ export default function Editor({
               CommentsKit.configure({
                 provider,
                 useLegacyWrapping: false,
-                onClickThread: (threadId: string) => {
+                onClickThread: (threadId: any) => {
                   try {
                     const isResolved = threadsRef.current.find(
                       (t) => t.id === threadId
@@ -501,38 +413,32 @@ export default function Editor({
         }),
       ],
       immediatelyRender: false,
-      shouldRerenderOnTransaction: false,
-      content: editorContent,
-      onCreate: () => {
+      shouldRerenderOnTransaction: true,
+      // content: editorContent,
+      onCreate: ({}) => {
         setHasInitialized(true);
       },
 
       onUpdate: ({ editor }) => {
         updateContent(editor.getHTML());
+      },
 
-        // // Auto-save contract content as user types
-        // if (contractData && groupId) {
-        //   const content = editor.getHTML();
-        //   if (content && content.trim() !== '') {
-        //     // Debounce the save operation
-        //     const timeoutId = setTimeout(async () => {
-        //       try {
-        //         await contractService.updateContractByGroupId(groupId, {
-        //           content,
-        //         });
-        //         console.log('Contract content auto-saved');
-        //       } catch (error) {
-        //         console.error('Failed to auto-save contract content:', error);
-        //       }
-        //     }, 1000); // Save after 2 seconds of inactivity
-
-        //     return () => clearTimeout(timeoutId);
-        //   }
-        // }
+      editorProps: {
+        attributes: {
+          spellcheck: 'false',
+        },
       },
     },
     [provider, currentUser, color]
   );
+
+  // Initially set content, by order of priority: uploaded doc from scan > default template > null editor
+
+  const editorContent =
+    documentData?.content || contractData?.content || content;
+
+  // React will re-create the component (and the editor) from scratch if its key changes
+  const editorKey = React.useMemo(() => `editor-${groupId}`, [groupId]);
 
   // Meoww, fixed bug editor content got duplicated every reload
   React.useEffect(() => {
@@ -650,11 +556,6 @@ export default function Editor({
         // Update local contract data, ensuring result.data is defined
         if (result.data) {
           setContractData(result.data);
-          // Navigate to the final contract page
-          const userId = storedUser?._id;
-          if (userId && groupId) {
-            router.push(`/dashboard/${userId}/groups/final-contract?contractId=${result.data._id}&groupId=${groupId}`);
-          }
         } else {
           console.error('No contract data returned after finishing contract.');
         }
@@ -682,134 +583,7 @@ export default function Editor({
         selectedThread={selectedThread}
         setSelectedThread={setSelectedThread}
         threads={threads}
-
-        <div className="main">
-          {/* Editor with MenuBar */}
-          <div className="editor-container">
-            <EditorMenuBar
-              isLoading={isLoading}
-              setIsLoading={setIsLoading}
-              editor={editor}
-              createThread={createThread}
-              finishContract={finishContract}
-              contractName={contractName}
-              setContractName={setContractName}
-            />
-
-            <div className="flex-col gap-2">
-              <EditorContent editor={editor} />
-
-              {/* Group Members Section */}
-              {groupMembers && groupMembers.length > 0 && (
-                <div className="flex flex-col p-6 border rounded bg-blue-50">
-                  <div className="text-lg font-semibold pb-4 text-gray-800">
-                    Group Members
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {groupMembers.map((member) => (
-                      <div
-                        key={member._id}
-                        className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border"
-                      >
-                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                          {member.profileImage ? (
-                            <img
-                              src={member.profileImage}
-                              alt={`${member.firstName} ${member.lastName}`}
-                              className="w-10 h-10 rounded-full object-cover"
-                            />
-                          ) : (
-                            <span className="text-gray-600 font-medium">
-                              {member.firstName.charAt(0)}
-                              {member.lastName.charAt(0)}
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p className="font-medium text-gray-900 truncate">
-                              {member.firstName} {member.lastName}
-                            </p>
-                            <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800 font-medium">
-                              {groupMembers.indexOf(member) === 0
-                                ? 'Sublessor'
-                                : 'Sublessee'}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-500 truncate">
-                            {member.email}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {/* Signature fields for sublessor and sublessees */}
-              <div className="flex flex-col gap-4 mt-6 p-4 border rounded bg-gray-50">
-                {/* Sublessees & sublessor signatures */}
-                {groupMembers?.map((member, idx) => {
-                  // Use local "signed" state, not the value itself
-                  const isSigned =
-                    idx === 0 ? sublessorSigned : sublesseesSigned[idx - 1];
-
-                  return (
-                    <div
-                      key={member._id}
-                      className="flex flex-row items-center gap-2"
-                    >
-                      <div className="flex flex-col gap-1 w-80">
-                        <label className="font-medium">
-                          {member.firstName} {member.lastName} Signature:
-                        </label>
-                        <span className="text-xs text-gray-500 font-medium">
-                          {idx === 0 ? 'Sublessor' : 'Sublessee'}
-                        </span>
-                      </div>
-                      <input
-                        type="text"
-                        className={`text-field w-full transition-opacity duration-300 ${
-                          isSigned ? 'opacity-50' : 'opacity-100'
-                        }`}
-                        value={
-                          idx === 0
-                            ? sublessorSignature
-                            : sublesseesSignatures[idx - 1] || ''
-                        }
-                        onChange={(e) => {
-                          if (idx === 0) {
-                            setSublessorSignature(e.target.value);
-                          } else {
-                            handleSublesseeSignatureChange(
-                              idx - 1,
-                              e.target.value
-                            );
-                          }
-                        }}
-                        disabled={currentUser?._id !== member._id || isSigned}
-                        placeholder="Enter your signature"
-                      />
-                      <button
-                        className="btn btn-primary"
-                        disabled={currentUser?._id !== member._id || isSigned}
-                        onClick={() => {
-                          if (idx === 0) {
-                            handleSublessorSign();
-                          } else {
-                            handleSublesseeSign(idx - 1);
-                          }
-                        }}
-                      >
-                        {isSigned ? 'Signed' : 'Confirm'}
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
-
+      >
         <div
           className="col-group flex flex-row gap-5"
           data-viewmode={showUnresolved ? 'open' : 'resolved'}
@@ -826,8 +600,119 @@ export default function Editor({
                 contractName={contractName}
                 setContractName={setContractName}
               />
-              <EditorContent editor={editor} key={editorKey} />
-              <SuggestionTooltip element={tooltipElement} editor={editor} />
+
+              <div className="flex-col gap-2">
+                <EditorContent editor={editor} key={editorKey} />
+                <SuggestionTooltip element={tooltipElement} editor={editor} />
+
+                {/* Group Members Section */}
+                {groupMembers && groupMembers.length > 0 && (
+                  <div className="flex flex-col p-6 border rounded bg-blue-50">
+                    <div className="text-lg font-semibold pb-4 text-gray-800">
+                      Group Members
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {groupMembers.map((member) => (
+                        <div
+                          key={member._id}
+                          className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border"
+                        >
+                          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                            {member.profileImage ? (
+                              <img
+                                src={member.profileImage}
+                                alt={`${member.firstName} ${member.lastName}`}
+                                className="w-10 h-10 rounded-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-gray-600 font-medium">
+                                {member.firstName.charAt(0)}
+                                {member.lastName.charAt(0)}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium text-gray-900 truncate">
+                                {member.firstName} {member.lastName}
+                              </p>
+                              <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800 font-medium">
+                                {groupMembers.indexOf(member) === 0
+                                  ? 'Sublessor'
+                                  : 'Sublessee'}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-500 truncate">
+                              {member.email}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {/* Signature fields for sublessor and sublessees */}
+                <div className="flex flex-col gap-4 mt-6 p-4 border rounded bg-gray-50">
+                  {/* Sublessees & sublessor signatures */}
+                  {groupMembers?.map((member, idx) => {
+                    // Use local "signed" state, not the value itself
+                    const isSigned =
+                      idx === 0 ? sublessorSigned : sublesseesSigned[idx - 1];
+
+                    return (
+                      <div
+                        key={member._id}
+                        className="flex flex-row items-center gap-2"
+                      >
+                        <div className="flex flex-col gap-1 w-80">
+                          <label className="font-medium">
+                            {member.firstName} {member.lastName} Signature:
+                          </label>
+                          <span className="text-xs text-gray-500 font-medium">
+                            {idx === 0 ? 'Sublessor' : 'Sublessee'}
+                          </span>
+                        </div>
+                        <input
+                          type="text"
+                          className={`text-field w-full transition-opacity duration-300 ${
+                            isSigned ? 'opacity-50' : 'opacity-100'
+                          }`}
+                          value={
+                            idx === 0
+                              ? sublessorSignature
+                              : sublesseesSignatures[idx - 1] || ''
+                          }
+                          onChange={(e) => {
+                            if (idx === 0) {
+                              setSublessorSignature(e.target.value);
+                            } else {
+                              handleSublesseeSignatureChange(
+                                idx - 1,
+                                e.target.value
+                              );
+                            }
+                          }}
+                          disabled={currentUser?._id !== member._id || isSigned}
+                          placeholder="Enter your signature"
+                        />
+                        <button
+                          className="btn btn-primary"
+                          disabled={currentUser?._id !== member._id || isSigned}
+                          onClick={() => {
+                            if (idx === 0) {
+                              handleSublessorSign();
+                            } else {
+                              handleSublesseeSign(idx - 1);
+                            }
+                          }}
+                        >
+                          {isSigned ? 'Signed' : 'Confirm'}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -841,23 +726,24 @@ export default function Editor({
                   setOption={setShowUnresolved}
                 />
               </div>
-              <ThreadsList provider={provider} threads={filteredThreads} user={currentUser} />
+              <ThreadsList
+                provider={provider}
+                threads={filteredThreads}
+                user={currentUser}
+              />
             </div>
-
-            <ThreadsList
-              provider={provider}
-              threads={filteredThreads}
-              user={currentUser}
-            />
-
           </div>
         </div>
       </ThreadsProvider>
+
       {!isAISuggestion && (
-        <button className='text-primaryOrange mt-6 flex items-start'onClick={() => setIsAISuggestion(!isAISuggestion)}> 
+        <button
+          className="text-primaryOrange mt-6 flex items-start"
+          onClick={() => setIsAISuggestion(!isAISuggestion)}
+        >
           <Tooltip>
             <TooltipTrigger asChild>
-                <MessageSquareMore size={30}/>  
+              <MessageSquareMore size={30} />
             </TooltipTrigger>
             <TooltipContent>
               <p>Easier Contract process with AI!</p>
@@ -868,54 +754,67 @@ export default function Editor({
 
       {isAISuggestion && (
         <>
-        <RulesModal
-        rules={rules}
-        onSae={(newRules: any) => {
-          setRules(newRules)
-          editor.chain().setAiSuggestionRules(newRules).loadAiSuggestions().run()
-          setIsModalOpen(false)
-        }}
-        onClose={() => {
-          setIsModalOpen(false)
-        }}
-        isOpen={isModalOpen}
-      />
-
-      <div>
-        <LoadingState show={editor.extensionStorage.aiSuggestion.isLoading} />
-        <ErrorState
-          show={
-            !editor.extensionStorage.aiSuggestion.isLoading
-            && editor.extensionStorage.aiSuggestion.error
-          }
-          onReload={() => editor.commands.loadAiSuggestions()}
-        />
-      </div>
-      <div className="sidebar">
-        <div className="sidebar-header">
-          <button onClick={() => setIsAISuggestion(false)}>
-            <X size={20} />
-          </button>
-          <div className="text-lg font-medium mb-2">Suggestion rules</div>
-          <div className="flex gap-2">
-            <button type="button" onClick={() => setIsModalOpen(true)} className='btn-secondary p-1 border border-gray-400 hover:border-gray-600'>
-              Manage rules
-            </button>
-            <button type="button" onClick={() => editor.commands.applyAllAiSuggestions()} className='btn-secondary p-1 border border-gray-400 hover:border-gray-600'>
-              Apply all suggestions
-            </button>
-          </div>
-        </div>
-        <div className="sidebar-scroll">
-          <SidebarRulesSection
+          <RulesModal
             rules={rules}
-            suggestions={editor.extensionStorage.aiSuggestion.getSuggestions()}
+            onSae={(newRules: any) => {
+              setRules(newRules);
+              editor
+                .chain()
+                .setAiSuggestionRules(newRules)
+                .loadAiSuggestions()
+                .run();
+              setIsModalOpen(false);
+            }}
+            onClose={() => {
+              setIsModalOpen(false);
+            }}
+            isOpen={isModalOpen}
           />
-        </div>
-      </div>
-      </>
+
+          <div>
+            <LoadingState
+              show={editor.extensionStorage.aiSuggestion.isLoading}
+            />
+            <ErrorState
+              show={
+                !editor.extensionStorage.aiSuggestion.isLoading &&
+                editor.extensionStorage.aiSuggestion.error
+              }
+              onReload={() => editor.commands.loadAiSuggestions()}
+            />
+          </div>
+          <div className="sidebar">
+            <div className="sidebar-header">
+              <button onClick={() => setIsAISuggestion(false)}>
+                <X size={20} />
+              </button>
+              <div className="text-lg font-medium mb-2">Suggestion rules</div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(true)}
+                  className="btn-secondary p-1 border border-gray-400 hover:border-gray-600"
+                >
+                  Manage rules
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.commands.applyAllAiSuggestions()}
+                  className="btn-secondary p-1 border border-gray-400 hover:border-gray-600"
+                >
+                  Apply all suggestions
+                </button>
+              </div>
+            </div>
+            <div className="sidebar-scroll">
+              <SidebarRulesSection
+                rules={rules}
+                suggestions={editor.extensionStorage.aiSuggestion.getSuggestions()}
+              />
+            </div>
+          </div>
+        </>
       )}
-      
     </div>
   );
 }
