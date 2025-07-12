@@ -601,10 +601,10 @@ export default function Editor({
                 setContractName={setContractName}
               />
 
-              <div className="flex-col gap-2">
-                <EditorContent editor={editor} key={editorKey} />
-                <SuggestionTooltip element={tooltipElement} editor={editor} />
+              <EditorContent editor={editor} key={editorKey} />
+              <SuggestionTooltip element={tooltipElement} editor={editor} />
 
+              <div className="flex-col gap-2">
                 {/* Group Members Section */}
                 {groupMembers && groupMembers.length > 0 && (
                   <div className="flex flex-col p-6 border rounded bg-blue-50">
