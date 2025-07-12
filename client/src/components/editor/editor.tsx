@@ -339,7 +339,7 @@ export default function Editor({
           },
         }),
         AiSuggestion.configure({
-            appId: process.env.NEXT_PUBLIC_TIPTAP_PRO_APPID!,
+            appId: process.env.NEXT_PUBLIC_TIPTAP_AI_APPID!,
             token: process.env.NEXT_PUBLIC_TIPTAP_PRO_TOKEN!,
             // baseUrl: process.env.NEXT_PUBLIC_AI_BASE_URL!,
             rules,
@@ -812,7 +812,7 @@ export default function Editor({
           </div>
 
           {/* Sidebar for comments */}
-          <div className="lg:w-[40%] flex-shrink border border-lightGray rounded-md p-3">
+          <div className="lg:w-full flex-shrink border border-lightGray rounded-md p-3">
             <div className="sidebar-options">
               <div className="option-group">
                 <div className="text-lg font-medium mb-2">Comments</div>
