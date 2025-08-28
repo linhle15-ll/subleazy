@@ -1,6 +1,7 @@
 # Subleazy
 
 Subleazy is a **student-focused web application** that streamlines the subleasing process. It provides a centralized, transparent, and secure platform where students can post, find, and manage short-term housing rentals. The platform also supports roommate matching, digital contract assistance — making subleasing safer and easier for student communities.
+<img width="1928" height="1150" alt="Screenshot 2025-07-07 at 06 43 26" src="https://github.com/user-attachments/assets/41144224-4921-478e-a88c-b6e6333ec4af" />
 
 ---
 
