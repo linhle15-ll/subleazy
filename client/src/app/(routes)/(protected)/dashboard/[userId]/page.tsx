@@ -73,7 +73,13 @@ export default function ProfilePage() {
             {/* <div className='text-gray-600 mt-1'>{userData?.bio || 'No bio provided.'}</div> */}
             <div className="flex gap-4 mt-4">
               {isOwner ? null : ( // </NextLink> //   <button className="btn-secondary">Edit Profile</button> // <NextLink href={`/dashboard/${userId}/edit`}>
-                <button className="btn-secondary">Message</button>
+                <NextLink href={`/chat/`}> 
+                  <button 
+                    className="btn-secondary"
+                  >Message
+                  
+                  </button>
+                </NextLink>
               )}
             </div>
           </div>

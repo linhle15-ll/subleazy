@@ -85,7 +85,6 @@ export default function PostingPage() {
   const handleToggleFavorite = async (currentPostId: string) => {
     if (!currentUserId) {
       alert('You must be logged in to add to favorites.');
-      setIsFavorite(false);
       return;
     }
 

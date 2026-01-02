@@ -1,21 +1,23 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useDocumentData } from '@/stores/editor.store';
 import Editor from '@/components/editor/editor';
 import { useGroupMembers, usePostIdByGroupId } from '@/hooks/use-groups';
 import contractService from '@/services/contract.service';
 import groupService from '@/services/group.service';
+import Loading from '@/components/ui/commons/loading';
 
 export default function ContractEditPage() {
   const { groupId } = useParams<{ groupId: string }>();
   const { userId } = useParams<{ userId: string }>();
   const documentData = useDocumentData();
   const [contractCreated, setContractCreated] = React.useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   // get members of the group
-  const { data: members } = useGroupMembers(groupId);
-  const { data: postIdData } = usePostIdByGroupId(groupId);
+  const { data: members, isLoading: membersLoading } = useGroupMembers(groupId);
+  const { data: postIdData, isLoading: postLoading } = usePostIdByGroupId(groupId);
 
   // Create contract when all data is loaded and members exist (only once)
   useEffect(() => {
@@ -33,6 +35,7 @@ export default function ContractEditPage() {
           console.log(
             'Contract already exists for this group, skipping creation.'
           );
+          setIsReady(true);
           return;
         }
 
@@ -86,6 +89,7 @@ export default function ContractEditPage() {
 
               if (addContractResult.success) {
                 console.log('Contract added to group successfully');
+                setIsReady(true);
               } else {
                 console.error(
                   'Failed to add contract to group:',
@@ -113,7 +117,20 @@ export default function ContractEditPage() {
     }
 
     maybeCreateContract();
-  }, [members, postIdData, postIdData?.postId]);
+  }, [members, postIdData, postIdData?.postId, groupId, contractCreated]);
+
+  // Don't render Editor until data is ready
+  if (membersLoading || postLoading || !isReady) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loading />
+      </div>
+    );
+  }
+
+  if (!groupId || !userId) {
+    return <div className="text-red-500">Missing required parameters</div>;
+  }
 
   return (
     <div className="sm:mx-auto items-center justify-center py-12 gap-10 lg:gap-16 max-w-7xl w-screen">
@@ -121,11 +138,10 @@ export default function ContractEditPage() {
         <div className="flex items-center gap-2">
           <span className="text-green-600">📄</span>
           <span className="text-green-800 text-sm">
-            Editing Sublease Aggreement
+            Editing Sublease Agreement
           </span>
         </div>
       </div>
-
       <Editor
         initialContent={documentData?.content}
         groupId={groupId}

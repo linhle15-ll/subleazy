@@ -2,7 +2,7 @@ import {
   autoUpdate, offset, shift, useFloating,
 } from '@floating-ui/react'
 import { getHTMLFromFragment } from '@tiptap/core'
-import { getNextWord, getPreviousWord } from '@tiptap-pro/extension-ai-suggestion'
+// import { getNextWord, getPreviousWord } from '@tiptap-pro/extension-ai-suggestion'
 import React from 'react'
 import { createPortal } from 'react-dom'
 
@@ -22,7 +22,7 @@ export function ReviewChangePopover({ element, editor } : { element: any, editor
       {isOpen && (
         <div className="suggestion-tooltip-parent" ref={refs.setFloating} style={floatingStyles}>
           <div className="suggestion-tooltip">
-            <div className="top">
+            {/* <div className="top">
               {suggestion.replacementOptions.map((option: any, index: any) => {
                 const { previousWord } = getPreviousWord(editor, suggestion.deleteRange.from)
                 const { nextWord, punctuationMark } = getNextWord(
@@ -78,7 +78,7 @@ export function ReviewChangePopover({ element, editor } : { element: any, editor
                   </div>
                 )
               })}
-            </div>
+            </div> */}
             <div className="bottom">
               <p className="label-small">
                 {suggestion.rule.title}: {suggestion.rule.prompt}

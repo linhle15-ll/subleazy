@@ -7,27 +7,27 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { Underline } from '@tiptap/extension-underline';
 import Highlight from '@tiptap/extension-highlight';
-import Color from '@tiptap/extension-color';
-import TextStyle from '@tiptap/extension-text-style';
-import ListItem from '@tiptap/extension-list-item';
+import { TextStyleKit } from '@tiptap/extension-text-style'
+import Text from '@tiptap/extension-text'
 import TaskItem from '@tiptap/extension-task-item';
 import TaskList from '@tiptap/extension-task-list';
 import { TextAlign } from '@tiptap/extension-text-align';
 import { ExportDocx } from '@tiptap-pro/extension-export-docx';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
-import Table from '@tiptap/extension-table';
+import { TableKit } from '@tiptap/extension-table'
 import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
 import TableRow from '@tiptap/extension-table-row';
-import { TiptapCollabProvider } from '@hocuspocus/provider';
-import { Collaboration } from '@tiptap/extension-collaboration';
-import { CollaborationCursor } from '@tiptap/extension-collaboration-cursor';
+
 import Placeholder from '@tiptap/extension-placeholder';
 import { CommentsKit } from '@tiptap-pro/extension-comments';
 import { Decoration } from '@tiptap/pm/view'
-import AiSuggestion from '@tiptap-pro/extension-ai-suggestion'
+// import AiSuggestion from '@tiptap-pro/extension-ai-suggestion'
 import * as Y from 'yjs';
+import { v4 as uuid } from 'uuid'
+import jsonwebtoken from 'jsonwebtoken'
+
 
 // Hooks
 import { useUser } from '@/hooks/use-user';
@@ -36,6 +36,11 @@ import { useGroupMembers } from '@/hooks/use-groups';
 import { useRouter } from 'next/navigation';
 
 // Components and Styling
+// import CollaborationCursor from '@tiptap/extension-collaboration-cursor'; 
+import { HocuspocusProvider } from '@hocuspocus/provider'
+import { TiptapCollabProvider } from '@tiptap-pro/provider';
+import { Collaboration } from '@tiptap/extension-collaboration';
+import CollaborationCaret from '@tiptap/extension-collaboration-caret'
 import EditorMenuBar from './menu-bar';
 import { content } from './content';
 import { ThreadsList } from './comment-thread/thread-list';
@@ -46,9 +51,10 @@ import { ThreadsProvider } from './context';
 import { SidebarRulesSection } from './AI-suggestion-extension/sidebar-rules-section'
 import { LoadingState } from './AI-suggestion-extension/loading-state'
 import { ErrorState } from './AI-suggestion-extension/error-state'
-import { RulesModal } from './AI-suggestion-extension/rules-modal';
+import { RulesModal } from './AI-suggestion-extension/rules-modal'
 import { SuggestionTooltip } from './AI-suggestion-extension/suggestion-tooltip'
 import { MessageSquareMore } from 'lucide-react'
+
 import {
   Tooltip,
   TooltipContent,
@@ -74,7 +80,12 @@ export default function Editor({
   userId?: string
 }) {
   const DOCUMENT_ID = `contract-${groupId}`;
-  const [doc] = React.useState(() => new Y.Doc());
+  // const [doc] = React.useState(() => new Y.Doc());
+  const doc = new Y.Doc()
+
+  const isDev = 'development'
+  const id = isDev? 'dev' : uuid()
+  
   const router = useRouter();
 
   const storedUser = useUserStore((state) => state.user);
@@ -228,14 +239,23 @@ export default function Editor({
     }
   };
 
+  // Allow certain perrmission to get access to documents to each user
+  // user can only access to the documents of their groups
+  const data = {
+    sub: 'your_local_user_identifier',
+    allowedDocumentNames: ['project-alpha/*', 'project-beta/*'],
+  }
+
+  // const jwt = jsonwebtoken.sign(data, process.env.NEXT_PUBLIC_)
   // Create provider ONCE
   React.useEffect(() => {
     if (!groupId) return;
     const newProvider = new TiptapCollabProvider({
       name: DOCUMENT_ID,
       appId: process.env.NEXT_PUBLIC_TIPTAP_PRO_APPID!,
-      token: process.env.NEXT_PUBLIC_TIPTAP_PRO_TOKEN!,
+      token: process.env.NEXT_PUBLIC_TIPTAP_PRO_TOKEN!, // Authentication token
       document: doc,
+      user: userId,
       onOpen() {
         console.log('WebSocket connection opened.');
       },
@@ -245,10 +265,10 @@ export default function Editor({
     });
     setProvider(newProvider);
 
-    return () => {
-      console.log(`Cleaning up provider for ${DOCUMENT_ID}`);
-      newProvider.destroy();
-    };
+    // return () => {
+    //   console.log(`Cleaning up provider for ${DOCUMENT_ID}`);
+    //   newProvider.destroy();
+    // };
   }, [groupId]);
 
 
@@ -327,8 +347,13 @@ export default function Editor({
   const editor = useEditor(
     {
       extensions: [
+        Text, 
+        TextStyleKit,
+        TableKit.configure({
+          table: { resizable: true },
+        }),
         StarterKit.configure({
-          history: false, // IMPORTANT: Disable history for collaboration
+          undoRedo: false, // IMPORTANT: Disable history for collaboration
           bulletList: {
             keepMarks: true,
             keepAttributes: false,
@@ -338,31 +363,34 @@ export default function Editor({
             keepAttributes: false,
           },
         }),
-        AiSuggestion.configure({
-            appId: process.env.NEXT_PUBLIC_TIPTAP_AI_APPID!,
-            token: process.env.NEXT_PUBLIC_TIPTAP_PRO_TOKEN!,
-            // baseUrl: process.env.NEXT_PUBLIC_AI_BASE_URL!,
-            rules,
-            getCustomSuggestionDecoration({ suggestion, isSelected, getDefaultDecorations }) {
-            const decorations = getDefaultDecorations()
-
-            if (isSelected && !suggestion.isRejected) {
-                decorations.push(
-                Decoration.widget(suggestion.deleteRange.to, () => {
-                    const element = document.createElement('span')
-
-                    setTooltipElement(element)
-                    return element
-                })
-                )
-            }
-            return decorations
-            }
+        Collaboration.configure({
+          document:doc,
         }),
+        // AiSuggestion.configure({
+        //     appId: process.env.NEXT_PUBLIC_TIPTAP_AI_APPID!,
+        //     token: process.env.NEXT_PUBLIC_TIPTAP_PRO_TOKEN!,
+        //     // baseUrl: process.env.NEXT_PUBLIC_AI_BASE_URL!,
+        //     rules,
+        //     getCustomSuggestionDecoration({ suggestion, isSelected, getDefaultDecorations }) {
+        //     const decorations = getDefaultDecorations()
+
+        //     if (isSelected && !suggestion.isRejected) {
+        //         decorations.push(
+        //         Decoration.widget(suggestion.deleteRange.to, () => {
+        //             const element = document.createElement('span')
+
+        //             setTooltipElement(element)
+        //             return element
+        //         })
+        //         )
+        //     }
+        //     return decorations
+        //     }
+        // }),
         Underline,
         Highlight.configure({ multicolor: true }),
-        Color.configure({ types: [TextStyle.name, ListItem.name] }),
-        TextStyle.configure({ mergeNestedSpanStyles: true }),
+        // Color.configure({ types: [TextStyle.name, ListItem.name] }),
+        // TextStyle.configure({ mergeNestedSpanStyles: true }),
         TextAlign.configure({ types: ['heading', 'paragraph'] }),
         TaskList,
         TaskItem.configure({
@@ -388,28 +416,34 @@ export default function Editor({
           },
         }),
         Link,
-        Table.configure({
-          resizable: true,
-        }),
         TableRow,
         TableHeader,
         TableCell,
         // Conditionally add collaboration extensions only when provider is ready
         ...(provider
           ? [
-              Collaboration.configure({
-                document: doc,
-              }),
-              CollaborationCursor.configure({
+            
+              // CollaborationCursor.configure({
+              //   provider,
+              //   user: {
+              //     name: `${currentUser?.firstName ?? ''} ${currentUser?.lastName ?? ''}`.trim(),
+              //     color: color,
+              //   },
+              // }),
+
+              CollaborationCaret.configure({
                 provider,
                 user: {
-                  name: `${currentUser?.firstName ?? ''} ${currentUser?.lastName ?? ''}`.trim(),
+                  name: `${currentUser?.firstName ?? ''} ${currentUser?.lastName?? ''}`.trim(),
                   color: color,
                 },
               }),
+
+              
+                      
               CommentsKit.configure({
                 provider,
-                useLegacyWrapping: false,
+                // useLegacyWrapping: false,
                 onClickThread: (threadId: string | null) => {
                   try {
                     const isResolved = threadsRef.current.find(
@@ -460,25 +494,25 @@ export default function Editor({
       onUpdate: ({ editor }) => {
         updateContent(editor.getHTML());
 
-        // // Auto-save contract content as user types
-        // if (contractData && groupId) {
-        //   const content = editor.getHTML();
-        //   if (content && content.trim() !== '') {
-        //     // Debounce the save operation
-        //     const timeoutId = setTimeout(async () => {
-        //       try {
-        //         await contractService.updateContractByGroupId(groupId, {
-        //           content,
-        //         });
-        //         console.log('Contract content auto-saved');
-        //       } catch (error) {
-        //         console.error('Failed to auto-save contract content:', error);
-        //       }
-        //     }, 1000); // Save after 2 seconds of inactivity
+        // Auto-save contract content as user types //////////
+        if (contractData && groupId) {
+          const content = editor.getHTML();
+          if (content && content.trim() !== '') {
+            // Debounce the save operation
+            const timeoutId = setTimeout(async () => {
+              try {
+                await contractService.updateContractByGroupId(groupId, {
+                  content,
+                });
+                console.log('Contract content auto-saved');
+              } catch (error) {
+                console.error('Failed to auto-save contract content:', error);
+              }
+            }, 1000); // Save after 2 seconds of inactivity
 
-        //     return () => clearTimeout(timeoutId);
-        //   }
-        // }
+            return () => clearTimeout(timeoutId);
+          }
+        }
       },
     },
     [provider, currentUser, color]
@@ -656,6 +690,8 @@ export default function Editor({
               groupId={groupId ?? ''}
             />
 
+            <EditorContent editor={editor} />
+
             <div className="flex-col gap-2">
               
               {/* Group Members Section */}
@@ -773,13 +809,6 @@ export default function Editor({
           className="col-group flex flex-row gap-5"
           data-viewmode={showUnresolved ? 'open' : 'resolved'}
         >
-          <div className="main">
-            {/* Editor with MenuBar */}
-            <div className="editor-container">
-             
-              
-            </div>
-          </div>
 
           {/* Sidebar for comments */}
           <div className="lg:w-full flex-shrink border border-lightGray rounded-md p-3">
@@ -793,17 +822,11 @@ export default function Editor({
               </div>
               <ThreadsList provider={provider} threads={filteredThreads} user={currentUser} />
             </div>
-
-            <ThreadsList
-              provider={provider}
-              threads={filteredThreads}
-              user={currentUser}
-            />
-
           </div>
         </div>
       </ThreadsProvider>
-      {!isAISuggestion && (
+
+      {/* {!isAISuggestion && (
         <button className='text-primaryOrange mt-6 flex items-start'onClick={() => setIsAISuggestion(!isAISuggestion)}> 
           <Tooltip>
             <TooltipTrigger asChild>
@@ -814,7 +837,7 @@ export default function Editor({
             </TooltipContent>
           </Tooltip>
         </button>
-      )}
+      )} */}
 
       {isAISuggestion && (
         <>
@@ -822,7 +845,7 @@ export default function Editor({
         rules={rules}
         onSae={(newRules: any) => {
           setRules(newRules)
-          editor.chain().setAiSuggestionRules(newRules).loadAiSuggestions().run()
+          // editor.chain().setAiSuggestionRules(newRules).loadAiSuggestions().run()
           setIsModalOpen(false)
         }}
         onClose={() => {
@@ -833,13 +856,13 @@ export default function Editor({
 
       <div>
         <LoadingState show={editor.extensionStorage.aiSuggestion.isLoading} />
-        <ErrorState
+        {/* <ErrorState
           show={
             !editor.extensionStorage.aiSuggestion.isLoading
             && editor.extensionStorage.aiSuggestion.error
           }
           onReload={() => editor.commands.loadAiSuggestions()}
-        />
+        /> */}
       </div>
       <div className="sidebar">
         <div className="sidebar-header">
@@ -857,10 +880,10 @@ export default function Editor({
           </div>
         </div>
         <div className="sidebar-scroll">
-          <SidebarRulesSection
+          {/* <SidebarRulesSection
             rules={rules}
             suggestions={editor.extensionStorage.aiSuggestion.getSuggestions()}
-          />
+          /> */}
         </div>
       </div>
       </>

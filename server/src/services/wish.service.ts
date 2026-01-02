@@ -7,6 +7,19 @@ const wishService = {
     return wish;
   },
 
+  deleteWish: async (userId: string, postId: string) => {
+    await wishModel.findOneAndDelete({
+      user: userId, 
+      post: postId
+    });
+
+    console.log(`Wish deleted for user ${userId} and post ${postId}`);
+    return {
+      success: true,
+      message: 'Wish deleted successfully',
+    }
+  },
+
   getWishListByUserId: async (userId: string) => {
     const wishes = await wishModel
       .find({ user: userId })

@@ -40,11 +40,30 @@ const wishController = {
     }
   },
 
-  getWishListByUserId: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  deleteWish: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const authReq = getAuthRequest(req);
+      const userId = authReq.user.id;
+      const postId = authReq.params.postId || authReq.body.postId;
+
+      if (!userId || !mongoose.isValidObjectId(userId)) {
+        res.status(400).json({ error: 'Invalid user ID' });
+        return;
+      }
+
+      if (!postId || !mongoose.isValidObjectId(postId)) {
+        res.status(400).json({ error: 'Invalid post ID' });
+        return;
+      }
+
+      const result = await wishService.deleteWish(userId, postId);
+      res.status(200).json(result);
+    } catch (error: any) {
+      next(error);
+    }
+  },
+
+  getWishListByUserId: async (req: Request, res: Response, next: NextFunction) => {
     const authReq = getAuthRequest(req);
 
     try {
@@ -90,8 +109,13 @@ const wishController = {
 
       const currLifestyle = currentUser.lifestyle;
       const vector = currentUser.lifestyleVector;
+
+      console.log("Current User Lifestyle Vector: ", vector);
+      console.log("Current User Lifestyle: ", currLifestyle); 
+
       if (!currLifestyle || !vector || vector.length === 0) {
         const result = matches.map((user) => ({ user, matchPercent: null }));
+        console.log("Missing lifestyle or vector")
         res.status(200).json(result);
         return;
       }
@@ -102,16 +126,28 @@ const wishController = {
             user._id!.toString()
           );
 
+          console.log("Detailed User: ", detailedUser)
+
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { lifestyle, lifestyleVector, ...safeUser } = user;
 
+          if (!detailedUser?.lifestyle) {
+            console.log("User has no lifestyle data");
+            return {
+              user: safeUser,
+              matchPercent: null,
+            };
+          }
+
           if (
             detailedUser?.lifestyle &&
-            lifestyleFilter(currLifestyle, detailedUser.lifestyle)
+            !lifestyleFilter(currLifestyle, detailedUser?.lifestyle)
           ) {
             const matchPercent =
               100 *
               cosineSimilarity(vector, detailedUser.lifestyleVector ?? []);
+
+            console.log("Match Percent: ", matchPercent)
 
             return {
               user: safeUser,
@@ -120,6 +156,7 @@ const wishController = {
           }
 
           return {
+            message: 'Lifestyle filter not passed',
             user: safeUser,
             matchPercent: null,
           };

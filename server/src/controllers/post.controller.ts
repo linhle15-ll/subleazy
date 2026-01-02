@@ -12,6 +12,7 @@ const postController = {
   createPost: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const authReq = getAuthRequest(req);
+
       const data: PostRequestBody = authReq.body;
       data.author = new Types.ObjectId(authReq.user.id);
 

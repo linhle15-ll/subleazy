@@ -23,7 +23,14 @@ export const authenticate = (
     next();
   } catch (err) {
     console.error((err as Error).stack);
-    res.status(401).json({ error: 'Token is invalid or expired' });
+    res.status(401).json((err as Error).stack);
+
+    if (err instanceof jwt.TokenExpiredError) {
+      res.status(401).json({ error: 'Token has expired' });
+      return;
+    }
+
+    res.status(401).json({ error: 'Request is unauthorized' });
     return;
   }
 };
@@ -48,3 +55,4 @@ export const optionalAuthenticate = (
   }
   next();
 };
+
