@@ -18,16 +18,30 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/commons/tooltip';
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/commons/alert-dialog"
+
 import { ProfileAvatar } from '@/components/ui/commons/avatar';
 import { GalleryModal } from '@/components/ui/commons/image-gallery';
 
 export default function PostingPage() {
   const { postId } = useParams<{ postId: string }>();
   const currentUser = useUserStore((state) => state.user);
-  const currentUserId = currentUser?._id;
+  const userId = currentUser?._id;
   const { result, isFetching } = usePost(postId);
   const router = useRouter();
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isFavLoading, setIsFavLoading] = useState(false);
   const [showAllPhotos, setShowAllPhotos] = useState(false);
 
   useEffect(() => {
@@ -42,6 +56,24 @@ export default function PostingPage() {
       document.body.style.overflow = 'auto';
     };
   }, [showAllPhotos]);
+
+  // Hydrate isFavorite from server
+  useEffect(() => {
+    const hydrateFavorite = async () => {
+      if (!userId || !postId) return;
+      try {
+        const res = await wishService.getWishListByUserId(userId);
+        if (res.success && Array.isArray(res.data)) {
+          const exists = res.data.some((w) => {
+            const wishPostId = typeof w.post === 'string' ? w.post : w.post?._id;
+            return wishPostId === postId;
+          });
+          setIsFavorite(exists);
+        }
+      } catch { }
+    };
+    hydrateFavorite();
+  }, [userId, postId]);
 
   if (isFetching || !result) return <Loading />;
 
@@ -82,28 +114,31 @@ export default function PostingPage() {
     router.push(`/dashboard/${authorId}`);
   };
 
-  const handleToggleFavorite = async (currentPostId: string) => {
-    if (!currentUserId) {
-      alert('You must be logged in to add to favorites.');
-      return;
-    }
-
+  const handleAddToFavorite = async (currentPostId: string, currentUserId: string) => {
+    if (!currentUserId || isFavLoading) return;
+    setIsFavLoading(true);
     try {
-      const result = await wishService.createWish({
-        post: currentPostId,
-        user: currentUserId,
-      });
-      if (result.success) {
-        setIsFavorite(true);
-      } else {
-        alert(result.error || 'Failed to update favorite');
-      }
+      const result = await wishService.createWish({ post: currentPostId, user: currentUserId });
+      if (result.success) setIsFavorite(true);
+      else alert(result.error || 'Failed to update favorite');
     } catch {
       alert('Failed to update favorite');
+    } finally {
+      setIsFavLoading(false);
     }
+  };
 
-    if (isFavorite) {
-      setIsFavorite(false);
+  const handleDeleteFromFavorite = async (currentPostId: string, currentUserId: string) => {
+    if (isFavLoading) return;
+    setIsFavLoading(true);
+    try {
+      const result = await wishService.deleteWish({ post: currentPostId, user: currentUserId });
+      if (result.success) setIsFavorite(false);
+      else alert(result.error || "Failed to delete post from wish list.");
+    } catch {
+      console.log("Failed to delete post from wish list.");
+    } finally {
+      setIsFavLoading(false);
     }
   };
 
@@ -130,28 +165,53 @@ export default function PostingPage() {
             <SquarePen className={`w-6 h-6`} />
           </button>
         ) : (
-          <button
-            onClick={() => setIsFavorite(!isFavorite)}
-            className="p-2 rounded-full hover:bg-gray-100"
-            title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-          >
-            <Tooltip>
-              <TooltipTrigger asChild>
+          <>
+            {!isFavorite ? (
+              <button
+                disabled={isFavLoading}
+                className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50"
+                title="Add to favorites"
+              >
                 <Heart
-                  className={`${isFavorite && 'fill-primaryOrange text-primaryOrange text-transparent'} text-white`}
+                  className="text-white"
                   size={30}
                   onClick={() => {
-                    if (postId) {
-                      handleToggleFavorite(postId);
-                    }
+                    if (postId && userId) handleAddToFavorite(postId, userId);
                   }}
                 />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Love this? Click to add post to your Wishlist!</p>
-              </TooltipContent>
-            </Tooltip>
-          </button>
+              </button>
+            ) : (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button
+                    disabled={isFavLoading}
+                    className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50"
+                    title="Remove from favorites"
+                  >
+                    <Heart className="fill-primaryOrange text-primaryOrange" size={30} />
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will delete this post from your wishlist. You may find it and add it back to your wishlist later.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        if (postId && userId) handleDeleteFromFavorite(postId, userId);
+                      }}
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+          </>
         )}
       </div>
 

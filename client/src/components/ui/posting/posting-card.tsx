@@ -9,12 +9,24 @@ import { getPlaceTypeIcon, getHouseTypeIcon } from '@/lib/utils/icons';
 import { Post } from '@/lib/types/post.types';
 import { usePathname } from 'next/navigation';
 import { useFilterStore } from '@/stores/filter.store';
+
 import { useUserStore } from '@/stores/user.store';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/commons/tooltip';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/commons/alert-dialog";
 import placeHolderImg from '@/public/placeholder.webp';
 import wishService from '@/services/wish.services';
 
@@ -22,19 +34,80 @@ interface PostingCardProps {
   post: Post;
   isVertical?: boolean;
   isFavorite?: boolean;
+  onWishlistChange?: () => void;
 }
 
-export function PostingCard({ post, isVertical }: PostingCardProps) {
-  const [isFavorite, setIsFavorite] = React.useState(false);
+export function PostingCard({ post, isVertical, isFavorite: initialIsFavorite = false, onWishlistChange }: PostingCardProps) {
+  const [isFavorite, setIsFavorite] = React.useState(initialIsFavorite);
+  const [isFavLoading, setIsFavLoading] = React.useState(false);
+
+  const currentUser = useUserStore((state) => state.user);
+  const currentUserId = currentUser?._id;
+  const isOwner = currentUser?._id === post.author;
+
+  // Hydrate isFavorite from server for accuracy
+  React.useEffect(() => {
+    setIsFavorite(initialIsFavorite);
+  }, [initialIsFavorite]);
+
+  React.useEffect(() => {
+    const hydrateFavorite = async () => {
+      if (!currentUserId || !post?._id) return;
+      try {
+        const res = await wishService.getWishListByUserId(currentUserId);
+        if (res.success && Array.isArray(res.data)) {
+          const exists = res.data.some((w) => {
+            // supports either string ID or populated object
+            const wishPostId = typeof w.post === 'string' ? w.post : w.post?._id;
+            return wishPostId === post._id;
+          });
+          setIsFavorite(exists);
+        }
+      } catch {
+        // silent fail to avoid noisy UI
+      }
+    };
+    hydrateFavorite();
+  }, [currentUserId, post?._id]);
+
+  const handleAddToFavorite = async (currentPostId: string) => {
+    if (!currentUserId || isFavLoading) return;
+    setIsFavLoading(true);
+    try {
+      const result = await wishService.createWish({ post: currentPostId, user: currentUserId });
+      if (result.success) setIsFavorite(true);
+      else alert(result.error || 'Failed to add to wishlist');
+    } catch {
+      alert('Failed to add to wishlist');
+    } finally {
+      setIsFavLoading(false);
+    }
+  };
+
+  const handleDeleteFromFavorite = async (currentPostId: string) => {
+    if (!currentUserId || isFavLoading) return;
+    setIsFavLoading(true);
+    try {
+      const result = await wishService.deleteWish({ post: currentPostId, user: currentUserId });
+      if (result.success) {
+        setIsFavorite(false);
+        
+        window.location.reload();
+       
+      }
+      else alert(result.error || 'Failed to remove from wishlist');
+    } catch {
+      alert('Failed to remove from wishlist');
+    } finally {
+      setIsFavLoading(false);
+    }
+  };
+
   // If post is not provided, return null to avoid rendering
   if (!post) {
     return null;
   }
   const pathname = usePathname();
-
-  const currentUser = useUserStore((state) => state.user);
-  const currentUserId = currentUser?._id;
-  const isOwner = currentUser?._id === post.author;
 
   const placeType = post.houseInfo.placeType;
   const houseType = post.houseInfo.houseType;
@@ -49,28 +122,6 @@ export function PostingCard({ post, isVertical }: PostingCardProps) {
   const PlaceTypeIcon = getPlaceTypeIcon(placeType);
   const HouseTypeIcon = getHouseTypeIcon(houseType);
 
-  const handleToggleFavorite = async (currentPostId: string) => {
-    if (!currentUserId) {
-      alert('Sign in to add this post to your Wishlist');
-      setIsFavorite(false);
-      return;
-    }
-    try {
-      const result = await wishService.createWish({
-        post: currentPostId,
-        user: currentUserId,
-      });
-      if (result.success) {
-        setIsFavorite(true);
-      }
-    } catch {
-      alert('Failed to update favorite');
-    }
-
-    if (isFavorite) {
-      setIsFavorite(false);
-    }
-  };
   return (
     <div
       className={`bg-white rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-700 flex shadow-md ${isVertical ? 'flex-col' : 'flex-row h-[220px]'}`}
@@ -85,7 +136,6 @@ export function PostingCard({ post, isVertical }: PostingCardProps) {
           className={`object-cover rounded-lg w-full ${isVertical ? 'h-48' : 'h-full'}`}
           style={!isVertical ? { objectFit: 'cover' } : {}}
           onError={(e) => {
-            // Handle image loading error
             const target = e.target as HTMLImageElement;
             target.src = '/public/placeholder.webp';
           }}
@@ -97,32 +147,61 @@ export function PostingCard({ post, isVertical }: PostingCardProps) {
             </Link>
           </button>
         ) : (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              if (post._id) {
-                handleToggleFavorite(post._id);
-              } else {
-                alert('Post ID is missing.');
-              }
-            }}
-            className="absolute top-3 right-3 transition-colors hover:scale-110"
-            title={isFavorite ? 'Remove from wish list' : 'Add to wish list'}
-            aria-label={
-              isFavorite ? 'Remove from wish list' : 'Add to wish list'
-            }
-          >
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Heart
-                  className={`${isFavorite ? 'fill-primaryOrange text-primaryOrange text-transparent' : 'text-white'}`}
-                />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Love this? Click to add post to your Wishlist!</p>
-              </TooltipContent>
-            </Tooltip>
-          </button>
+          <>
+            {!isFavorite ? (
+              <button
+                disabled={isFavLoading}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (post._id) handleAddToFavorite(post._id);
+                }}
+                className="absolute top-3 right-3 transition-colors hover:scale-110 disabled:opacity-50"
+                title="Add to wish list"
+                aria-label="Add to wish list"
+              >
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Heart className="text-white" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Love this? Click to add post to your Wishlist!</p>
+                  </TooltipContent>
+                </Tooltip>
+              </button>
+            ) : (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button
+                    disabled={isFavLoading}
+                    onClick={(e) => e.stopPropagation()}
+                    className="absolute top-3 right-3 transition-colors hover:scale-110 disabled:opacity-50"
+                    title="Remove from wish list"
+                    aria-label="Remove from wish list"
+                  >
+                    <Heart className="fill-primaryOrange text-primaryOrange" />
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="bg-white" onClick={(e) => e.stopPropagation()}>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will delete this post from your wishlist. You may find it and add it back to your wishlist later.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        if (post._id) handleDeleteFromFavorite(post._id);
+                      }}
+                    >
+                      <div className="text-red-500 font-semibold"> Delete</div>
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+          </>
         )}
       </div>
 
@@ -132,14 +211,6 @@ export function PostingCard({ post, isVertical }: PostingCardProps) {
           <h3 className="font-medium text-lg line-clamp-2">
             {title || 'Untitled Post'}
           </h3>
-          {pathname === '/posts/search' &&
-            post.bedroomInfo.maxGuests >
-              (useFilterStore.getState().filters.bedroomInfo?.maxGuests ||
-                1) && (
-              <div className="flex items-center">
-                <Star className="w-4 h-4 fill-orange-300 stroke-orange-300" />
-              </div>
-            )}
         </div>
         <div className="flex items-center gap-2 mb-2">
           <span>{location}</span>

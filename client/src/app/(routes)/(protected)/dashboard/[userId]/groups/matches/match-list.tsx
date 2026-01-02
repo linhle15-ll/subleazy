@@ -1,5 +1,5 @@
 'use client';
-
+import NextLink from 'next/link';
 import { useMatches } from '@/hooks/use-matches';
 import Image from 'next/image';
 import type { MatchResults } from '@/services/wish.services';
@@ -8,8 +8,11 @@ import { UserPlus, Eye, Heart, Star } from 'lucide-react';
 
 export default function MatchesList({ postId }: { postId: string }) {
   const { result, isFetching } = useMatches(postId);
+  console.log("UseMatch: ", result)
+
   const router = useRouter();
   const matches = result?.data;
+
 
   if (isFetching || !result) {
     return (
@@ -73,7 +76,7 @@ export default function MatchesList({ postId }: { postId: string }) {
               <div className="relative">
                 <div className="w-14 h-14 rounded-full overflow-hidden border-3 border-white shadow-md">
                   <Image
-                    src={user.profileImage || '/default-profile.png'}
+                    src={user.profileImage || '/placeholder-image-person.webp'}
                     alt={`${user.firstName}'s profile image`}
                     width={56}
                     height={56}
@@ -104,17 +107,25 @@ export default function MatchesList({ postId }: { postId: string }) {
               </div>
 
               <div className="flex gap-2">
-                <button className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-5 py-2.5 rounded-full transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5">
+                {/* <button 
+                  className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-5 py-2.5 rounded-full transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+                  onClick={() => {
+                    // You need to pass the groupId from props or get it from somewhere
+                    const groupId = 1223;
+                    addToGroup(user._id, user.);
+                  }}
+                >
                   <UserPlus className="h-4 w-4" />
                   <span className="hidden sm:inline">Add to Group</span>
-                </button>
-                <button
-                  onClick={() => router.push(`/profile/${user._id}`)}
+                </button> */}
+                
+                <NextLink
+                  href={`/dashboard/${user._id}`}
                   className="inline-flex items-center gap-2 bg-white border-2 border-orange-300 text-orange-700 hover:bg-orange-50 hover:border-orange-400 font-semibold px-5 py-2.5 rounded-full transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
                 >
                   <Eye className="h-4 w-4" />
                   <span className="hidden sm:inline">Profile</span>
-                </button>
+                </NextLink>
               </div>
             </div>
           </div>

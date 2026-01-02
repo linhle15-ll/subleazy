@@ -48,7 +48,6 @@ const userService = {
     submissionData: Lifestyle
   ): Promise<Result<User>> => {
     try {
-      console.log('Submitting lifestyle:', submissionData);
       const response = await api.patch(
         `/users/${id}/lifestyle`,
         submissionData

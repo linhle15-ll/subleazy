@@ -18,6 +18,7 @@ const wishService = {
     post: string;
     user: string;
   }): Promise<Result<Wish>> => {
+
     try {
       const response = await api.post('/wishes/create', wish);
       return {
@@ -33,6 +34,30 @@ const wishService = {
             (error as AxiosError<{ error: string }>).response?.data
           ) ||
           'Failed to create post',
+      };
+    }
+  },
+
+  deleteWish: async (wish: {
+    post: string, 
+    user: string
+  }): Promise<Result<Wish>> => {
+    try {
+      const response = await api.delete(`/wishes/${wish.post}/${wish.user}`);
+      return {
+        success: true,
+        data: response.data,
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          (error as AxiosError<{ error: string }>).response?.data.error ||
+          JSON.stringify(
+            (error as AxiosError<{ error: string }>).response?.data
+          ) ||
+          'Failed to delete post from wishlist.',
       };
     }
   },
@@ -65,6 +90,8 @@ const wishService = {
         data: response.data,
       };
     } catch (error) {
+      console.error('Error fetching matches by post:', error);
+
       return {
         success: false,
         error:
