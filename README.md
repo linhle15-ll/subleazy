@@ -79,7 +79,8 @@ https://github.com/user-attachments/assets/db71f156-141a-4d29-ac55-1b473a6045b4
 
 https://github.com/user-attachments/assets/870ff36b-e463-48a1-8685-bb1ff4bba4cd
  
-### **Chat & Community**: Connect with landlords, tenants, and potential roommates via 1-1-1 chat or group chat by adding other users' emails to group chat.
+### **Chat & Community**: 
+  - Connect with landlords, tenants, and potential roommates via 1-1-1 chat or group chat by adding other users' emails to group chat.
   
 https://github.com/user-attachments/assets/f6a23562-9396-4107-87e9-a3fd623de7e7
 
